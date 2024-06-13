@@ -2,7 +2,7 @@
   <div class="login-container">
     <el-card class="login-card">
       <h2 class="login-title">登录</h2>
-      <el-form :model="loginForm" ref="loginForm" label-width="100px">
+      <el-form :model="loginForm" label-width="100px">
         <el-form-item label="登录编码" prop="adminCode">
           <el-input v-model="loginForm.adminCode" autocomplete="off" placeholder="administrator" />
         </el-form-item>
