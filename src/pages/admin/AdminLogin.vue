@@ -1,16 +1,16 @@
 <template>
   <div class="login-container">
     <el-card class="login-card">
-      <h2 class="login-title">Admin Login</h2>
-      <el-form :model="loginForm" ref="loginForm" :rules="rules" label-width="100px">
-        <el-form-item label="Admin Code" prop="adminCode">
-          <el-input v-model="loginForm.adminCode" autocomplete="off" />
+      <h2 class="login-title">登录</h2>
+      <el-form :model="loginForm" ref="loginForm" label-width="100px">
+        <el-form-item label="登录编码" prop="adminCode">
+          <el-input v-model="loginForm.adminCode" autocomplete="off" placeholder="administrator" />
         </el-form-item>
-        <el-form-item label="Password" prop="password">
-          <el-input type="password" v-model="loginForm.password" autocomplete="off" />
+        <el-form-item label="登录密码" prop="password">
+          <el-input type="password" v-model="loginForm.password" autocomplete="off" show-password />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleLogin">Login</el-button>
+          <el-button type="primary" @click="handleLogin">登录</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -32,34 +32,24 @@ export default {
       adminCode: '',
       password: '',
     });
-    const rules = ref({
-      adminCode: [
-        { required: true, message: 'Please input admin code', trigger: 'blur' },
-      ],
-      password: [
-        { required: true, message: 'Please input password', trigger: 'blur' },
-      ],
-    });
 
-    const handleLogin = () => {
-      const form = loginForm.value;
-      adminLogin(form)
-        .then(response => {
-          if (response.data.code === 0) {
-            adminStore.setToken(response.data.data.token);
-            // router.push('/admin/dashboard');
-          } else {
-            console.error(response.data.message);
-          }
-        })
-        .catch(error => {
-          console.error(error);
-        });
+    const handleLogin = async () => {
+      try {
+        const form = loginForm.value;
+        const response = await adminLogin(form);
+        if (response.data.code === 0) {
+          adminStore.setToken(response.data.data.token);
+          router.push('/admin/dashboard');
+        } else {
+          console.error(response.data.message);
+        }
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     return {
       loginForm,
-      rules,
       handleLogin,
     };
   },
