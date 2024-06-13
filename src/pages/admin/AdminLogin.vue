@@ -2,12 +2,12 @@
   <div class="login-container">
     <el-card class="login-card">
       <h2 class="login-title">登录</h2>
-      <el-form :model="loginForm" ref="loginForm" label-width="100px">
+      <el-form :model="loginForm" label-width="100px">
         <el-form-item label="登录编码" prop="adminCode">
-          <el-input v-model="loginForm.adminCode" autocomplete="off" placeholder="administrator" />
+          <el-input v-model="loginForm.adminCode.value" autocomplete="on" placeholder="administrator" />
         </el-form-item>
         <el-form-item label="登录密码" prop="password">
-          <el-input type="password" v-model="loginForm.password" autocomplete="off" show-password />
+          <el-input type="password" v-model="loginForm.password.value" autocomplete="on" show-password />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleLogin">登录</el-button>
@@ -47,7 +47,7 @@ export default {
         console.error(error);
       }
     };
-
+    
     return {
       loginForm,
       handleLogin,
