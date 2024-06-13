@@ -4,8 +4,7 @@
   "description": "A Vue.js project",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "build": "vue-cli-service build"
   },
   "dependencies": {
     "axios": "^0.21.1",
@@ -16,28 +15,12 @@
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.5.0",
-    "@vue/cli-plugin-eslint": "^4.5.0",
-    "@vue/cli-service": "^4.5.19",
-    "eslint-plugin-vue": "^9.26.0"
+    "@vue/cli-service": "^4.5.19"
   },
   "babel": {
     "presets": [
       "@vue/cli-plugin-babel/preset"
     ]
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
   },
   "postcss": {
     "plugins": {
