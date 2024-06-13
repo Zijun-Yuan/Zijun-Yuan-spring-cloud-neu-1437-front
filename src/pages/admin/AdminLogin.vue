@@ -4,13 +4,16 @@
       <h2 class="login-title">登录</h2>
       <el-form :model="loginForm" label-width="100px">
         <el-form-item label="登录编码" prop="adminCode">
-          <el-input v-model="loginForm.adminCode.value" autocomplete="on" placeholder="administrator" />
+          <el-input v-model="loginForm.adminCode" placeholder="administrator" />
         </el-form-item>
         <el-form-item label="登录密码" prop="password">
-          <el-input type="password" v-model="loginForm.password.value" autocomplete="on" show-password />
+          <el-input type="password" v-model="loginForm.password" show-password />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleLogin">登录</el-button>
+        </el-form-item>
+        <el-form-item v-if="errorMessage">
+          <el-alert type="error" :closable="false" title="登录失败" :description="errorMessage" />
         </el-form-item>
       </el-form>
     </el-card>
@@ -20,37 +23,52 @@
 <script>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAdminStore } from '@/stores/adminStore';
 import { adminLogin } from '@/api/admin';
 
 export default {
   name: 'AdminLogin',
   setup() {
     const router = useRouter();
-    const adminStore = useAdminStore();
     const loginForm = ref({
       adminCode: '',
       password: '',
     });
+    const errorMessage = ref('');
 
     const handleLogin = async () => {
       try {
-        const form = loginForm.value;
-        const response = await adminLogin(form);
+        const data = {
+          adminCode: loginForm.value.adminCode,
+          password: loginForm.value.password,
+        };
+        console.log('Form Data:', data);
+
+        const response = await adminLogin(data);
+        console.log('Response:', response);
+
         if (response.data.code === 0) {
-          adminStore.setToken(response.data.data.token);
+          console.log('Login successful, response data:', response.data);
+          
+          // 假设登录成功时，响应数据包含token
+          // 存储token，可以使用Pinia或者localStorage
+          // 这里假设有个方法adminStore.setToken()
+          // adminStore.setToken(response.data.data.token);
+          
           router.push('/admin/dashboard');
         } else {
-          console.error(response.data.message);
+          console.log('Login failed, response data:', response.data);
+          errorMessage.value = response.data.message;
         }
       } catch (error) {
-        console.error(error);
+        console.error('Error during login:', error);
+        errorMessage.value = '登录失败，请检查您的登录编码和密码。';
       }
     };
-    
+
     return {
       loginForm,
       handleLogin,
+      errorMessage,
     };
   },
 };

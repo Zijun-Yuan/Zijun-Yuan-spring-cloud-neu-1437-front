@@ -1,11 +1,13 @@
 import axios from 'axios';
 
-const instance = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL,
-  timeout: 10000,
+const apiClient = axios.create({
+  baseURL: 'http://localhost:8101/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-instance.interceptors.request.use(
+apiClient.interceptors.request.use(
   config => {
     // Add token or other request configurations here
     return config;
@@ -13,9 +15,9 @@ instance.interceptors.request.use(
   error => Promise.reject(error)
 );
 
-instance.interceptors.response.use(
+apiClient.interceptors.response.use(
   response => response,
   error => Promise.reject(error)
 );
 
-export default instance;
+export default apiClient;
