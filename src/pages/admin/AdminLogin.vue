@@ -47,7 +47,7 @@ export default {
         .then(response => {
           if (response.data.code === 0) {
             adminStore.setToken(response.data.data.token);
-            router.push('/admin/dashboard');
+            // router.push('/admin/dashboard');
           } else {
             console.error(response.data.message);
           }
