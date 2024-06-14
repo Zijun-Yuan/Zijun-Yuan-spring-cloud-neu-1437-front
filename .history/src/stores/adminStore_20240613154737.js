@@ -1,5 +1,6 @@
 // src/stores/adminStore.js
 import { defineStore } from 'pinia';
+import { adminLogin } from '@/api/admin';
 
 export const useAdminStore = defineStore('admin', {
   state: () => ({
