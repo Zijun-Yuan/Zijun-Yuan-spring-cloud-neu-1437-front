@@ -15,5 +15,11 @@ export const useAdminStore = defineStore('admin', {
     logout() {
       this.token = '';
     },
+    logout() {
+      this.token = '';
+    },
+    logout() {
+      this.token = '';
+    },
   }
 });
