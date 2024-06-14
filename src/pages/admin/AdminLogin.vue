@@ -54,7 +54,7 @@ export default {
           // 这里假设有个方法adminStore.setToken()
           // adminStore.setToken(response.data.data.token);
           
-          router.push('/admin/dashboard');
+          router.push('/admin/main');
         } else {
           console.log('Login failed, response data:', response.data);
           errorMessage.value = response.data.message;

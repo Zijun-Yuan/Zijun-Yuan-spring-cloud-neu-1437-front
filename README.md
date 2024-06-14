@@ -1,6 +1,8 @@
 你需要先：
 npm install vue@next vue-router@next pinia element-plus
 npm install --save-dev @babel/core @babel/preset-env babel-eslint babel-loader vue-loader
+npm install @element-plus/icons-vue
+
 为了设计一个使用Pinia、Axios和Element UI开发的前端项目，并且不同用户（admin、supervisor、inspector）的页面分开存储，建议采用以下项目结构。这个结构可以确保代码的模块化、可维护性和可扩展性。
 
 ### 项目结构
