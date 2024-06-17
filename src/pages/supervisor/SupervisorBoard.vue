@@ -1,7 +1,7 @@
 <template>
 	<div class="common-layout">
 		<el-container>
-			<el-header class="layout-header">东软环保公众监督平台管理系统</el-header>
+			<el-header class="layout-header">东软环保公众监督平台监督员系统</el-header>
 			<el-container class="layout-container-demo" style="height: 100vh;">
 				<el-aside width="300px">
 					<el-scrollbar>
@@ -80,7 +80,7 @@
 	} from '@element-plus/icons-vue';
 
 	export default {
-		name: 'AdminBoard',
+		name: 'SupervisorBoard',
 		components: {
 			IconMenu,
 			Message,
