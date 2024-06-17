@@ -13,7 +13,7 @@
 									</el-icon>
 									<span class="menu-title">公众监督数据管理</span>
 								</template>
-								<el-menu-item index="1-1" @click="getPublicSupervisionDataList">公众监督数据列表</el-menu-item>
+								<el-menu-item index="1-1" @click="initPublicSupervisionDataList">公众监督数据列表</el-menu-item>
 								<el-menu-item index="1-2" @click="confirmAQIDataList">确认AQI数据列表</el-menu-item>
 							</el-sub-menu>
 							<el-sub-menu index="2">
@@ -67,6 +67,16 @@
 								<el-table-column prop="name" label="姓名" width="180"></el-table-column>
 								<el-table-column prop="address" label="地址"></el-table-column>
 							</el-table> -->
+							  <el-pagination
+							        v-model:currentPage="infoCurrentPageNum"
+							        v-model:page-size="infoPageSize"
+							        :small="small"
+							        :disabled="disabled"
+							        :background="background"
+							        layout="prev, pager, next, jumper"
+							        :total="infoNum"
+							        @current-change="handleCurrentChange"
+							      />
 						</el-scrollbar>
 					</el-main>
 				</el-container>
@@ -107,6 +117,14 @@
 			const adminStore = useAdminStore();
 			let currentTable = ref('');
 			let currentInfoList = ref([]);
+			let infoPageNum = ref(0);
+			let infoCurrentPageNum =  ref(1);
+			const infoPageSize = ref(2);
+			let infoNum = ref(0);
+			
+			const small = ref(false)
+			const background = ref(false)
+			const disabled = ref(false)
 			watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
 				formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
 			});
@@ -117,16 +135,26 @@
 			};
 
 
-			const getPublicSupervisionDataList = async () => {
+			const initPublicSupervisionDataList = async () => {
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table1';
-				await adminStore.fetchInfoList();
+				infoNum.value = await adminStore.getInfoCount();
+				infoPageNum.value = Math.ceil(infoNum.value / infoPageSize.value);
+				await adminStore.fetchInfoList(1,infoPageSize.value);
 				// console.log(adminStore.infoList);
-				dealInfoList();
+				showInfoList();
+			};
+			
+			const handleInfoPageChange = async (val) => {	
+				// console.log(""val);
+			    adminStore.fetchInfoList(infoCurrentPageNum.value, infoPageSize);
+				currentInfoList = [];
+			    showInfoList();
 			};
 
 
-			const dealInfoList = () => {
+			const showInfoList = () => {
+				
 				let date = new Date();
 				// console.log(adminStore.infoList.length);
 				for (let i = 0; i < adminStore.infoList.length; i++) {
@@ -140,9 +168,9 @@
 						time: 'null',
 					};
 					date = new Date(adminStore.infoList[i].time);
-
-
-					info.num = i + 1;
+					console.log("infoCurrentPageNum:"+infoCurrentPageNum.value);
+					console.log("infoPageSize:"+infoPageSize.value);
+					info.num = (infoCurrentPageNum.value-1)*infoPageSize.value + i + 1;
 					info.id = adminStore.infoList[i].infoId;
 					info.supervisorName = adminStore.infoList[i].supervisorName;
 					info.cityCode = adminStore.infoList[i].cityCode;
@@ -187,10 +215,17 @@
 				updateLocation,
 				mainTitle,
 				subTitle,
+				small,
+				background,
+				disabled,
 				currentTable,
 				currentInfoList,
-				getPublicSupervisionDataList,
-				dealInfoList,
+				infoNum,
+				infoPageSize,
+				infoPageNum,
+				infoCurrentPageNum,
+				initPublicSupervisionDataList,
+				showInfoList,
 				confirmAQIDataList,
 				getProvinceGroupedInspectionStats,
 				getAQIDistributionStats,
