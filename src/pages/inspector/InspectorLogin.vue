@@ -26,7 +26,7 @@ import { useRouter } from 'vue-router';
 import { login } from '@/api/inspector';
 
 export default {
-  name: 'Login',
+  name: 'InspectorLogin',
   setup() {
     const router = useRouter();
     const inspectorLoginForm = ref({
@@ -76,4 +76,21 @@ export default {
 </script>
 
 <style>
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f2f5;
+}
+
+.login-card {
+  width: 400px;
+  padding: 20px;
+}
+
+.login-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
 </style>
