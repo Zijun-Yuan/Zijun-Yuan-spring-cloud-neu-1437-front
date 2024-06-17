@@ -13,8 +13,8 @@
 									</el-icon>
 									<span class="menu-title">公众监督数据管理</span>
 								</template>
-								<el-menu-item index="1-1" data-parent="公众监督数据管理">公众监督数据列表</el-menu-item>
-								<el-menu-item index="1-2" data-parent="公众监督数据管理">确认AQI数据列表</el-menu-item>
+								<el-menu-item index="1-1" @click="getPublicSupervisionDataList">公众监督数据列表</el-menu-item>
+								<el-menu-item index="1-2" @click="confirmAQIDataList">确认AQI数据列表</el-menu-item>
 							</el-sub-menu>
 							<el-sub-menu index="2">
 								<template #title>
@@ -23,10 +23,11 @@
 									</el-icon>
 									<span class="menu-title">统计数据管理</span>
 								</template>
-								<el-menu-item index="2-1" data-parent="统计数据管理">省分组检查统计</el-menu-item>
-								<el-menu-item index="2-2" data-parent="统计数据管理">AQI指数分布统计</el-menu-item>
-								<el-menu-item index="2-3" data-parent="统计数据管理">AQI指数趋势统计</el-menu-item>
-								<el-menu-item index="2-4" data-parent="统计数据管理">其他数据统计</el-menu-item>
+								<el-menu-item index="2-1"
+									@click="getProvinceGroupedInspectionStats">省分组检查统计</el-menu-item>
+								<el-menu-item index="2-2" @click="getAQIDistributionStats">AQI指数分布统计</el-menu-item>
+								<el-menu-item index="2-3" @click="getAQITrendStats">AQI指数趋势统计</el-menu-item>
+								<el-menu-item index="2-4" @click="getOtherDataStats">其他数据统计</el-menu-item>
 							</el-sub-menu>
 							<el-sub-menu index="3">
 								<template #title>
@@ -35,9 +36,6 @@
 									</el-icon>
 									<span class="menu-title">网格数据管理</span>
 								</template>
-								<!-- Example of menu items under "网格数据管理" -->
-								<el-menu-item index="3-1" data-parent="网格数据管理">网格数据列表</el-menu-item>
-								<el-menu-item index="3-2" data-parent="网格数据管理">网格数据分析</el-menu-item>
 							</el-sub-menu>
 						</el-menu>
 					</el-scrollbar>
@@ -52,10 +50,22 @@
 
 					<el-main>
 						<el-scrollbar>
-							<!-- <el-table :data="tableData">
-								<el-table-column prop="date" label="Date" width="140" />
-								<el-table-column prop="name" label="Name" width="120" />
-								<el-table-column prop="address" label="Address" />
+							<el-table v-if="currentTable === 'table1'" :data="currentInfoList">
+								<el-table-column prop="num" label="编号" width="100"></el-table-column>
+								<el-table-column prop="supervisorName" label="反馈者姓名" width="180"></el-table-column>
+								<el-table-column prop="cityCode" label="所在省" width="100"></el-table-column>
+								<el-table-column prop="cityCode" label="所在市" width="100"></el-table-column>
+								<el-table-column prop="aqiLevel" label="预估污染等级" width="130"></el-table-column>
+								<el-table-column prop="date" label="反馈日期" width="180"></el-table-column>
+								<el-table-column prop="time" label="反馈时间" width="180"></el-table-column>
+								<el-icon><i class="el-icon-view"></i></el-icon>
+								<el-icon><i class="el-icon-edit"></i></el-icon>
+							</el-table>
+							<!-- 表格2 -->
+							<!-- <el-table v-if="currentTable === 'table2'" :data="table2Data">
+								<el-table-column prop="date" label="日期" width="180"></el-table-column>
+								<el-table-column prop="name" label="姓名" width="180"></el-table-column>
+								<el-table-column prop="address" label="地址"></el-table-column>
 							</el-table> -->
 						</el-scrollbar>
 					</el-main>
@@ -67,7 +77,8 @@
 
 <script>
 	import {
-		ref
+		ref,
+		watch
 	} from 'vue';
 	import {
 		useRouter
@@ -77,6 +88,9 @@
 		Message,
 		Setting
 	} from '@element-plus/icons-vue';
+	import {
+		useAdminStore
+	} from '@/stores/adminStore.js';
 
 	export default {
 		name: 'AdminBoard',
@@ -87,25 +101,101 @@
 		},
 		setup() {
 			const router = useRouter();
-			const mainTitle = ref('Tom');
+			const mainTitle = ref('');
 			const subTitle = ref('');
-			const formattedTitle = ref(mainTitle.value);
+			const formattedTitle = ref(`${mainTitle.value} / ${subTitle.value}`);
+			const adminStore = useAdminStore();
+			let currentTable = ref('');
+			let currentInfoList = ref([]);
+			watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
+				formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
+			});
 
-			const handleSelect = (index, indexPath) => {
-				const selectedItem = document.querySelector(`.el-menu-item[index="${index}"]`);
-				if (selectedItem) {
-					const parentTitle = selectedItem.getAttribute('data-parent');
-					const itemTitle = selectedItem.innerText;
-					mainTitle.value = parentTitle;
-					subTitle.value = itemTitle;
-					formattedTitle.value = `${mainTitle.value} / ${subTitle.value}`;
-					console.log(formattedTitle.value);
+			const updateLocation = (newMainTitle, newSubTitle) => {
+				mainTitle.value = newMainTitle;
+				subTitle.value = newSubTitle;
+			};
+
+
+			const getPublicSupervisionDataList = async () => {
+				updateLocation('公众监督数据管理', '公众监督数据列表');
+				currentTable.value = 'table1';
+				await adminStore.fetchInfoList();
+				// console.log(adminStore.infoList);
+				dealInfoList();
+			};
+
+
+			const dealInfoList = () => {
+				let date = new Date();
+				// console.log(adminStore.infoList.length);
+				for (let i = 0; i < adminStore.infoList.length; i++) {
+					let info = {
+						num: 'null',
+						id: 'null',
+						supervisorName: 'null',
+						cityCode: 'null',
+						aqiLevel: 'null',
+						label: 'null',
+						time: 'null',
+					};
+					date = new Date(adminStore.infoList[i].time);
+
+
+					info.num = i + 1;
+					info.id = adminStore.infoList[i].infoId;
+					info.supervisorName = adminStore.infoList[i].supervisorName;
+					info.cityCode = adminStore.infoList[i].cityCode;
+					info.aqiLevel = adminStore.infoList[i].aqiLevel;
+					info.label = adminStore.infoList[i].label;
+					info.date =
+						`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+					info.time =
+						`${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+					currentInfoList.value.push(info);
+					console.log(currentInfoList.value[i]);
+					console.log(i);
 				}
+
+				// console.log(adminStore.infoList);
+			};
+
+
+			const confirmAQIDataList = () => {
+				updateLocation('公众监督数据管理', '确认AQI数据列表');
+				adminStore.setToken('hello');
+			};
+
+			const getProvinceGroupedInspectionStats = () => {
+				updateLocation('统计数据管理', '省分组检查统计');
+			};
+
+			const getAQIDistributionStats = () => {
+				updateLocation('统计数据管理', 'AQI指数分布统计');
+			};
+
+			const getAQITrendStats = () => {
+				updateLocation('统计数据管理', 'AQI指数趋势统计');
+			};
+
+			const getOtherDataStats = () => {
+				updateLocation('统计数据管理', '其他数据统计');
 			};
 
 			return {
 				formattedTitle,
-				handleSelect,
+				updateLocation,
+				mainTitle,
+				subTitle,
+				currentTable,
+				currentInfoList,
+				getPublicSupervisionDataList,
+				dealInfoList,
+				confirmAQIDataList,
+				getProvinceGroupedInspectionStats,
+				getAQIDistributionStats,
+				getAQITrendStats,
+				getOtherDataStats,
 			};
 		},
 	};
