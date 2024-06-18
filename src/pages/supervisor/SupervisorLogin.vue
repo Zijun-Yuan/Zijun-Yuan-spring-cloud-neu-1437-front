@@ -67,8 +67,9 @@ export default {
         password: loginForm.value.password,
       };
       await supervisorState.supervisorLogin(data);
-      if (supervisorState.supervisorCode === data.supervisorCode){
+      if (supervisorState.supervisor.telId === data.supervisorCode){
         await router.push('/supervisor/main');
+        ElMessage.success(supervisorState.supervisor.supervisorId + '登录成功'+supervisorState.supervisor.realName);
       }else {
         ElMessage.error('账号或密码不正确，请重试');
         loginForm.value.password = '';  // 清空密码输入框

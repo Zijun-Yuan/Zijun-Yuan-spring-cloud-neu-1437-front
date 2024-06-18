@@ -32,9 +32,16 @@
         </el-header>
 
         <el-main>
-          <!-- Your main content goes here -->
-<!--          <div v-if="currentTable === 'feedbackList'">-->
-<!--            <el-table :data="currentInfoList" style="width: 100%">-->
+          <div v-if="currentTable === 'feedbackList'">
+            <el-table :data="currentInfoList" style="width: 100%">
+              <el-table-column prop="aqiLevel" label="污染等级" width="100"></el-table-column>
+              <el-table-column prop="time" label="反馈时间" width="200"></el-table-column>
+              <el-table-column prop="province" label="省份" width="200"></el-table-column>
+              <el-table-column prop="city" label="城市" width="200"></el-table-column>
+              <el-table-column prop="address" label="具体位置" width="200"></el-table-column>
+              <el-table-column prop="feedback" label="描述" width="300"></el-table-column>
+            </el-table>
+          </div>
               
         </el-main>
       </el-container>
@@ -60,7 +67,7 @@ export default {
     const mainTitle = ref('');
     const subTitle = ref('');
     const formattedTitle = ref(`${mainTitle.value} / ${subTitle.value}`);
-    const SupervisorStore = useSupervisorStore();
+    const supervisorStore = useSupervisorStore();
 
     let currentTable = ref('');
     let currentInfoList = ref([]);
@@ -77,12 +84,22 @@ export default {
     const getFeedbackList = async () => {
       updateLocation('公众监督员功能', '历史反馈信息列表');
       currentTable.value = 'feedbackList';
-      processFeedbackList();
+      await processFeedbackList();
     };
 
-    const processFeedbackList = () => {
+    const processFeedbackList = async () => {
       // Processing and formatting of feedback list data
       // Populate currentInfoList with the formatted data
+      // await supervisorStore.supervisorFeedbackList();
+      // const feedbackList = supervisorStore.feedbackList;
+      // const formattedFeedbackList = feedbackList.map((item) => {
+      //   const { aqiLevel, time, province, city, address, feedback } = item;
+      //   return { aqiLevel, time, province, city, address, feedback };
+      // });
+      // currentInfoList.value = formattedFeedbackList;
+      await supervisorStore.supervisorFeedbackList();
+
+
     };
 
     const reportGridInformation = () => {
