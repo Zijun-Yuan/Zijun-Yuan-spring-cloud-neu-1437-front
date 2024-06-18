@@ -42,13 +42,14 @@
 <script>
 import {ref} from 'vue';
 import {useRouter} from 'vue-router';
-import {supervisorLogin, supervisorRegister} from '@/api/supervisor'
+import {useSupervisorStore} from "@/stores/supervisorStore";
 import {ElMessage} from "element-plus";
 
 export default {
   name: 'SupervisorRegister',
   setup: function () {
     const router = useRouter();
+    const supervisorStore = useSupervisorStore();
     const registerForm = ref({
       telId: '',
       realName: '',
@@ -108,15 +109,24 @@ export default {
       if (formRef.value) { // Use formRef to access the form
         formRef.value.validate(async (valid) => {
           if (valid) {
-            const response = await supervisorRegister(registerForm.value);
-            if (response.data.code === 0) {
-              console.log('Register successful, response data:', response.data);
+            await supervisorStore.supervisorRegister(registerForm.value);
+            if (supervisorStore.register === registerForm.value.telId){
+              ElMessage.success('注册成功，请登录');
               await router.push('/supervisor/login');
-            } else {
-              console.log('Register failed, response data:', response.data);
-              registerForm.value.telId = '';  // 清空账号名输入框
+            }else {
+              registerForm.value.telId = '';
               ElMessage.error('该手机号已被注册');
             }
+
+            // const response = await supervisorRegister(registerForm.value);
+            // if (response.data.code === 0) {
+            //   console.log('Register successful, response data:', response.data);
+            //   await router.push('/supervisor/login');
+            // } else {
+            //   console.log('Register failed, response data:', response.data);
+            //   registerForm.value.telId = '';  // 清空账号名输入框
+            //   ElMessage.error('该手机号已被注册');
+            // }
           } else {
             console.log('error submit!!');
             ElMessage.error('请填写正确的注册信息');
