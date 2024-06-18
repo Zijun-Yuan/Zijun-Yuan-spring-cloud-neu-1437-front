@@ -58,8 +58,16 @@
 								<el-table-column prop="aqiLevel" label="预估污染等级" width="130"></el-table-column>
 								<el-table-column prop="date" label="反馈日期" width="180"></el-table-column>
 								<el-table-column prop="time" label="反馈时间" width="180"></el-table-column>
-								<el-icon><i class="el-icon-view"></i></el-icon>
-								<el-icon><i class="el-icon-edit"></i></el-icon>
+								<el-table-column label="操作" width="180">
+									<template v-slot="scope">
+									    <el-button type="primary" circle @click="handleClickEdit(scope.row)">
+									        <el-icon><InfoFilled /></el-icon>
+									    </el-button>
+									    <el-button type="danger" circle @click="deleteFood(scope.row)">
+									        <el-icon><Pointer /></el-icon>
+									    </el-button>
+									</template>
+								</el-table-column>
 							</el-table>
 							<!-- 表格2 -->
 							<!-- <el-table v-if="currentTable === 'table2'" :data="table2Data">
@@ -67,16 +75,10 @@
 								<el-table-column prop="name" label="姓名" width="180"></el-table-column>
 								<el-table-column prop="address" label="地址"></el-table-column>
 							</el-table> -->
-							  <el-pagination
-							        v-model:currentPage="infoCurrentPageNum"
-							        v-model:page-size="infoPageSize"
-							        :small="small"
-							        :disabled="disabled"
-							        :background="background"
-							        layout="prev, pager, next, jumper"
-							        :total="infoNum"
-							        @current-change="handleCurrentChange"
-							      />
+							<el-pagination v-model="infoCurrentPageNum" :current-page="infoCurrentPageNum"
+								:small="small" :disabled="disabled" :background="background"
+								layout="prev, pager, next, jumper" :page-count="infoPageNum"
+								@current-change="handleInfoPageChange" />
 						</el-scrollbar>
 					</el-main>
 				</el-container>
@@ -96,7 +98,8 @@
 	import {
 		Menu as IconMenu,
 		Message,
-		Setting
+		Setting,
+		IconNote
 	} from '@element-plus/icons-vue';
 	import {
 		useAdminStore
@@ -118,12 +121,12 @@
 			let currentTable = ref('');
 			let currentInfoList = ref([]);
 			let infoPageNum = ref(0);
-			let infoCurrentPageNum =  ref(1);
+			let infoCurrentPageNum = ref(1);
 			const infoPageSize = ref(2);
 			let infoNum = ref(0);
-			
+
 			const small = ref(false)
-			const background = ref(false)
+			const background = ref(true)
 			const disabled = ref(false)
 			watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
 				formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
@@ -140,23 +143,27 @@
 				currentTable.value = 'table1';
 				infoNum.value = await adminStore.getInfoCount();
 				infoPageNum.value = Math.ceil(infoNum.value / infoPageSize.value);
-				await adminStore.fetchInfoList(1,infoPageSize.value);
+				await adminStore.fetchInfoList(1, infoPageSize.value);
 				// console.log(adminStore.infoList);
 				showInfoList();
 			};
-			
-			const handleInfoPageChange = async (val) => {	
-				// console.log(""val);
-			    adminStore.fetchInfoList(infoCurrentPageNum.value, infoPageSize);
-				currentInfoList = [];
-			    showInfoList();
+
+			const handleInfoPageChange = async (page) => {
+				// console.log("currentPage",page);
+				infoCurrentPageNum.value = page;
+				await adminStore.fetchInfoList(infoCurrentPageNum.value, infoPageSize.value);
+				currentInfoList.value = [];
+				showInfoList();
 			};
 
 
 			const showInfoList = () => {
-				
+				// console.log("showingInfoList...");
+				// console.log("infoCurrentPageNum:"+infoCurrentPageNum.value);
+				// console.log("infoPageSize:"+infoPageSize.value);
 				let date = new Date();
 				// console.log(adminStore.infoList.length);
+				currentInfoList.value = [];
 				for (let i = 0; i < adminStore.infoList.length; i++) {
 					let info = {
 						num: 'null',
@@ -167,10 +174,10 @@
 						label: 'null',
 						time: 'null',
 					};
+
 					date = new Date(adminStore.infoList[i].time);
-					console.log("infoCurrentPageNum:"+infoCurrentPageNum.value);
-					console.log("infoPageSize:"+infoPageSize.value);
-					info.num = (infoCurrentPageNum.value-1)*infoPageSize.value + i + 1;
+
+					info.num = (infoCurrentPageNum.value - 1) * infoPageSize.value + i + 1;
 					info.id = adminStore.infoList[i].infoId;
 					info.supervisorName = adminStore.infoList[i].supervisorName;
 					info.cityCode = adminStore.infoList[i].cityCode;
@@ -181,8 +188,8 @@
 					info.time =
 						`${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
 					currentInfoList.value.push(info);
-					console.log(currentInfoList.value[i]);
-					console.log(i);
+					// console.log(currentInfoList.value[i]);
+					// console.log(i);
 				}
 
 				// console.log(adminStore.infoList);
@@ -231,6 +238,7 @@
 				getAQIDistributionStats,
 				getAQITrendStats,
 				getOtherDataStats,
+				handleInfoPageChange,
 			};
 		},
 	};
