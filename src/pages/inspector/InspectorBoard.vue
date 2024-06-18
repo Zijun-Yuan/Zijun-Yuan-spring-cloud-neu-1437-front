@@ -43,8 +43,9 @@ export default {
       try {
         const inspectorCode = inspectorStore.inspectorCode;
         const response = await getInfoList(inspectorCode);
-
         // console.log(response);
+        // console.log(response.data);
+        // console.log(response.data.data);
 
         if (response.data.code === 0) {
           infoList.value = response.data.data;
@@ -59,10 +60,12 @@ export default {
 
     const showCompleted = () => {
       showContent.value = 'completed';
+      fetchInfoList();
     };
 
     const showUncompleted = () => {
       showContent.value = 'uncompleted';
+      fetchInfoList();
     };
 
     onMounted(() => {
