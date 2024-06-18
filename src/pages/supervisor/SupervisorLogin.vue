@@ -7,7 +7,7 @@
     <div class="right-section">
       <!-- 右边的登录输入栏 -->
       <el-form class="login-form" :model="loginForm">
-        <el-form-item label="账号" prop="username" >
+        <el-form-item label="账号" prop="username">
           <el-input v-model="loginForm.telId" placeholder="请输入手机号"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
@@ -23,14 +23,18 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { supervisorLogin} from "@/api/supervisor";
+import {ref} from 'vue';
+import {useRouter} from 'vue-router';
+import {supervisorLogin} from "@/api/supervisor";
+import {useSupervisorStore} from "@/stores/supervisorStore";
 import {ElMessage} from "element-plus";
+import supervisor from "@/router/supervisor";
+
 export default {
   name: 'SupervisorLogin',
   setup() {
     const router = useRouter();
+    const supervisorState  = useSupervisorStore();
     const loginForm = ref({
       telId: '',
       password: '',
@@ -38,28 +42,36 @@ export default {
     const errorMessage = ref('');
 
     const handleLogin = async () => {
-      try {
-        const data = {
-          supervisorCode: loginForm.value.telId,
-          password: loginForm.value.password,
-        };
-        console.log('Form Data:', data);
+      // try {
+      //   const data = {
+      //     supervisorCode: loginForm.value.telId,
+      //     password: loginForm.value.password,
+      //   };
+      //   const response = await supervisorLogin(data);
+      //   if (response.data.code === 0) {
+      //     console.log('Login successful, response data:', response.data);
+      //     await router.push('/admin/main');
+      //   } else {
+      //     console.log('Login failed, response data:', response.data);
+      //     ElMessage.error('账号或密码不正确，请重试');
+      //     loginForm.value.password = '';  // 清空密码输入框
+      //     errorMessage.value = response.data.message;
+      //   }
+      // } catch (error) {
+      //   console.error('Error during login:', error);
+      //   errorMessage.value = '登录失败，请检查您的登录编码和密码。';
+      // }
 
-        const response = await supervisorLogin(data);
-        console.log('Response:', response);
-
-        if (response.data.code === 0) {
-          console.log('Login successful, response data:', response.data);
-          await router.push('/admin/main');
-        } else {
-          console.log('Login failed, response data:', response.data);
-          ElMessage.error('账号或密码不正确，请重试');
-          loginForm.value.password = '';  // 清空密码输入框
-          errorMessage.value = response.data.message;
-        }
-      } catch (error) {
-        console.error('Error during login:', error);
-        errorMessage.value = '登录失败，请检查您的登录编码和密码。';
+      const data = {
+        supervisorCode: loginForm.value.telId,
+        password: loginForm.value.password,
+      };
+      await supervisorState.supervisorLogin(data);
+      if (supervisorState.supervisorCode === data.supervisorCode){
+        await router.push('/supervisor/main');
+      }else {
+        ElMessage.error('账号或密码不正确，请重试');
+        loginForm.value.password = '';  // 清空密码输入框
       }
     };
     const handleRegister = () => {
