@@ -32,6 +32,9 @@
         </el-header>
 
         <el-main>
+          <div v-if="currentTable === ''">
+            <img src="@/assets/images/SupervisorLogin.jpg" alt="Placeholder Image" />
+          </div>
           <div v-if="currentTable === 'feedbackList'">
             <el-table :data="currentInfoList" style="width: 100%">
               <el-table-column prop="aqiLevel" label="污染等级" width="100"></el-table-column>
@@ -41,6 +44,55 @@
               <el-table-column prop="address" label="具体位置" width="200"></el-table-column>
               <el-table-column prop="feedback" label="描述" width="300"></el-table-column>
             </el-table>
+          </div>
+
+          <div v-else-if="currentTable ==='reportGridInformation'">
+            <el-form ref="reportGridForm" :model="reportGridForm" label-width="100px">
+              <el-form-item label="网格名称">
+                <el-input v-model="reportGridForm.gridName" placeholder="请输入网格名称"></el-input>
+              </el-form-item>
+              <el-form-item label="网格位置">
+                <el-input v-model="reportGridForm.gridLocation" placeholder="请输入网格位置"></el-input>
+              </el-form-item>
+              <el-form-item label="网格类型">
+                <el-select v-model="reportGridForm.gridType">
+                  <el-option label="居民小区" value="居民小区"></el-option>
+                  <el-option label="工业园区" value="工业园区"></el-option>
+                  <el-option label="公园" value="公园"></el-option>
+                  <el-option label="其它" value="其它"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="网格面积">
+                <el-input v-model="reportGridForm.gridArea" placeholder="请输入网格面积"></el-input>
+              </el-form-item>
+              <el-form-item label="网格用途">
+                <el-input v-model="reportGridForm.gridUse" placeholder="请输入网格用途"></el-input>
+              </el-form-item>
+              <el-form-item label="网格状态">
+                <el-select v-model="reportGridForm.gridStatus">
+                  <el-option label="正常" value="正常"></el-option>
+                  <el-option label="异常" value="异常"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="网格照片">
+                <el-upload
+                  class="avatar-uploader"
+                  action="https://jsonplaceholder.typicode.com/posts/"
+                  :on-success="handleAvatarSuccess"
+                  :file-list="fileList"
+                  :multiple="false"
+                  :show-file-list="false"
+                >
+                  <el-button size="small" type="primary">点击上传</el-button>
+                  <div class="el-upload__tip" slot="tip" style="margin-top: 10px">
+                    只支持单张图片，请上传清晰照片
+                  </div>
+                </el-upload>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="submitReportGridInformation">提交</el-button>
+              </el-form-item>
+            </el-form>
           </div>
               
         </el-main>
@@ -104,7 +156,8 @@ export default {
 
     const reportGridInformation = () => {
       updateLocation('公众监督员功能', '上报网格信息');
-      // Add logic to report grid information
+      currentTable.value = 'reportGridInformation';
+
     };
 
     const browsePersonalInfo = () => {
