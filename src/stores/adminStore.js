@@ -7,17 +7,34 @@ export const useAdminStore = defineStore('admin', {
 	state: () => ({
 		token: '',
 		infoList: [],
+
 	}),
 	actions: {
-		async fetchInfoList() {
+		async getInfoCount() {
 			try {
-				const response = await AdminAPI.getAllInfoList();
-				console.log(response.data.data);
-				this.infoList = response.data.data;
-				console.log(this.infoList[0].infoId);
+				const response = await AdminAPI.getInfoCount();
+				// console.log("response ", response);
+				// console.log("response.data: ", response.data);
+				console.log("fetched Info num: ", response.data.data);
+				return response.data.data;
+			} catch (error) {
+				console.error("Failed to fetch infoCount:", error);
+			}
+		},
+
+		async fetchInfoList(pageNum,pageSize) {
+			try {
+				const params = {
+					pageNum: pageNum,
+					pageSize: pageSize,
+				};
+				const response = await AdminAPI.getInfoList({params: params});
+				console.log("Info List: ", response.data.data.list);
+				this.infoList = response.data.data.list; 
 			} catch (error) {
 				console.error('Failed to fetch data:', error);
 			}
+
 		},
 
 		setToken(token) {

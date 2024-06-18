@@ -1,5 +1,10 @@
 import axios from './axios';
 
+//获取事务数量信息数量
+export function getInfoCount(){
+	return axios.get('/admin/getInfoCount');
+}
+
 // 管理员登录
 export function adminLogin(data) {
   return axios.post('/admin/login', data);
@@ -10,9 +15,9 @@ export function setInfoToInspector(data) {
   return axios.post('/admin/setInfoToInspector', data);
 }
 
-// 获取所有存在事务列表
-export function getAllInfoList() {
-  return axios.get('/admin/getAllInfoList');
+//获取当页事务列表
+export function getInfoList(data) {
+  return axios.get('/admin/getAllInfoList',data);
 }
 
 // 获取未指派事务列表
