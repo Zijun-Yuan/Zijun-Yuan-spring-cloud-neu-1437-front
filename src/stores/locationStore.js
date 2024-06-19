@@ -24,8 +24,8 @@ export const useLocationStore = defineStore('location', {
 				const responseCity = await LocationAPI.getCityList();
 				this.provinces = responseProvince.data.data;
 				this.cities = responseCity.data.data;
-				console.log("responseProvince: ", this.provinces);
-				console.log("responseCity: ", this.cities);
+				// console.log("responseProvince: ", this.provinces);
+				// console.log("responseCity: ", this.cities);
 			} catch (error) {
 				console.error('Failed to fetch data:', error);
 			}

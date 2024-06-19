@@ -54,9 +54,9 @@
 							<el-table v-if="currentTable === 'table1'" :data="currentInfoList">
 								<el-table-column prop="num" label="编号" width="100"></el-table-column>
 								<el-table-column prop="supervisorName" label="反馈者姓名" width="180"></el-table-column>
-								<el-table-column prop="province" label="所在省" width="100"></el-table-column>
-								<el-table-column prop="city" label="所在市" width="100"></el-table-column>
-								<el-table-column prop="aqiLevel" label="预估污染等级" width="130"></el-table-column>
+								<el-table-column prop="province.provinceName" label="所在省" width="100"></el-table-column>
+								<el-table-column prop="city.cityName" label="所在市" width="100"></el-table-column>
+								<el-table-column prop="aqiInfo" label="预估污染等级" width="130"></el-table-column>
 								<el-table-column prop="date" label="反馈日期" width="180"></el-table-column>
 								<el-table-column prop="time" label="反馈时间" width="180"></el-table-column>
 								<el-table-column label="操作" width="180">
@@ -235,7 +235,7 @@
 			};
 
 			//从Stores进行数据展示InfoList
-			const showInfoList = () => {
+			const showInfoList = async() => {
 				// console.log("showingInfoList...");
 				// console.log("infoCurrentPageNum:"+infoCurrentPageNum.value);
 				// console.log("infoPageSize:"+infoPageSize.value);
@@ -253,21 +253,26 @@
 						time: 'null',
 					};
 
-					date = new Date(adminStore.infoList[i].time);
+					
 
 					info.num = (infoCurrentPageNum.value - 1) * infoPageSize.value + i + 1;
 					info.id = adminStore.infoList[i].infoId;
 					info.supervisorName = adminStore.infoList[i].supervisorName;
-					info.province = locationStore.getProvinceByCityCode(adminStore.infoList[i].cityCode).provinceName;
-					info.city = locationStore.getCityAndProvinceByCityCode(adminStore.infoList[i].cityCode).cityName;
+					info.province = await locationStore.getProvinceByCityCode(adminStore.infoList[i].cityCode);
+					info.city = await locationStore.getCityAndProvinceByCityCode(adminStore.infoList[i].cityCode);
+					
 					
 					// info.cityCode = adminStore.infoList[i].cityCode;
-					info.aqiLevel = adminStore.infoList[i].aqiLevel;
+					// console.log(adminStore.infoList[i].aqiLevel);
+					const aqiInfo = aqiStore.getAQLDetail(adminStore.infoList[i].aqiLevel);
+					info.aqiInfo = aqiInfo.name +"("+aqiInfo.level+")";
 
 
-					console.log(aqiStore.getAQLDetail(info.aqiLevel));
+					// console.log(aqiStore.getAQLDetail(info.aqiLevel));
 
 					info.label = adminStore.infoList[i].label;
+					
+					date = new Date(adminStore.infoList[i].time);
 					info.date =
 						`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 					info.time =
