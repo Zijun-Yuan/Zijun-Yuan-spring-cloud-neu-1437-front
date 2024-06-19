@@ -53,21 +53,33 @@ export const useLocationStore = defineStore('location', {
 			return cityMap;
 		},
 
-		getCityAndProvinceByCityCode(cityCode) {
-			// this.initLocationStore();
-			if (!this.initFlag) {
-				this.initLocationStore();
-			}
-			return this.cityMap[cityCode];
-		},
-
-		getProvinceByProvinceId(provinceId) {
-			// this.initLocationStore();
-			if (!this.initFlag) {
-				this.initLocationStore();
-			}
-			return this.provinceMap[provinceId];
-		},
+		getProvinceByCityCode(cityCode) {
+		            if (!this.initFlag) {
+		                this.initLocationStore();
+		            }
+		            return this.cityMap[cityCode]?.province;
+		        },
+		
+		        getCitiesByProvinceId(provinceId) {
+		            if (!this.initFlag) {
+		                this.initLocationStore();
+		            }
+		            return this.cities.filter(city => city.provinceId === provinceId);
+		        },
+		
+		        getCityAndProvinceByCityCode(cityCode) {
+		            if (!this.initFlag) {
+		                this.initLocationStore();
+		            }
+		            return this.cityMap[cityCode];
+		        },
+		
+		        getProvinceByProvinceId(provinceId) {
+		            if (!this.initFlag) {
+		                this.initLocationStore();
+		            }
+		            return this.provinceMap[provinceId];
+		        },
 
 		async test() {
 			await this.initLocationStore();
