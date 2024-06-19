@@ -5,7 +5,6 @@
         反馈任务列表
       </el-header>
       <el-main>
-
         <el-row>
           <el-col :span="12">
             <el-button type="primary" @click="showCompleted">已完成</el-button>
@@ -17,37 +16,74 @@
 
         <div v-if="showContent === 'completed'">
           <p>显示已完成的内容</p>
+          <el-table :data="infoList">
+          </el-table>
         </div>
         <div v-else-if="showContent === 'uncompleted'">
           <p>显示未完成的内容</p>
         </div>
-
       </el-main>
     </el-container>
   </div>
 </template>
 
 <script>
+import { ref, onMounted } from 'vue';
+import { useInspectorStore } from '@/stores/inspectorStore';
+import { getInfoList } from '@/api/inspector';
 
 export default {
   name: 'InspectorBoard',
-  data() {
+  setup: function () {
+    const showContent = ref('');
+    const inspectorStore = useInspectorStore();
+    const infoList = ref([]);
+
+    const fetchInfoList = async () => {
+      try {
+        const inspectorCode = inspectorStore.inspectorCode;
+        const response = await getInfoList(inspectorCode);
+        // console.log(response);
+        // console.log(response.data);
+        // console.log(response.data.data);
+
+        if (response.data.code === 0) {
+          infoList.value = response.data.data;
+          console.log(infoList);
+        } else {
+          console.error('Failed to fetch info list:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error during fetching info list:', error);
+      }
+    };
+
+    const showCompleted = () => {
+      showContent.value = 'completed';
+      fetchInfoList();
+    };
+
+    const showUncompleted = () => {
+      showContent.value = 'uncompleted';
+      fetchInfoList();
+    };
+
+    onMounted(() => {
+      fetchInfoList();
+    });
+
     return {
-      showContent: ''
-    }
+      showContent,
+      showCompleted,
+      showUncompleted,
+      infoList,
+    };
   },
-
-  methods: {
-    showCompleted() {
-      this.showContent = 'completed';
-    },
-    showUncompleted() {
-      this.showContent = 'uncompleted';
-    }
-  },
-
 }
 </script>
 
 <style>
+.common-layout {
+  padding: 20px;
+}
 </style>

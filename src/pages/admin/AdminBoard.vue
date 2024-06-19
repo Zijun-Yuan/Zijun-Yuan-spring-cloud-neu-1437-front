@@ -50,6 +50,7 @@
 
 					<el-main>
 						<el-scrollbar>
+							<!-- 公众监督员信息列表 -->
 							<el-table v-if="currentTable === 'table1'" :data="currentInfoList">
 								<el-table-column prop="num" label="编号" width="100"></el-table-column>
 								<el-table-column prop="supervisorName" label="反馈者姓名" width="180"></el-table-column>
@@ -58,25 +59,97 @@
 								<el-table-column prop="aqiLevel" label="预估污染等级" width="130"></el-table-column>
 								<el-table-column prop="date" label="反馈日期" width="180"></el-table-column>
 								<el-table-column prop="time" label="反馈时间" width="180"></el-table-column>
-								<el-icon><i class="el-icon-view"></i></el-icon>
-								<el-icon><i class="el-icon-edit"></i></el-icon>
+								<el-table-column label="操作" width="180">
+									<template v-slot="scope">
+										<el-button type="primary" circle @click="showInfo(scope.row)">
+											<el-icon>
+												<InfoFilled />
+											</el-icon>
+										</el-button>
+										<el-button type="danger" circle @click="showPointer(scope.row)">
+											<el-icon>
+												<Pointer />
+											</el-icon>
+										</el-button>
+									</template>
+								</el-table-column>
 							</el-table>
+							<!-- 信息列表页码 -->
+							<el-pagination v-model="infoCurrentPageNum" :current-page="infoCurrentPageNum"
+								v-if="currentTable === 'table1'" :small="small" :disabled="disabled"
+								:background="background" layout="prev, pager, next, jumper" :page-count="infoPageNum"
+								@current-change="handleInfoPageChange" />
+							<!-- 详细信息 -->
+							<template v-if="currentTable === 'table2'">
+								<el-descriptions class="margin-top" title="公众监督信息详情" :column="1" :size="size" border>
+									<template #extra>
+										<el-button type="primary" color="#98c8f2" @click="">返回</el-button>
+									</template>
+									<el-descriptions-item>
+										<template #label>
+											<div class="cell-item">
+												公众监督反馈信息编号
+											</div>
+										</template>
+										kooriookami
+									</el-descriptions-item>
+									<el-descriptions-item>
+										<template #label>
+											<div class="cell-item">
+												反馈者信息
+											</div>
+										</template>
+										18100000000
+									</el-descriptions-item>
+									<el-descriptions-item>
+										<template #label>
+											<div class="cell-item">
+												反馈者联系电话
+											</div>
+										</template>
+										Suzhou
+									</el-descriptions-item>
+									<el-descriptions-item>
+										<template #label>
+											<div class="cell-item">
+												反馈信息所在地址
+											</div>
+										</template>
+										<el-tag size="small">School</el-tag>
+									</el-descriptions-item>
+									<el-descriptions-item>
+										<template #label>
+											<div class="cell-item">
+												反馈信息表述
+											</div>
+										</template>
+										No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province
+									</el-descriptions-item>
+									<el-descriptions-item>
+										<template #label>
+											<div class="cell-item">
+												预估等级
+											</div>
+										</template>
+										No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province
+									</el-descriptions-item>
+									<el-descriptions-item>
+										<template #label>
+											<div class="cell-item">
+												反馈日期时间
+											</div>
+										</template>
+										No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province
+									</el-descriptions-item>
+								</el-descriptions>
+							</template>
 							<!-- 表格2 -->
 							<!-- <el-table v-if="currentTable === 'table2'" :data="table2Data">
 								<el-table-column prop="date" label="日期" width="180"></el-table-column>
 								<el-table-column prop="name" label="姓名" width="180"></el-table-column>
 								<el-table-column prop="address" label="地址"></el-table-column>
 							</el-table> -->
-							  <el-pagination
-							        v-model:currentPage="infoCurrentPageNum"
-							        v-model:page-size="infoPageSize"
-							        :small="small"
-							        :disabled="disabled"
-							        :background="background"
-							        layout="prev, pager, next, jumper"
-							        :total="infoNum"
-							        @current-change="handleCurrentChange"
-							      />
+
 						</el-scrollbar>
 					</el-main>
 
@@ -97,11 +170,15 @@
 	import {
 		Menu as IconMenu,
 		Message,
-		Setting
+		Setting,
+		IconNote
 	} from '@element-plus/icons-vue';
 	import {
-		useAdminStore
+		useAdminStore,		
 	} from '@/stores/adminStore.js';
+	import {
+		useAQIStore,
+	} from '@/stores/aqiLevelStore.js';
 
 	export default {
 		name: 'AdminBoard',
@@ -114,50 +191,58 @@
 			const router = useRouter();
 			const mainTitle = ref('');
 			const subTitle = ref('');
-			const formattedTitle = ref(`${mainTitle.value} / ${subTitle.value}`);
+			const formattedTitle = ref(`点击左侧导航栏查看信息`);
 			const adminStore = useAdminStore();
-			let currentTable = ref('');
+			const aqiStore = useAQIStore();
+			let currentTable = ref({});
 			let currentInfoList = ref([]);
+			let currentInfo = ref({});
 			let infoPageNum = ref(0);
-			let infoCurrentPageNum =  ref(1);
+			let infoCurrentPageNum = ref(1);
 			const infoPageSize = ref(2);
 			let infoNum = ref(0);
-			
+			currentInfo.id = "";
 			const small = ref(false)
-			const background = ref(false)
+			const background = ref(true)
 			const disabled = ref(false)
 			watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
 				formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
 			});
 
+			//更新导航位置
 			const updateLocation = (newMainTitle, newSubTitle) => {
 				mainTitle.value = newMainTitle;
 				subTitle.value = newSubTitle;
 			};
 
-
+			//初始化公众监督信息列表
 			const initPublicSupervisionDataList = async () => {
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table1';
 				infoNum.value = await adminStore.getInfoCount();
 				infoPageNum.value = Math.ceil(infoNum.value / infoPageSize.value);
-				await adminStore.fetchInfoList(1,infoPageSize.value);
+				await adminStore.fetchInfoList(1, infoPageSize.value);
 				// console.log(adminStore.infoList);
 				showInfoList();
 			};
-			
-			const handleInfoPageChange = async (val) => {	
-				// console.log(""val);
-			    adminStore.fetchInfoList(infoCurrentPageNum.value, infoPageSize);
-				currentInfoList = [];
-			    showInfoList();
+
+			//公众监督信息列表页数变化
+			const handleInfoPageChange = async (page) => {
+				// console.log("currentPage",page);
+				infoCurrentPageNum.value = page;
+				await adminStore.fetchInfoList(infoCurrentPageNum.value, infoPageSize.value);
+				currentInfoList.value = [];
+				showInfoList();
 			};
 
-
+			//从Stores进行数据展示InfoList
 			const showInfoList = () => {
-				
+				// console.log("showingInfoList...");
+				// console.log("infoCurrentPageNum:"+infoCurrentPageNum.value);
+				// console.log("infoPageSize:"+infoPageSize.value);
 				let date = new Date();
 				// console.log(adminStore.infoList.length);
+				currentInfoList.value = [];
 				for (let i = 0; i < adminStore.infoList.length; i++) {
 					let info = {
 						num: 'null',
@@ -168,46 +253,68 @@
 						label: 'null',
 						time: 'null',
 					};
+
 					date = new Date(adminStore.infoList[i].time);
-					console.log("infoCurrentPageNum:"+infoCurrentPageNum.value);
-					console.log("infoPageSize:"+infoPageSize.value);
-					info.num = (infoCurrentPageNum.value-1)*infoPageSize.value + i + 1;
+
+					info.num = (infoCurrentPageNum.value - 1) * infoPageSize.value + i + 1;
 					info.id = adminStore.infoList[i].infoId;
 					info.supervisorName = adminStore.infoList[i].supervisorName;
 					info.cityCode = adminStore.infoList[i].cityCode;
 					info.aqiLevel = adminStore.infoList[i].aqiLevel;
+					
+					
+					console.log(aqiStore.getAQLDetail(info.aqiLevel));
+					
 					info.label = adminStore.infoList[i].label;
 					info.date =
 						`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 					info.time =
 						`${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
 					currentInfoList.value.push(info);
-					console.log(currentInfoList.value[i]);
-					console.log(i);
+					// console.log(currentInfoList.value[i]);
+					// console.log(i);
 				}
 
 				// console.log(adminStore.infoList);
 			};
 
 
+			//查看某一信息的详细信息
+			const showInfo = (data) => {
+				updateLocation('公众监督数据管理', '公众监督数据详情');
+				currentTable.value = 'table2';
+				currentInfo = data;
+				console.log("showPointer:", data.id);
+				console.log("showPointer:", currentInfo);
+			};
+
+			const showPointer = (data) => {
+				console.log("showPointer:", data.id);
+			};
+
 			const confirmAQIDataList = () => {
+				currentTable.value = 'table2';
 				updateLocation('公众监督数据管理', '确认AQI数据列表');
 				adminStore.setToken('hello');
 			};
 
 			const getProvinceGroupedInspectionStats = () => {
+				currentTable.value = 'table3';
 				updateLocation('统计数据管理', '省分组检查统计');
 			};
 
 			const getAQIDistributionStats = () => {
+				currentTable.value = 'table4';
 				updateLocation('统计数据管理', 'AQI指数分布统计');
 			};
 
 			const getAQITrendStats = () => {
+				currentTable.value = 'table5';
 				updateLocation('统计数据管理', 'AQI指数趋势统计');
 			};
 
 			const getOtherDataStats = () => {
+				currentTable.value = 'table6';
 				updateLocation('统计数据管理', '其他数据统计');
 			};
 
@@ -221,6 +328,7 @@
 				disabled,
 				currentTable,
 				currentInfoList,
+				currentInfo,
 				infoNum,
 				infoPageSize,
 				infoPageNum,
@@ -232,6 +340,9 @@
 				getAQIDistributionStats,
 				getAQITrendStats,
 				getOtherDataStats,
+				handleInfoPageChange,
+				showInfo,
+				showPointer,
 			};
 		},
 	};
