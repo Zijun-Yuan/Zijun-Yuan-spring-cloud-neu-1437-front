@@ -5,6 +5,16 @@ export function getInfoCount(){
 	return axios.get('/admin/getInfoCount');
 }
 
+//获取指定信息
+export function getInfoById(data){
+	return axios.get('/admin/getInfoById',data);
+}
+
+//根据infoid获取公众监督员信息
+export function getSupervisorByInfoId(data){
+	return axios.get('/admin/getSupervisorByInfoId',data);
+}
+
 // 管理员登录
 export function adminLogin(data) {
   return axios.post('/admin/login', data);
