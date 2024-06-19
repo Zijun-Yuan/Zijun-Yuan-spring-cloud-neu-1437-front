@@ -5,12 +5,12 @@ export const useSupervisorStore = defineStore('supervisor', {
     state: () => ({
         token: '',
         supervisor: {
-            supervisorId: '',
+            supervisorId: null,
             realName: '',
             telId: '',
             birthday: '',
-            sex: '',
-            age: '',
+            sex: null,
+            age: null,
         },
         register: '',
         feedbackList: [],
