@@ -253,15 +253,12 @@
 						time: 'null',
 					};
 
-					
-
 					info.num = (infoCurrentPageNum.value - 1) * infoPageSize.value + i + 1;
 					info.id = adminStore.infoList[i].infoId;
 					info.supervisorName = adminStore.infoList[i].supervisorName;
 					info.province = await locationStore.getProvinceByCityCode(adminStore.infoList[i].cityCode);
 					info.city = await locationStore.getCityAndProvinceByCityCode(adminStore.infoList[i].cityCode);
-					
-					
+
 					// info.cityCode = adminStore.infoList[i].cityCode;
 					// console.log(adminStore.infoList[i].aqiLevel);
 					const aqiInfo = aqiStore.getAQLDetail(adminStore.infoList[i].aqiLevel);
