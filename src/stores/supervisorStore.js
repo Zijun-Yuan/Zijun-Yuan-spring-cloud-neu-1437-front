@@ -50,10 +50,7 @@ export const useSupervisorStore = defineStore('supervisor', {
         async supervisorFeedbackList() {
             try {
                 const response = await supervisorAPI.getAllFeedbackList(this.supervisor.supervisorId);
-                if (response.data !== null){
-                    console.log('Get feedback list successful, response data:', response.data.data);
-                    this.feedbackList = response.data.data.list;
-                }
+                this.feedbackList = response.data.data;
             } catch (error) {
                 console.error('Error during getting feedback list:', error);
             }

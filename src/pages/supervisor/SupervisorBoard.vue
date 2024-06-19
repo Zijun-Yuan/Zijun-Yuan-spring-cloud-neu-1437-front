@@ -65,6 +65,7 @@
 import {nextTick, ref, watch} from 'vue';
 import {useRouter} from 'vue-router';
 import {useSupervisorStore} from '@/stores/supervisorStore';
+import {useLocationStore} from "@/stores/locationStore";
 import {Message, Location, Person} from '@element-plus/icons-vue';
 
 export default {
@@ -80,6 +81,7 @@ export default {
     const subTitle = ref('');
     const formattedTitle = ref(`${mainTitle.value} / ${subTitle.value}`);
     const supervisorStore = useSupervisorStore();
+    const locationStore = useLocationStore();
 
     let currentTable = ref('');
     let currentInfoList = ref([]);
@@ -94,28 +96,50 @@ export default {
     };
 
     const getFeedbackList = async () => {
-      updateLocation('公众监督员功能', '历史反馈信息列表');
-      currentTable.value = 'feedbackList';
-      supervisorStore.supervisorFeedbackList();
-      console.log(supervisorStore.feedbackList);
-      processFeedbackList();
+      // await supervisorStore.supervisorFeedbackList();
+      // updateLocation('公众监督员功能', '历史反馈信息列表');
+      // currentTable.value = 'feedbackList';
+      //
+      // processFeedbackList();
+      try {
+        await supervisorStore.supervisorFeedbackList();
+        updateLocation('公众监督员功能', '历史反馈信息列表');
+        currentTable.value = 'feedbackList';
+        console.log("进入feedbackList");
+        console.log(supervisorStore.feedbackList);
+        processFeedbackList();
+      } catch (error) {
+        console.log(error);
+      }
     };
 
-    const processFeedbackList = async () => {
+    const processFeedbackList = () => {
       currentInfoList.value = []; // 重置数组
       let date = new Date();
       for (let i = 0; i < supervisorStore.feedbackList.length; i++) {
         console.log(i);
         let info = {
-          aqiLevel: supervisorStore.feedbackList[i].aqiLevel,
+          aqiLevel: "null",
           date: "null",
           time: "null",
-          province: supervisorStore.feedbackList[i].cityCode,
-          city: supervisorStore.feedbackList[i].cityCode,
-          address: supervisorStore.feedbackList[i].address,
-          feedback: supervisorStore.feedbackList[i].feedback
+          province: "null",
+          city: "null",
+          address: "null",
+          feedback: "null"
         };
         date = new Date(supervisorStore.feedbackList[i].time);
+
+        info.aqiLevel = supervisorStore.feedbackList[i].aqiLevel;
+        info.province = supervisorStore.feedbackList[i].province;
+        info.city = supervisorStore.feedbackList[i].city;
+        info.address = supervisorStore.feedbackList[i].address;
+        info.feedback = supervisorStore.feedbackList[i].feedback;
+
+        const cityRes = locationStore.getCityAndProvinceByCityCode(supervisorStore.feedbackList[i].cityCode);
+        const provinceRes = locationStore.getProvinceByCityCode(supervisorStore.feedbackList[i].cityCode);
+        console.log(cityRes);
+        console.log(provinceRes);
+
         info.date =
             `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         info.time =
