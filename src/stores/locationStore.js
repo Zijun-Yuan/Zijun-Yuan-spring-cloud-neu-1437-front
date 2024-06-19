@@ -31,7 +31,7 @@ export const useLocationStore = defineStore('location', {
 			}
 
 		},
-		
+
 		async createProvinceMap(provinces) {
 
 			const provinceMap = {};
@@ -53,33 +53,33 @@ export const useLocationStore = defineStore('location', {
 			return cityMap;
 		},
 
-		getProvinceByCityCode(cityCode) {
-		            if (!this.initFlag) {
-		                this.initLocationStore();
-		            }
-		            return this.cityMap[cityCode]?.province;
-		        },
-		
-		        getCitiesByProvinceId(provinceId) {
-		            if (!this.initFlag) {
-		                this.initLocationStore();
-		            }
-		            return this.cities.filter(city => city.provinceId === provinceId);
-		        },
-		
-		        getCityAndProvinceByCityCode(cityCode) {
-		            if (!this.initFlag) {
-		                this.initLocationStore();
-		            }
-		            return this.cityMap[cityCode];
-		        },
-		
-		        getProvinceByProvinceId(provinceId) {
-		            if (!this.initFlag) {
-		                this.initLocationStore();
-		            }
-		            return this.provinceMap[provinceId];
-		        },
+		async getProvinceByCityCode(cityCode) {
+			if (!this.initFlag) {
+				await this.initLocationStore();
+			}
+			return this.cityMap[cityCode]?.province;
+		},
+
+		async getCitiesByProvinceId(provinceId) {
+			if (!this.initFlag) {
+				await this.initLocationStore();
+			}
+			return this.cities.filter(city => city.provinceId === provinceId);
+		},
+
+		async getCityAndProvinceByCityCode(cityCode) {
+			if (!this.initFlag) {
+				await this.initLocationStore();
+			}
+			return this.cityMap[cityCode];
+		},
+
+		async getProvinceByProvinceId(provinceId) {
+			if (!this.initFlag) {
+				await this.initLocationStore();
+			}
+			return this.provinceMap[provinceId];
+		},
 
 		async test() {
 			await this.initLocationStore();
