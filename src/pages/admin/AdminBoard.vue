@@ -83,66 +83,38 @@
 							<template v-if="currentTable === 'table2'">
 								<el-descriptions class="margin-top" title="公众监督信息详情" :column="1" :size="size" border>
 									<template #extra>
-										<el-button type="primary" color="#98c8f2" @click="">返回</el-button>
+										<el-button type="primary" color="#98c8f2" @click="infoBack">返回</el-button>
 									</template>
-									<el-descriptions-item>
-										<template #label>
-											<div class="cell-item">
-												公众监督反馈信息编号
-											</div>
-										</template>
-										kooriookami
+									<el-descriptions-item label="公众监督反馈信息编号">
+										{{ feedbackDetails.id }}
 									</el-descriptions-item>
-									<el-descriptions-item>
-										<template #label>
-											<div class="cell-item">
-												反馈者信息
-											</div>
-										</template>
-										18100000000
+									<el-descriptions-item label="反馈者信息">
+										<el-tag size="small"style="margin-right: 8px;">{{ feedbackDetails.location.province }}</el-tag>
+										<el-tag size="small"style="margin-right: 8px;">{{ feedbackDetails.location.province }}</el-tag>
+										<el-tag size="small">{{ feedbackDetails.location.province }}</el-tag>
 									</el-descriptions-item>
-									<el-descriptions-item>
-										<template #label>
-											<div class="cell-item">
-												反馈者联系电话
-											</div>
-										</template>
-										Suzhou
+									<el-descriptions-item label="反馈者联系电话">
+										{{ feedbackDetails.userInfo.phoneNum }}
 									</el-descriptions-item>
-									<el-descriptions-item>
-										<template #label>
-											<div class="cell-item">
-												反馈信息所在地址
-											</div>
-										</template>
-										<el-tag size="small">School</el-tag>
+									<el-descriptions-item label="反馈信息所在地址">
+										<el-tag size="small"style="margin-right: 8px;">{{ feedbackDetails.location.province }}</el-tag>
+										<el-tag size="small"style="margin-right: 8px;">{{ feedbackDetails.location.city }}</el-tag>
+										<el-tag size="small">{{ feedbackDetails.address }}</el-tag>
 									</el-descriptions-item>
-									<el-descriptions-item>
-										<template #label>
-											<div class="cell-item">
-												反馈信息表述
-											</div>
-										</template>
-										No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province
+									<el-descriptions-item label="反馈信息表述">
+										{{ feedbackDetails.feedback }}
 									</el-descriptions-item>
-									<el-descriptions-item>
-										<template #label>
-											<div class="cell-item">
-												预估等级
-											</div>
-										</template>
-										No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province
+									<el-descriptions-item label="预估等级">
+										<el-tag size="small"style="margin-right: 8px;">{{ feedbackDetails.currentAQLDetail.level }}</el-tag>
+										<el-tag size="small">{{ feedbackDetails.currentAQLDetail.name }}</el-tag>
 									</el-descriptions-item>
-									<el-descriptions-item>
-										<template #label>
-											<div class="cell-item">
-												反馈日期时间
-											</div>
-										</template>
-										No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province
+									<el-descriptions-item label="反馈日期时间">
+										<el-tag size="small"style="margin-right: 8px;">{{ feedbackDetails.feedbackDateTime.date }}</el-tag>
+										<el-tag size="small">{{ feedbackDetails.feedbackDateTime.time }}</el-tag>
 									</el-descriptions-item>
 								</el-descriptions>
 							</template>
+
 							<!-- 表格2 -->
 							<!-- <el-table v-if="currentTable === 'table2'" :data="table2Data">
 								<el-table-column prop="date" label="日期" width="180"></el-table-column>
@@ -174,11 +146,15 @@
 		IconNote
 	} from '@element-plus/icons-vue';
 	import {
-		useAdminStore,		
+		useAdminStore,
 	} from '@/stores/adminStore.js';
 	import {
 		useAQIStore,
 	} from '@/stores/aqiLevelStore.js';
+	
+	import {
+		useLocationStore,
+	} from '@/stores/locationStore.js';
 
 	export default {
 		name: 'AdminBoard',
@@ -194,17 +170,40 @@
 			const formattedTitle = ref(`点击左侧导航栏查看信息`);
 			const adminStore = useAdminStore();
 			const aqiStore = useAQIStore();
+			const locationStore = useLocationStore();
 			let currentTable = ref({});
 			let currentInfoList = ref([]);
-			let currentInfo = ref({});
 			let infoPageNum = ref(0);
 			let infoCurrentPageNum = ref(1);
 			const infoPageSize = ref(2);
 			let infoNum = ref(0);
-			currentInfo.id = "";
-			const small = ref(false)
-			const background = ref(true)
+			const small = ref(false);
+			const background = ref(true);
 			const disabled = ref(false)
+			let feedbackDetails = ref({
+				id: "38",
+				userInfo: {
+					name: "欧阳锋",
+					sex:"男",
+					birthday: "1980-11-13",
+					phoneNum:"17345988896",
+				},
+				location:{
+					province:"辽宁省",
+					city:"大连市",
+				},
+				address: "甘井子区凌风街乘风社区",
+				feedback:"月黑风高，空气浑浊，难道是杀人夜？",
+				currentAQLDetail:{
+					level:"四级",
+					name:"中度污染",
+				},
+				feedbackDateTime:{
+					date:"2022-10-27",
+					time:"16:29:26",
+				},
+			});
+
 			watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
 				formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
 			});
@@ -261,10 +260,10 @@
 					info.supervisorName = adminStore.infoList[i].supervisorName;
 					info.cityCode = adminStore.infoList[i].cityCode;
 					info.aqiLevel = adminStore.infoList[i].aqiLevel;
-					
-					
+
+
 					console.log(aqiStore.getAQLDetail(info.aqiLevel));
-					
+
 					info.label = adminStore.infoList[i].label;
 					info.date =
 						`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -283,12 +282,72 @@
 			const showInfo = (data) => {
 				updateLocation('公众监督数据管理', '公众监督数据详情');
 				currentTable.value = 'table2';
-				currentInfo = data;
+				updateFeedbackDetails(data);
 				console.log("showPointer:", data.id);
-				console.log("showPointer:", currentInfo);
+				console.log("showPointer:", data);
+			};
+			
+			const updateFeedbackDetails = (data) => {
+				feedbackDetails.value.id = data.id;
+				
+				// feedbackDetails.value.userInfo.name = data.id;
+				// feedbackDetails.value.userInfo.sex = data.id;
+				// feedbackDetails.value.userInfo.birthday = data.id;
+				// feedbackDetails.value.userInfo = data.id;
+				
+				feedbackDetails.value.location.province = data.id;
+				feedbackDetails.value.location.city = data.id;
+				feedbackDetails.value.id = data.id;
+				feedbackDetails.value.id = data.id;
+				
+				feedbackDetails.value.id = data.id;
+				feedbackDetails.value.id = data.id;
+				feedbackDetails.value.id = data.id;
+				feedbackDetails.value.id = data.id;
+				
+				feedbackDetails = ref({
+					id: "38",
+					userInfo: {
+						name: "欧阳锋",
+						sex:"男",
+						birthday: "1980-11-13",
+						phoneNum:"17345988896",
+					},
+					location:{
+						province:"辽宁省",
+						city:"大连市",
+					},
+					address: "甘井子区凌风街乘风社区",
+					feedback:"月黑风高，空气浑浊，难道是杀人夜？",
+					currentAQLDetail:{
+						level:"四级",
+						name:"中度污染",
+					},
+					feedbackDateTime:{
+						date:"2022-10-27",
+						time:"16:29:26",
+					},
+				});
+				updateLocation('公众监督数据管理', '公众监督数据详情');
+				currentTable.value = 'table2';
+				updateFeedbackDetails();
+				console.log("showPointer:", data.id);
+				
+			};
+
+			//查看完信息返回到前一页
+			const infoBack = async () => {
+				updateLocation('公众监督数据管理', '公众监督数据列表');
+				currentTable.value = 'table1';
+				infoNum.value = await adminStore.getInfoCount();
+				infoPageNum.value = Math.ceil(infoNum.value / infoPageSize.value);
+				await adminStore.fetchInfoList(infoCurrentPageNum.value, infoPageSize.value);
+				// console.log(adminStore.infoList);
+				showInfoList();
 			};
 
 			const showPointer = (data) => {
+				locationStore.test();
 				console.log("showPointer:", data.id);
 			};
 
@@ -328,7 +387,6 @@
 				disabled,
 				currentTable,
 				currentInfoList,
-				currentInfo,
 				infoNum,
 				infoPageSize,
 				infoPageNum,
@@ -343,6 +401,9 @@
 				handleInfoPageChange,
 				showInfo,
 				showPointer,
+				feedbackDetails,
+				updateFeedbackDetails,
+				infoBack,
 			};
 		},
 	};
