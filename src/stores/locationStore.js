@@ -33,7 +33,6 @@ export const useLocationStore = defineStore('location', {
 		},
 
 		async createProvinceMap(provinces) {
-
 			const provinceMap = {};
 			this.provinces.forEach(province => {
 				provinceMap[province.provinceId] = province;
@@ -79,6 +78,13 @@ export const useLocationStore = defineStore('location', {
 				await this.initLocationStore();
 			}
 			return this.provinceMap[provinceId];
+		},
+
+		async getAllProvinces() {
+			if (!this.initFlag) {
+				await this.initLocationStore();
+			}
+			return this.provinces;
 		},
 
 		async test() {

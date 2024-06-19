@@ -253,8 +253,6 @@
 						time: 'null',
 					};
 
-					
-
 					info.num = (infoCurrentPageNum.value - 1) * infoPageSize.value + i + 1;
 					info.id = adminStore.infoList[i].infoId;
 					info.supervisorName = adminStore.infoList[i].supervisorName;
