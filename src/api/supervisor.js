@@ -21,8 +21,12 @@ export function editPersonal(data) {
 }
 
 // 查询公众监督员历史反馈信息列表
-export function getAllFeedbackList(data) {
-    return axios.get('/supervisor/getAllFeedbackList', data);
+export function getAllFeedbackList(supervisorId) {
+    return axios.get('/supervisor/getAllFeedbackList', {
+        params: {
+            supervisorId: supervisorId
+        }
+    });
 }
 
 // 公众监督员反馈监督信息

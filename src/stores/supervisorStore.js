@@ -5,12 +5,12 @@ export const useSupervisorStore = defineStore('supervisor', {
     state: () => ({
         token: '',
         supervisor: {
-            supervisorId: '',
+            supervisorId: null,
             realName: '',
             telId: '',
             birthday: '',
-            sex: '',
-            age: '',
+            sex: null,
+            age: null,
         },
         register: '',
         feedbackList: [],
@@ -37,11 +37,11 @@ export const useSupervisorStore = defineStore('supervisor', {
         async supervisorRegister(data) {
             try {
                 const response = await supervisorAPI.supervisorRegister(data);
-                if (response.data.data.code === 0) {
-                    console.log('Register successful, response data:', response.data.data);
+                if (response.data.code === 0) {
+                    console.log('Register successful, response data:', response.data);
                     this.register = data.telId;
                 } else {
-                    console.log('Register failed, response data:', response.data.data);
+                    console.log('Register failed, response data:', response.data);
                 }
             } catch (error) {
                 console.error('Error during registration:', error);
@@ -50,10 +50,7 @@ export const useSupervisorStore = defineStore('supervisor', {
         async supervisorFeedbackList() {
             try {
                 const response = await supervisorAPI.getAllFeedbackList(this.supervisor.supervisorId);
-                if (response.data !== null){
-                    console.log('Get feedback list successful, response data:', response.data.data);
-                    this.feedbackList = response.data.data.list;
-                }
+                this.feedbackList = response.data.data;
             } catch (error) {
                 console.error('Error during getting feedback list:', error);
             }

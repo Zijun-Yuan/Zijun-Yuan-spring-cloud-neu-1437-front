@@ -1,13 +1,29 @@
 <template>
   <div class="common-layout">
-    <el-header class="layout-header">东软环保公众监督平台监督员系统</el-header>
+    <el-header class="layout-header">
+      <el-row :gutter="20" justify="space-between">
+        <el-col :span="12">
+          <div class="system-title">
+            <b>东软环保公众监督平台监督员系统</b>
+          </div>
+        </el-col>
+        <el-col :span="12" style="text-align: right;">
+          <div class="welcome-message">
+            欢迎使用本系统，{{ supervisorStore.supervisor.realName }}监督员
+          </div>
+          <el-button type="danger" @click="logout">退出登录</el-button>
+        </el-col>
+      </el-row>
+    </el-header>
     <el-container class="layout-container-demo">
       <el-aside width="300px">
         <el-scrollbar>
           <el-menu :default-openeds="['1']">
             <el-sub-menu index="1">
               <template #title>
-                <el-icon> <Message /> </el-icon>
+                <el-icon>
+                  <Message/>
+                </el-icon>
                 <span class="menu-title">公众监督员功能</span>
               </template>
               <el-menu-item index="1-1" @click="getFeedbackList">
@@ -32,69 +48,75 @@
         </el-header>
 
         <el-main>
-          <div v-if="currentTable === ''">
-            <img src="@/assets/images/SupervisorLogin.jpg" alt="Placeholder Image" />
-          </div>
-          <div v-if="currentTable === 'feedbackList'">
-            <el-table :data="currentInfoList" style="width: 100%">
-              <el-table-column prop="aqiLevel" label="污染等级" width="100"></el-table-column>
-              <el-table-column prop="time" label="反馈时间" width="200"></el-table-column>
-              <el-table-column prop="province" label="省份" width="200"></el-table-column>
-              <el-table-column prop="city" label="城市" width="200"></el-table-column>
-              <el-table-column prop="address" label="具体位置" width="200"></el-table-column>
-              <el-table-column prop="feedback" label="描述" width="300"></el-table-column>
-            </el-table>
-          </div>
+          <el-scrollbar>
+            <div v-if="currentTable === ''">
+              <img src="@/assets/images/SupervisorLogin.jpg" alt="Placeholder Image"/>
+            </div>
 
-          <div v-else-if="currentTable ==='reportGridInformation'">
-            <el-form ref="reportGridForm" :model="reportGridForm" label-width="100px">
-              <el-form-item label="网格名称">
-                <el-input v-model="reportGridForm.gridName" placeholder="请输入网格名称"></el-input>
+            <el-table v-if="currentTable === 'feedbackList'" :data="currentInfoList"
+                      empty-text="目前没有历史反馈信息"
+                      style="width: 100%">
+              <el-table-column prop="aqiLevel" label="污染等级" width="150"></el-table-column>
+              <el-table-column prop="date" label="反馈日期" width="150"></el-table-column>
+              <el-table-column prop="time" label="反馈时间" width="150"></el-table-column>
+              <el-table-column prop="province.provinceName" label="省份" width="150"></el-table-column>
+              <el-table-column prop="city.cityName" label="城市" width="150"></el-table-column>
+              <el-table-column prop="address" label="具体位置" width="150"></el-table-column>
+              <el-table-column prop="feedback" label="描述" width="250"></el-table-column>
+            </el-table>
+
+            <el-form v-else-if="currentTable === 'reportGridInformation'" ref="reportGridForm" label-width="100px">
+              <el-row :gutter="20">
+                <el-col :span="6">
+                  <el-form-item label="所在省">
+                    <el-select v-model="reportForm.province" placeholder="请选择省份" style="width: 100%;" @change="handleProvinceChange">
+                      <el-option v-for="province in provinces" :key="province.provinceId" :label="province.provinceName" :value="province.provinceId"></el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                  <el-form-item label="所在市">
+                    <el-select v-model="reportForm.city" placeholder="请选择城市" style="width: 100%;" :disabled="!reportForm.province">
+                      <el-option v-for="city in cities" :key="city.cityCode" :label="city.cityName" :value="city.cityCode"></el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-col :span="16">
+                <el-form-item label="地址">
+                  <el-input v-model="reportForm.address" placeholder="填写具体地址" style="width: 100%;"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-form-item label="空气质量等级">
+                <el-table :data="aqiLevelDescriptions" border style="width: 100%">
+                  <el-table-column prop="level" label="等级" width="50"></el-table-column>
+                  <el-table-column prop="quality" label="质量" width="100"></el-table-column>
+                  <el-table-column prop="description" label="描述"></el-table-column>
+                </el-table>
               </el-form-item>
-              <el-form-item label="网格位置">
-                <el-input v-model="reportGridForm.gridLocation" placeholder="请输入网格位置"></el-input>
+              <el-form-item label="等级预估">
+                <el-row type="flex" justify="center">
+                  <el-col :span="24">
+                    <el-radio-group v-model="reportForm.aqiLevel">
+                      <el-radio :label="1" style="color: green;">一</el-radio>
+                      <el-radio :label="2" style="color: lightgreen;">二</el-radio>
+                      <el-radio :label="3" style="color: yellow;">三</el-radio>
+                      <el-radio :label="4" style="color: orange;">四</el-radio>
+                      <el-radio :label="5" style="color: red;">五</el-radio>
+                      <el-radio :label="6" style="color: brown;">六</el-radio>
+                    </el-radio-group>
+                  </el-col>
+                </el-row>
               </el-form-item>
-              <el-form-item label="网格类型">
-                <el-select v-model="reportGridForm.gridType">
-                  <el-option label="居民小区" value="居民小区"></el-option>
-                  <el-option label="工业园区" value="工业园区"></el-option>
-                  <el-option label="公园" value="公园"></el-option>
-                  <el-option label="其它" value="其它"></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="网格面积">
-                <el-input v-model="reportGridForm.gridArea" placeholder="请输入网格面积"></el-input>
-              </el-form-item>
-              <el-form-item label="网格用途">
-                <el-input v-model="reportGridForm.gridUse" placeholder="请输入网格用途"></el-input>
-              </el-form-item>
-              <el-form-item label="网格状态">
-                <el-select v-model="reportGridForm.gridStatus">
-                  <el-option label="正常" value="正常"></el-option>
-                  <el-option label="异常" value="异常"></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="网格照片">
-                <el-upload
-                  class="avatar-uploader"
-                  action="https://jsonplaceholder.typicode.com/posts/"
-                  :on-success="handleAvatarSuccess"
-                  :file-list="fileList"
-                  :multiple="false"
-                  :show-file-list="false"
-                >
-                  <el-button size="small" type="primary">点击上传</el-button>
-                  <div class="el-upload__tip" slot="tip" style="margin-top: 10px">
-                    只支持单张图片，请上传清晰照片
-                  </div>
-                </el-upload>
+              <el-form-item label="反馈信息">
+                <el-input v-model="reportForm.feedback" type="textarea" rows="4"></el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="submitReportGridInformation">提交</el-button>
+                <el-button type="primary" @click="submitReport">提交</el-button>
               </el-form-item>
             </el-form>
-          </div>
-              
+
+          </el-scrollbar>
         </el-main>
       </el-container>
     </el-container>
@@ -102,10 +124,12 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useSupervisorStore } from '@/stores/supervisorStore';
-import { Message, Location, Person } from '@element-plus/icons-vue';
+import {ref, watch, onMounted} from 'vue';
+import {useRouter} from 'vue-router';
+import {useSupervisorStore} from '@/stores/supervisorStore';
+import {useLocationStore} from "@/stores/locationStore";
+import {useAQIStore} from "@/stores/aqiLevelStore";
+import {Message, Location, Person} from '@element-plus/icons-vue';
 
 export default {
   name: 'PublicSupervisorBoard',
@@ -120,13 +144,38 @@ export default {
     const subTitle = ref('');
     const formattedTitle = ref(`${mainTitle.value} / ${subTitle.value}`);
     const supervisorStore = useSupervisorStore();
+    const locationStore = useLocationStore();
+    const aqiLevelStore = useAQIStore();
 
     let currentTable = ref('');
     let currentInfoList = ref([]);
+    let provinces = ref([]);
+    let cities = ref([]);
+
+    const reportForm = ref({
+      province: '',
+      city: '',
+      address: '',
+      aqiLevel: '',
+      feedback: ''
+    });
+
+    const aqiLevelDescriptions = [
+      { level: '一', quality: '优', description: '空气质量令人满意，基本无空气污染' },
+      { level: '二', quality: '良', description: '空气质量可接受，但某些污染物可能对极少数异常敏感人群健康有较弱影响' },
+      { level: '三', quality: '轻度污染', description: '易感人群症状有轻度加剧，健康人群出现刺激症状' },
+      { level: '四', quality: '中度污染', description: '进一步加剧易感人群症状，可能对健康人群心脏、呼吸系统有影响' },
+      { level: '五', quality: '重度污染', description: '心脏病和肺病患者症状显著加剧，运动耐受力降低，健康人群普遍出现症状' },
+      { level: '六', quality: '严重污染', description: '健康人群运动耐受力降低，有明显强烈症状，提前出现某些疾病' }
+    ];
 
     watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
       formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
     });
+
+    const logout = () => {
+      router.push('/supervisor/login');
+    }
 
     const updateLocation = (newMainTitle, newSubTitle) => {
       mainTitle.value = newMainTitle;
@@ -134,30 +183,59 @@ export default {
     };
 
     const getFeedbackList = async () => {
-      updateLocation('公众监督员功能', '历史反馈信息列表');
-      currentTable.value = 'feedbackList';
-      await processFeedbackList();
+      try {
+        await supervisorStore.supervisorFeedbackList();
+        updateLocation('公众监督员功能', '历史反馈信息列表');
+        currentTable.value = 'feedbackList';
+        console.log("进入feedbackList");
+        console.log(supervisorStore.feedbackList);
+        processFeedbackList();
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     const processFeedbackList = async () => {
-      // Processing and formatting of feedback list data
-      // Populate currentInfoList with the formatted data
-      // await supervisorStore.supervisorFeedbackList();
-      // const feedbackList = supervisorStore.feedbackList;
-      // const formattedFeedbackList = feedbackList.map((item) => {
-      //   const { aqiLevel, time, province, city, address, feedback } = item;
-      //   return { aqiLevel, time, province, city, address, feedback };
-      // });
-      // currentInfoList.value = formattedFeedbackList;
-      await supervisorStore.supervisorFeedbackList();
+      currentInfoList.value = []; // 重置数组
+      let date = new Date();
+      for (let i = 0; i < supervisorStore.feedbackList.length; i++) {
+        console.log(i);
+        let info = {
+          aqiLevel: "null",
+          date: "null",
+          time: "null",
+          province: "null",
+          city: "null",
+          address: "null",
+          feedback: "null"
+        };
+        date = new Date(supervisorStore.feedbackList[i].time);
 
+        const aqiInfo = aqiLevelStore.getAQLDetail(supervisorStore.feedbackList[i].aqiLevel);
+        info.aqiLevel = aqiInfo.name + "(" + aqiInfo.level + ")";
+        info.address = supervisorStore.feedbackList[i].address;
+        info.feedback = supervisorStore.feedbackList[i].feedback;
 
+        info.city = await locationStore.getCityAndProvinceByCityCode(supervisorStore.feedbackList[i].cityCode);
+        info.province = await locationStore.getProvinceByCityCode(supervisorStore.feedbackList[i].cityCode);
+
+        info.date =
+            `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        info.time =
+            `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+        currentInfoList.value.push(info);
+        console.log(currentInfoList.value[i]);
+      }
     };
 
     const reportGridInformation = () => {
       updateLocation('公众监督员功能', '上报网格信息');
       currentTable.value = 'reportGridInformation';
+    };
 
+    const submitReport = () => {
+      console.log('提交表单', reportForm.value);
+      // 这里可以添加提交表单的逻辑
     };
 
     const browsePersonalInfo = () => {
@@ -165,9 +243,27 @@ export default {
       // Add logic to browse personal information
     };
 
+    const handleProvinceChange = async (provinceId) => {
+      if (provinceId) {
+        cities.value = await locationStore.getCitiesByProvinceId(provinceId);
+      } else {
+        cities.value = [];
+        reportForm.value.city = '';
+      }
+    };
+
+    onMounted(async () => {
+      provinces.value = await locationStore.getAllProvinces();
+    });
+
     return {
+      supervisorStore,
       formattedTitle,
+      reportForm,
+      aqiLevelDescriptions,
+      submitReport,
       updateLocation,
+      logout,
       mainTitle,
       subTitle,
       currentTable,
@@ -176,6 +272,9 @@ export default {
       processFeedbackList,
       reportGridInformation,
       browsePersonalInfo,
+      provinces,
+      cities,
+      handleProvinceChange,
     };
   },
 };
@@ -243,5 +342,27 @@ export default {
   align-items: center;
   justify-content: flex-start;
   height: 100%;
+}
+
+.system-title {
+  font-size: 20px;
+  color: white;
+}
+
+.welcome-message {
+  font-size: 16px;
+  color: white;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.el-button--danger {
+  background-color: #f56c6c;
+  border-color: #f56c6c;
+}
+
+.el-button--danger:hover {
+  background-color: #f78989;
+  border-color: #f78989;
 }
 </style>

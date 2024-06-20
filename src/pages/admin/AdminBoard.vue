@@ -89,9 +89,9 @@
 										{{ feedbackDetails.id }}
 									</el-descriptions-item>
 									<el-descriptions-item label="反馈者信息">
-										<el-tag size="small"style="margin-right: 8px;">{{ feedbackDetails.location.province }}</el-tag>
-										<el-tag size="small"style="margin-right: 8px;">{{ feedbackDetails.location.province }}</el-tag>
-										<el-tag size="small">{{ feedbackDetails.location.province }}</el-tag>
+										<el-tag size="small"style="margin-right: 8px;">{{ feedbackDetails.userInfo.name }}</el-tag>
+										<el-tag size="small"style="margin-right: 8px;">{{ feedbackDetails.userInfo.sex }}</el-tag>
+										<el-tag size="small">{{ feedbackDetails.userInfo.birthday }}</el-tag>
 									</el-descriptions-item>
 									<el-descriptions-item label="反馈者联系电话">
 										{{ feedbackDetails.userInfo.phoneNum }}
@@ -253,22 +253,13 @@
 						time: 'null',
 					};
 
-					
-
 					info.num = (infoCurrentPageNum.value - 1) * infoPageSize.value + i + 1;
 					info.id = adminStore.infoList[i].infoId;
 					info.supervisorName = adminStore.infoList[i].supervisorName;
 					info.province = await locationStore.getProvinceByCityCode(adminStore.infoList[i].cityCode);
 					info.city = await locationStore.getCityAndProvinceByCityCode(adminStore.infoList[i].cityCode);
-					
-					
-					// info.cityCode = adminStore.infoList[i].cityCode;
-					// console.log(adminStore.infoList[i].aqiLevel);
 					const aqiInfo = aqiStore.getAQLDetail(adminStore.infoList[i].aqiLevel);
 					info.aqiInfo = aqiInfo.name +"("+aqiInfo.level+")";
-
-
-					// console.log(aqiStore.getAQLDetail(info.aqiLevel));
 
 					info.label = adminStore.infoList[i].label;
 					
@@ -287,55 +278,43 @@
 
 
 			//查看某一信息的详细信息
-			const showInfo = (data) => {
+			const showInfo = async(data) => {
 				updateLocation('公众监督数据管理', '公众监督数据详情');
 				currentTable.value = 'table2';
-				updateFeedbackDetails(data);
-				console.log("showPointer:", data.id);
-				console.log("showPointer:", data);
+				const info = await adminStore.getInfoById(data.id);
+				updateFeedbackDetails(info);
+				// console.log("showPointer:", info);
+		
 			};
 			
-			const updateFeedbackDetails = (data) => {
-				feedbackDetails.value.id = data.id;
+			const updateFeedbackDetails = async(data) => {
+				feedbackDetails.value.id = data.infoId;
 				
-				// feedbackDetails.value.userInfo.name = data.id;
-				// feedbackDetails.value.userInfo.sex = data.id;
-				// feedbackDetails.value.userInfo.birthday = data.id;
-				// feedbackDetails.value.userInfo = data.id;
+				const supervisor = await adminStore.getSupervisorByInfoId(data.infoId);
+				console.log(supervisor);
+				feedbackDetails.value.userInfo.name = supervisor.realName;
+				feedbackDetails.value.userInfo.sex = supervisor.sex;
+				feedbackDetails.value.userInfo.birthday = supervisor.birthday;
+				feedbackDetails.value.userInfo.phoneNum = supervisor.telId;
 				
-				feedbackDetails.value.location.province = data.id;
-				feedbackDetails.value.location.city = data.id;
-				feedbackDetails.value.id = data.id;
-				feedbackDetails.value.id = data.id;
+				const province = await locationStore.getProvinceByCityCode(data.cityCode);
+				const city = await locationStore.getCityAndProvinceByCityCode(data.cityCode);
 				
-				feedbackDetails.value.id = data.id;
-				feedbackDetails.value.id = data.id;
-				feedbackDetails.value.id = data.id;
-				feedbackDetails.value.id = data.id;
+				feedbackDetails.value.location.province = province.provinceName;
+				feedbackDetails.value.location.city = city.cityName;
+				feedbackDetails.value.address = data.address;
+				feedbackDetails.value.feedback = data.feedback;
 				
-				feedbackDetails = ref({
-					id: "38",
-					userInfo: {
-						name: "欧阳锋",
-						sex:"男",
-						birthday: "1980-11-13",
-						phoneNum:"17345988896",
-					},
-					location:{
-						province:"辽宁省",
-						city:"大连市",
-					},
-					address: "甘井子区凌风街乘风社区",
-					feedback:"月黑风高，空气浑浊，难道是杀人夜？",
-					currentAQLDetail:{
-						level:"四级",
-						name:"中度污染",
-					},
-					feedbackDateTime:{
-						date:"2022-10-27",
-						time:"16:29:26",
-					},
-				});
+				const aqiInfo = await aqiStore.getAQLDetail(data.aqiLevel);
+	
+				feedbackDetails.value.currentAQLDetail.name = aqiInfo.name;
+				feedbackDetails.value.currentAQLDetail.level = aqiInfo.level;
+				
+				const date = new Date(data.time);
+				
+				feedbackDetails.value.feedbackDateTime.date = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+				feedbackDetails.value.feedbackDateTime.time = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+			
 				updateLocation('公众监督数据管理', '公众监督数据详情');
 				currentTable.value = 'table2';
 				updateFeedbackDetails();
