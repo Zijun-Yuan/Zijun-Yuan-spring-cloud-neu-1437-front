@@ -66,6 +66,7 @@ export const useLocationStore = defineStore('location', {
 			return this.cities.filter(city => city.provinceId === provinceId);
 		},
 
+		// 这里只返回city对象，不返回province对象
 		async getCityAndProvinceByCityCode(cityCode) {
 			if (!this.initFlag) {
 				await this.initLocationStore();

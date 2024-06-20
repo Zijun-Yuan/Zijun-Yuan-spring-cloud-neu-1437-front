@@ -16,17 +16,17 @@
 
         <div v-if="showContent === 'completed'">
           <p>显示已完成的内容</p>
-          <el-table :data="infoList">
-<!--            <el-table-column label="省份">-->
-<!--              <template slot-scope="scope">-->
-<!--                <span>{......................................{getProvince(scope.row.cityCode).provinceName}}</span>-->
-<!--              </template>-->
-<!--            </el-table-column>-->
-<!--            <el-table-column label="城市">-->
-<!--              <template slot-scope="scope">-->
-<!--                <span>{{getCity(getProvince(scope.row.cityCode).provinceId).cityName}}</span>-->
-<!--              </template>-->
-<!--            </el-table-column>-->
+          <el-table :data="processedInfoList">
+            <el-table-column label="省份">
+              <template #default="{ row }">
+                <span>{{ row.province.provinceName }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="城市">
+              <template #default="{ row }">
+                <span>{{ row.city.cityName }}</span>
+              </template>
+            </el-table-column>
             <el-table-column prop="aqiLevel" label="AQI" />
             <el-table-column prop="address" label="地址" />
             <el-table-column prop="time" label="时间" />
@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useInspectorStore } from '@/stores/inspectorStore';
 import { getInfoList } from '@/api/inspector';
 import { useLocationStore } from "@/stores/locationStore";
@@ -53,6 +53,7 @@ export default {
     const inspectorStore = useInspectorStore();
     const locationStore = useLocationStore();
     const infoList = ref([]);
+    const processedInfoList = ref([]);
 
     const fetchInfoList = async () => {
       try {
@@ -61,8 +62,7 @@ export default {
 
         if (response.data.code === 0) {
           infoList.value = response.data.data;
-          // console.log(infoList);
-
+          await processInfoList();
         } else {
           console.error('Failed to fetch info list:', response.data.message);
         }
@@ -71,25 +71,58 @@ export default {
       }
     };
 
-    const showCompleted = () => {
+    const showCompleted = async () => {
       showContent.value = 'completed';
-      fetchInfoList();
+      await fetchInfoList();
     };
 
-    const showUncompleted = () => {
+    const showUncompleted = async () => {
       showContent.value = 'uncompleted';
-      fetchInfoList();
+      await fetchInfoList();
     };
 
-    const getProvince = (cityCode) => {
-      return locationStore.getProvinceByCityCode(cityCode);
+    const getProvince = async (cityCode) => {
+      try {
+        return await locationStore.getProvinceByCityCode(cityCode);
+      } catch (error) {
+        console.error('Failed to get province:', error);
+        return { provinceName: '' };
+      }
     }
 
-    const getCity = (provinceId) => {
-      return locationStore.getCitiesByProvinceId(provinceId);
+    const getCity = async (cityCode) => {
+      try {
+        return await locationStore.getCityAndProvinceByCityCode(cityCode);
+      } catch (error) {
+        console.error('Failed to get city:', error);
+        return { cityName: '' };
+      }
     }
+
+    const processInfoList = async () => {
+      const items = infoList.value;
+      const processedItems = [];
+
+      for (const item of items) {
+        const province = await getProvince(item.cityCode);
+        const city = await getCity(item.cityCode);
+
+        // console.log('Province: ', province);
+        // console.log('City: ', city);
+
+        if (province && city) {
+          processedItems.push({
+            ...item,
+            province: province,
+            city: city
+          });
+        }
+      }
+      processedInfoList.value = processedItems;
+    };
 
     onMounted(() => {
+      locationStore.initLocationStore();
       fetchInfoList();
     });
 
@@ -98,6 +131,7 @@ export default {
       showCompleted,
       showUncompleted,
       infoList,
+      processedInfoList,
       getProvince,
       getCity,
     };
