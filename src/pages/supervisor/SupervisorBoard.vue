@@ -135,6 +135,7 @@ import {useLocationStore} from "@/stores/locationStore";
 import {useAQIStore} from "@/stores/aqiLevelStore";
 import {Message, Location, Person} from '@element-plus/icons-vue';
 import {ElMessage} from "element-plus";
+import {ElMessageBox} from "element-plus/lib/components";
 
 export default {
   name: 'PublicSupervisorBoard',
@@ -183,7 +184,18 @@ export default {
     });
 
     const logout = () => {
-      router.push('/supervisor/login');
+      ElMessageBox.confirm('确定要退出当前账号吗？', '登出当前账号', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger',
+        cancelButtonClass: 'el-button--info'
+      }).then(() => {
+        supervisorStore.logout();
+        router.push('/supervisor/login');
+      }).catch(() => {
+        // 用户点击取消
+      });
     }
 
     const updateLocation = (newMainTitle, newSubTitle) => {

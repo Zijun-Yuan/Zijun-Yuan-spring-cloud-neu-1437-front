@@ -79,7 +79,14 @@ export const useSupervisorStore = defineStore('supervisor', {
             return this.token;
         },
         logout() {
-            this.token = '';
+            this.supervisor = {
+                supervisorId: null,
+                realName: '',
+                telId: '',
+                birthday: '',
+                sex: null,
+                age: null,
+            };
         },
     }
 });
