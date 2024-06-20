@@ -17,6 +17,19 @@
         <div v-if="showContent === 'completed'">
           <p>显示已完成的内容</p>
           <el-table :data="infoList">
+<!--            <el-table-column label="省份">-->
+<!--              <template slot-scope="scope">-->
+<!--                <span>{......................................{getProvince(scope.row.cityCode).provinceName}}</span>-->
+<!--              </template>-->
+<!--            </el-table-column>-->
+<!--            <el-table-column label="城市">-->
+<!--              <template slot-scope="scope">-->
+<!--                <span>{{getCity(getProvince(scope.row.cityCode).provinceId).cityName}}</span>-->
+<!--              </template>-->
+<!--            </el-table-column>-->
+            <el-table-column prop="aqiLevel" label="AQI" />
+            <el-table-column prop="address" label="地址" />
+            <el-table-column prop="time" label="时间" />
           </el-table>
         </div>
         <div v-else-if="showContent === 'uncompleted'">
@@ -31,25 +44,25 @@
 import { ref, onMounted } from 'vue';
 import { useInspectorStore } from '@/stores/inspectorStore';
 import { getInfoList } from '@/api/inspector';
+import { useLocationStore } from "@/stores/locationStore";
 
 export default {
   name: 'InspectorBoard',
   setup: function () {
     const showContent = ref('');
     const inspectorStore = useInspectorStore();
+    const locationStore = useLocationStore();
     const infoList = ref([]);
 
     const fetchInfoList = async () => {
       try {
         const inspectorCode = inspectorStore.inspectorCode;
         const response = await getInfoList(inspectorCode);
-        // console.log(response);
-        // console.log(response.data);
-        // console.log(response.data.data);
 
         if (response.data.code === 0) {
           infoList.value = response.data.data;
-          console.log(infoList);
+          // console.log(infoList);
+
         } else {
           console.error('Failed to fetch info list:', response.data.message);
         }
@@ -68,6 +81,14 @@ export default {
       fetchInfoList();
     };
 
+    const getProvince = (cityCode) => {
+      return locationStore.getProvinceByCityCode(cityCode);
+    }
+
+    const getCity = (provinceId) => {
+      return locationStore.getCitiesByProvinceId(provinceId);
+    }
+
     onMounted(() => {
       fetchInfoList();
     });
@@ -77,6 +98,8 @@ export default {
       showCompleted,
       showUncompleted,
       infoList,
+      getProvince,
+      getCity,
     };
   },
 }
