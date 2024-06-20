@@ -1,6 +1,20 @@
 import axios from './axios';
 
-//获取事务数量信息数量
+
+//获取所有反馈信息数量
+export function getInfoCountByStatus(data){
+	return axios.get('/admin/getInfoCountByStatus',data);
+}
+
+
+
+//获取当页反馈事务列表
+export function getInfoListByStatus(data) {
+  return axios.get('/admin/getAllListByStatus',data);
+}
+
+
+//获取所有事务数量信息数量
 export function getInfoCount(){
 	return axios.get('/admin/getInfoCount');
 }
@@ -25,34 +39,10 @@ export function setInfoToInspector(data) {
   return axios.post('/admin/setInfoToInspector', data);
 }
 
-//获取当页事务列表
-export function getInfoList(data) {
-  return axios.get('/admin/getAllInfoList',data);
-}
-
-// 获取未指派事务列表
-export function getAllNotAssignedInfoList() {
-  return axios.get('/admin/getAllNotAssignedInfoList');
-}
-
-// 获取已指派事务列表
-export function getAllAssignedInfoList() {
-  return axios.get('/admin/getAllAssignedInfoList');
-}
 
 // 获取所有网格员列表
 export function getInspectorList() {
   return axios.get('/admin/getInspectorList');
-}
-
-// 获取网格员事务列表
-export function getInspectorInfoList(inspectorId) {
-  return axios.get(`/admin/getInspectorInfoList?inspectorId=${inspectorId}`);
-}
-
-// 获取公众监督员事务列表
-export function getSupervisorInfoList(supervisorId) {
-  return axios.get(`/admin/getSupervisorInfoList?supervisorId=${supervisorId}`);
 }
 
 // 编辑公众监督员
