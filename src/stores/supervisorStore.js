@@ -56,6 +56,36 @@ export const useSupervisorStore = defineStore('supervisor', {
             }
         },
 
+        async addFeedback(data){
+          try {
+              const response = await supervisorAPI.addInfo(data);
+              if (response.data.code === 0) {
+                  console.log('Feedback added successfully, response data:', response.data);
+                  return true;
+              } else {
+                  console.log('Feedback adding failed, response data:', response.data);
+                  return false;
+              }
+          }  catch (error) {
+              console.error('Error during adding feedback:', error);
+          }
+        },
+
+        async updateSupervisor(data){
+            try {
+                const response = await supervisorAPI.editPersonal(data);
+                if (response.data.code === 0) {
+                    console.log('Supervisor updated successfully, response data:', response.data);
+                    return true;
+                } else {
+                    console.log('Supervisor updating failed, response data:', response.data);
+                    return false;
+                }
+            }  catch (error) {
+                console.error('Error during updating supervisor:', error);
+            }
+        },
+
         setToken(token) {
             this.token = token;
             console.log(this.token);
@@ -64,7 +94,14 @@ export const useSupervisorStore = defineStore('supervisor', {
             return this.token;
         },
         logout() {
-            this.token = '';
+            this.supervisor = {
+                supervisorId: null,
+                realName: '',
+                telId: '',
+                birthday: '',
+                sex: null,
+                age: null,
+            };
         },
     }
 });

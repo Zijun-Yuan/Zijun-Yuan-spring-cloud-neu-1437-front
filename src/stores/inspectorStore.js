@@ -1,4 +1,6 @@
-import {defineStore} from 'pinia';
+import {
+    defineStore
+} from 'pinia';
 import * as inspectorAPI from '@/api/inspector.js';
 
 export const useInspectorStore = defineStore('inspector', {

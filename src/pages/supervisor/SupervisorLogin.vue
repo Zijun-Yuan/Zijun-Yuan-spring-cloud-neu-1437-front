@@ -25,10 +25,8 @@
 <script>
 import {ref} from 'vue';
 import {useRouter} from 'vue-router';
-import {supervisorLogin} from "@/api/supervisor";
 import {useSupervisorStore} from "@/stores/supervisorStore";
 import {ElMessage} from "element-plus";
-import supervisor from "@/router/supervisor";
 
 export default {
   name: 'SupervisorLogin',
@@ -42,37 +40,21 @@ export default {
     const errorMessage = ref('');
 
     const handleLogin = async () => {
-      // try {
-      //   const data = {
-      //     supervisorCode: loginForm.value.telId,
-      //     password: loginForm.value.password,
-      //   };
-      //   const response = await supervisorLogin(data);
-      //   if (response.data.code === 0) {
-      //     console.log('Login successful, response data:', response.data);
-      //     await router.push('/admin/main');
-      //   } else {
-      //     console.log('Login failed, response data:', response.data);
-      //     ElMessage.error('账号或密码不正确，请重试');
-      //     loginForm.value.password = '';  // 清空密码输入框
-      //     errorMessage.value = response.data.message;
-      //   }
-      // } catch (error) {
-      //   console.error('Error during login:', error);
-      //   errorMessage.value = '登录失败，请检查您的登录编码和密码。';
-      // }
-
       const data = {
         supervisorCode: loginForm.value.telId,
         password: loginForm.value.password,
       };
-      await supervisorState.supervisorLogin(data);
-      if (supervisorState.supervisor.telId === data.supervisorCode){
-        await router.push('/supervisor/main');
-        ElMessage.success(supervisorState.supervisor.supervisorId + '登录成功'+supervisorState.supervisor.realName);
+      if(!loginForm.value.telId || !loginForm.value.password){
+        ElMessage.error('账号或密码不能为空');
       }else {
-        ElMessage.error('账号或密码不正确，请重试');
-        loginForm.value.password = '';  // 清空密码输入框
+        await supervisorState.supervisorLogin(data);
+        if (supervisorState.supervisor.telId === data.supervisorCode){
+          await router.push('/supervisor/main');
+          ElMessage.success('登录成功');
+        }else {
+          ElMessage.error('账号或密码不正确，请重试');
+          loginForm.value.password = '';  // 清空密码输入框
+        }
       }
     };
     const handleRegister = () => {

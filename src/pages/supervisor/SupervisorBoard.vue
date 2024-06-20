@@ -18,7 +18,7 @@
     <el-container class="layout-container-demo">
       <el-aside width="300px">
         <el-scrollbar>
-          <el-menu :default-openeds="['1']">
+          <el-menu :default-openeds="['1']" :default-active="defaultActive">
             <el-sub-menu index="1">
               <template #title>
                 <el-icon>
@@ -69,15 +69,19 @@
               <el-row :gutter="20">
                 <el-col :span="6">
                   <el-form-item label="所在省">
-                    <el-select v-model="reportForm.province" placeholder="请选择省份" style="width: 100%;" @change="handleProvinceChange">
-                      <el-option v-for="province in provinces" :key="province.provinceId" :label="province.provinceName" :value="province.provinceId"></el-option>
+                    <el-select v-model="reportForm.province" placeholder="请选择省份" style="width: 100%;"
+                               @change="handleProvinceChange">
+                      <el-option v-for="province in provinces" :key="province.provinceId" :label="province.provinceName"
+                                 :value="province.provinceId"></el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
                 <el-col :span="6">
                   <el-form-item label="所在市">
-                    <el-select v-model="reportForm.city" placeholder="请选择城市" style="width: 100%;" :disabled="!reportForm.province">
-                      <el-option v-for="city in cities" :key="city.cityCode" :label="city.cityName" :value="city.cityCode"></el-option>
+                    <el-select v-model="reportForm.city" placeholder="请选择城市" style="width: 100%;"
+                               :disabled="!reportForm.province">
+                      <el-option v-for="city in cities" :key="city.cityCode" :label="city.cityName"
+                                 :value="city.cityCode"></el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -98,12 +102,12 @@
                 <el-row type="flex" justify="center">
                   <el-col :span="24">
                     <el-radio-group v-model="reportForm.aqiLevel">
-                      <el-radio :label="1" style="color: green;">一</el-radio>
-                      <el-radio :label="2" style="color: lightgreen;">二</el-radio>
-                      <el-radio :label="3" style="color: yellow;">三</el-radio>
-                      <el-radio :label="4" style="color: orange;">四</el-radio>
-                      <el-radio :label="5" style="color: red;">五</el-radio>
-                      <el-radio :label="6" style="color: brown;">六</el-radio>
+                      <el-radio :value="1" style="color: green;">一</el-radio>
+                      <el-radio :value="2" style="color: lightgreen;">二</el-radio>
+                      <el-radio :value="3" style="color: yellow;">三</el-radio>
+                      <el-radio :value="4" style="color: orange;">四</el-radio>
+                      <el-radio :value="5" style="color: red;">五</el-radio>
+                      <el-radio :value="6" style="color: brown;">六</el-radio>
                     </el-radio-group>
                   </el-col>
                 </el-row>
@@ -116,6 +120,32 @@
               </el-form-item>
             </el-form>
 
+            <el-form v-else-if="currentTable === 'browsePersonalInfo'" ref="personalInfoForm" :model="personalInfo"
+                     label-width="100px">
+<!--             让基本信息这个表单项的标签显示为蓝色-->
+              <el-form-item>
+                <el-tag type="info" class="custom-tag">基本信息</el-tag>
+              </el-form-item>
+              <el-form-item label="姓名">
+                <el-input v-model="personalInfo.realName" placeholder="姓名"></el-input>
+              </el-form-item>
+              <el-form-item label="性别">
+                <el-select v-model="personalInfo.sex" placeholder="请选择性别">
+                  <el-option label="男" value=1></el-option>
+                  <el-option label="女" value=0></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="生日">
+                <el-date-picker v-model="personalInfo.birthday" type="date" placeholder="选择生日"></el-date-picker>
+              </el-form-item>
+              <el-form-item label="用户名">
+                <el-input v-model="personalInfo.telId" placeholder="用户名(电话号码)"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="updatePersonalInfo">更新</el-button>
+              </el-form-item>
+            </el-form>
+
           </el-scrollbar>
         </el-main>
       </el-container>
@@ -124,12 +154,14 @@
 </template>
 
 <script>
-import {ref, watch, onMounted} from 'vue';
+import {ref, watch, onMounted, computed} from 'vue';
 import {useRouter} from 'vue-router';
 import {useSupervisorStore} from '@/stores/supervisorStore';
 import {useLocationStore} from "@/stores/locationStore";
 import {useAQIStore} from "@/stores/aqiLevelStore";
 import {Message, Location, Person} from '@element-plus/icons-vue';
+import {ElMessage} from "element-plus";
+import {ElMessageBox} from "element-plus/lib/components";
 
 export default {
   name: 'PublicSupervisorBoard',
@@ -146,7 +178,7 @@ export default {
     const supervisorStore = useSupervisorStore();
     const locationStore = useLocationStore();
     const aqiLevelStore = useAQIStore();
-
+    const defaultActive = ref('1-1');
     let currentTable = ref('');
     let currentInfoList = ref([]);
     let provinces = ref([]);
@@ -157,24 +189,46 @@ export default {
       city: '',
       address: '',
       aqiLevel: '',
-      feedback: ''
+      feedback: '',
     });
 
     const aqiLevelDescriptions = [
-      { level: '一', quality: '优', description: '空气质量令人满意，基本无空气污染' },
-      { level: '二', quality: '良', description: '空气质量可接受，但某些污染物可能对极少数异常敏感人群健康有较弱影响' },
-      { level: '三', quality: '轻度污染', description: '易感人群症状有轻度加剧，健康人群出现刺激症状' },
-      { level: '四', quality: '中度污染', description: '进一步加剧易感人群症状，可能对健康人群心脏、呼吸系统有影响' },
-      { level: '五', quality: '重度污染', description: '心脏病和肺病患者症状显著加剧，运动耐受力降低，健康人群普遍出现症状' },
-      { level: '六', quality: '严重污染', description: '健康人群运动耐受力降低，有明显强烈症状，提前出现某些疾病' }
+      {level: '一', quality: '优', description: '空气质量令人满意，基本无空气污染'},
+      {level: '二', quality: '良', description: '空气质量可接受，但某些污染物可能对极少数异常敏感人群健康有较弱影响'},
+      {level: '三', quality: '轻度污染', description: '易感人群症状有轻度加剧，健康人群出现刺激症状'},
+      {level: '四', quality: '中度污染', description: '进一步加剧易感人群症状，可能对健康人群心脏、呼吸系统有影响'},
+      {
+        level: '五',
+        quality: '重度污染',
+        description: '心脏病和肺病患者症状显著加剧，运动耐受力降低，健康人群普遍出现症状'
+      },
+      {level: '六', quality: '严重污染', description: '健康人群运动耐受力降低，有明显强烈症状，提前出现某些疾病'}
     ];
+
+    const personalInfo = ref({
+      realName: '',
+      sex: '',
+      birthday: '',
+      telId: '',
+    });
 
     watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
       formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
     });
 
     const logout = () => {
-      router.push('/supervisor/login');
+      ElMessageBox.confirm('确定要退出当前账号吗？', '登出当前账号', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger',
+        cancelButtonClass: 'el-button--info'
+      }).then(() => {
+        supervisorStore.logout();
+        router.push('/supervisor/login');
+      }).catch(() => {
+        // 用户点击取消
+      });
     }
 
     const updateLocation = (newMainTitle, newSubTitle) => {
@@ -187,9 +241,7 @@ export default {
         await supervisorStore.supervisorFeedbackList();
         updateLocation('公众监督员功能', '历史反馈信息列表');
         currentTable.value = 'feedbackList';
-        console.log("进入feedbackList");
-        console.log(supervisorStore.feedbackList);
-        processFeedbackList();
+        await processFeedbackList();
       } catch (error) {
         console.log(error);
       }
@@ -199,7 +251,6 @@ export default {
       currentInfoList.value = []; // 重置数组
       let date = new Date();
       for (let i = 0; i < supervisorStore.feedbackList.length; i++) {
-        console.log(i);
         let info = {
           aqiLevel: "null",
           date: "null",
@@ -209,7 +260,7 @@ export default {
           address: "null",
           feedback: "null"
         };
-        date = new Date(supervisorStore.feedbackList[i].time);
+        date = new Date(supervisorStore.feedbackList[i].timeSupervisor);
 
         const aqiInfo = aqiLevelStore.getAQLDetail(supervisorStore.feedbackList[i].aqiLevel);
         info.aqiLevel = aqiInfo.name + "(" + aqiInfo.level + ")";
@@ -224,7 +275,6 @@ export default {
         info.time =
             `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
         currentInfoList.value.push(info);
-        console.log(currentInfoList.value[i]);
       }
     };
 
@@ -233,14 +283,61 @@ export default {
       currentTable.value = 'reportGridInformation';
     };
 
-    const submitReport = () => {
-      console.log('提交表单', reportForm.value);
-      // 这里可以添加提交表单的逻辑
+    const submitReport = async () => {
+      // 检查表单是否填写完整
+      if (!reportForm.value.province || !reportForm.value.city || !reportForm.value.address || !reportForm.value.aqiLevel || !reportForm.value.feedback) {
+        ElMessage.warning('请填写完整信息');
+      }
+      const reportData = {
+        status: 1,
+        aqiLevel: reportForm.value.aqiLevel,
+        cityCode: reportForm.value.city,
+        address: reportForm.value.address,
+        feedback: reportForm.value.feedback,
+        // time是当前的时间，格式为yyyy-MM-dd'T'HH:mm:ss
+        timeSupervisor: new Date().toISOString().slice(0, 19),
+        supervisorName: supervisorStore.supervisor.realName
+      }
+
+      if (await supervisorStore.addFeedback(reportData)) {
+        ElMessage.success({message: '信息上传成功，感谢您的反馈！'});
+        defaultActive.value = '1-1';
+        await getFeedbackList();
+        reportForm.value = {
+          province: '',
+          city: '',
+          address: '',
+          aqiLevel: '',
+          feedback: '',
+        };
+      } else {
+        console.log("反馈信息失败");
+        ElMessage.error({message: '反馈信息失败，请稍后再试！'});
+      }
     };
 
     const browsePersonalInfo = () => {
+      personalInfo.value.realName = supervisorStore.supervisor.realName;
+      personalInfo.value.sex = supervisorStore.supervisor.sex === 1 ? '男': '女';
+      personalInfo.value.birthday = supervisorStore.supervisor.birthday;
+      personalInfo.value.telId = supervisorStore.supervisor.telId;
       updateLocation('公众监督员功能', '浏览个人信息');
-      // Add logic to browse personal information
+      currentTable.value = 'browsePersonalInfo';
+    };
+
+    const updatePersonalInfo = async () => {
+      // 首先判断是否有表单为空
+      if (!personalInfo.value.realName || !personalInfo.value.birthday || !personalInfo.value.telId) {
+        ElMessage.warning('有为空的信息项，请填写完整');
+      }else {
+        // 否则开始更新个人信息
+        if (await supervisorStore.updateSupervisor(personalInfo.value)) {
+          ElMessage.success({message: '个人信息更新成功！'});
+          supervisorStore.supervisor = personalInfo.value;
+        } else {
+          ElMessage.error({message: '该电话号码已被注册，请更换电话号码！'});
+        }
+      }
     };
 
     const handleProvinceChange = async (provinceId) => {
@@ -260,7 +357,9 @@ export default {
       supervisorStore,
       formattedTitle,
       reportForm,
+      personalInfo,
       aqiLevelDescriptions,
+      defaultActive,
       submitReport,
       updateLocation,
       logout,
@@ -275,6 +374,7 @@ export default {
       provinces,
       cities,
       handleProvinceChange,
+      updatePersonalInfo,
     };
   },
 };
@@ -354,6 +454,12 @@ export default {
   color: white;
   display: inline-block;
   margin-right: 10px;
+}
+
+.custom-tag {
+  background-color: #7777e3;
+  border-color: #7777e3;
+  color: white;
 }
 
 .el-button--danger {
