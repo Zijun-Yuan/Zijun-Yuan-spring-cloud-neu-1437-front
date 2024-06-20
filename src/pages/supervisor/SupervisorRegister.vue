@@ -117,7 +117,6 @@ export default {
               registerForm.value.telId = '';
               ElMessage.error('该手机号已被注册');
             }
-
             // const response = await supervisorRegister(registerForm.value);
             // if (response.data.code === 0) {
             //   console.log('Register successful, response data:', response.data);

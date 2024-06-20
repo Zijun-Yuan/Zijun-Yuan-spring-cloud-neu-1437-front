@@ -56,6 +56,21 @@ export const useSupervisorStore = defineStore('supervisor', {
             }
         },
 
+        async addFeedback(data){
+          try {
+              const response = await supervisorAPI.addInfo(data);
+              if (response.data.code === 0) {
+                  console.log('Feedback added successfully, response data:', response.data);
+                  return true;
+              } else {
+                  console.log('Feedback adding failed, response data:', response.data);
+                  return false;
+              }
+          }  catch (error) {
+              console.error('Error during adding feedback:', error);
+          }
+        },
+
         setToken(token) {
             this.token = token;
             console.log(this.token);
