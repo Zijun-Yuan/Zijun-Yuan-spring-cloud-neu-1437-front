@@ -7,16 +7,16 @@
       <el-main>
         <el-row>
           <el-col :span="12">
-            <el-button type="primary" @click="showCompleted">已完成</el-button>
+            <el-button type="primary" @click="showUncompleted">未完成</el-button>
           </el-col>
           <el-col :span="12">
-            <el-button type="primary" @click="showUncompleted">未完成</el-button>
+            <el-button type="primary" @click="showCompleted">已完成</el-button>
           </el-col>
         </el-row>
 
-        <div v-if="showContent === 'completed'">
-          <p>显示已完成的内容</p>
-          <el-table :data="processedInfoList">
+        <div v-if="showContent === 'uncompleted'">
+          <p>显示未完成的内容</p>
+          <el-table :data="uncompletedInfoList">
             <el-table-column label="省份">
               <template #default="{ row }">
                 <span>{{ row.province.provinceName }}</span>
@@ -32,9 +32,26 @@
             <el-table-column prop="time" label="时间" />
           </el-table>
         </div>
-        <div v-else-if="showContent === 'uncompleted'">
-          <p>显示未完成的内容</p>
+
+        <div v-else-if="showContent === 'completed'">
+          <p>显示已完成的内容</p>
+          <el-table :data="completedInfoList">
+            <el-table-column label="省份">
+              <template #default="{ row }">
+                <span>{{ row.province.provinceName }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="城市">
+              <template #default="{ row }">
+                <span>{{ row.city.cityName }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="aqiLevel" label="AQI" />
+            <el-table-column prop="address" label="地址" />
+            <el-table-column prop="time" label="时间" />
+          </el-table>
         </div>
+
       </el-main>
     </el-container>
   </div>
@@ -53,13 +70,15 @@ export default {
     const inspectorStore = useInspectorStore();
     const locationStore = useLocationStore();
     const infoList = ref([]);
-    const processedInfoList = ref([]);
+    // const processedInfoList = ref([]);
+
+    const uncompletedInfoList = ref([]);
+    const completedInfoList = ref([]);
 
     const fetchInfoList = async () => {
       try {
         const inspectorCode = inspectorStore.inspectorCode;
         const response = await getInfoList(inspectorCode);
-
         if (response.data.code === 0) {
           infoList.value = response.data.data;
           await processInfoList();
@@ -71,13 +90,13 @@ export default {
       }
     };
 
-    const showCompleted = async () => {
-      showContent.value = 'completed';
+    const showUncompleted = async () => {
+      showContent.value = 'uncompleted';
       await fetchInfoList();
     };
 
-    const showUncompleted = async () => {
-      showContent.value = 'uncompleted';
+    const showCompleted = async () => {
+      showContent.value = 'completed';
       await fetchInfoList();
     };
 
@@ -101,24 +120,35 @@ export default {
 
     const processInfoList = async () => {
       const items = infoList.value;
-      const processedItems = [];
+      const uncompletedItems = [];
+      const completedItems = [];
+      // const processedItems = [];
 
       for (const item of items) {
         const province = await getProvince(item.cityCode);
         const city = await getCity(item.cityCode);
-
-        // console.log('Province: ', province);
-        // console.log('City: ', city);
-
         if (province && city) {
-          processedItems.push({
+          // processedItems.push({
+          //   ...item,
+          //   province: province,
+          //   city: city
+          // });
+          const processedItem = {
             ...item,
             province: province,
             city: city
-          });
+          };
+
+          if (item.status === 3) {
+            completedItems.push(processedItem);
+          } else if (item.status === 2) {
+            uncompletedItems.push(processedItem);
+          }
         }
       }
-      processedInfoList.value = processedItems;
+      // processedInfoList.value = processedItems;
+      completedInfoList.value = completedItems;
+      uncompletedInfoList.value = uncompletedItems;
     };
 
     onMounted(() => {
@@ -131,7 +161,9 @@ export default {
       showCompleted,
       showUncompleted,
       infoList,
-      processedInfoList,
+      uncompletedInfoList,
+      completedInfoList,
+      // processedInfoList,
       getProvince,
       getCity,
     };
