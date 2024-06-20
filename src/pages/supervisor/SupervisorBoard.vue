@@ -120,6 +120,32 @@
               </el-form-item>
             </el-form>
 
+            <el-form v-else-if="currentTable === 'browsePersonalInfo'" ref="personalInfoForm" :model="personalInfo"
+                     label-width="100px">
+<!--             让基本信息这个表单项的标签显示为蓝色-->
+              <el-form-item>
+                <el-tag type="info" class="custom-tag">基本信息</el-tag>
+              </el-form-item>
+              <el-form-item label="姓名">
+                <el-input v-model="personalInfo.realName" placeholder="姓名"></el-input>
+              </el-form-item>
+              <el-form-item label="性别">
+                <el-select v-model="personalInfo.sex" placeholder="请选择性别">
+                  <el-option label="男" value=1></el-option>
+                  <el-option label="女" value=0></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="生日">
+                <el-date-picker v-model="personalInfo.birthday" type="date" placeholder="选择生日"></el-date-picker>
+              </el-form-item>
+              <el-form-item label="用户名">
+                <el-input v-model="personalInfo.telId" placeholder="用户名(电话号码)"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="updatePersonalInfo">更新</el-button>
+              </el-form-item>
+            </el-form>
+
           </el-scrollbar>
         </el-main>
       </el-container>
@@ -128,7 +154,7 @@
 </template>
 
 <script>
-import {ref, watch, onMounted} from 'vue';
+import {ref, watch, onMounted, computed} from 'vue';
 import {useRouter} from 'vue-router';
 import {useSupervisorStore} from '@/stores/supervisorStore';
 import {useLocationStore} from "@/stores/locationStore";
@@ -178,6 +204,13 @@ export default {
       },
       {level: '六', quality: '严重污染', description: '健康人群运动耐受力降低，有明显强烈症状，提前出现某些疾病'}
     ];
+
+    const personalInfo = ref({
+      realName: '',
+      sex: '',
+      birthday: '',
+      telId: '',
+    });
 
     watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
       formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
@@ -256,7 +289,7 @@ export default {
         ElMessage.warning('请填写完整信息');
       }
       const reportData = {
-        status: 0,
+        status: 1,
         aqiLevel: reportForm.value.aqiLevel,
         cityCode: reportForm.value.city,
         address: reportForm.value.address,
@@ -277,15 +310,34 @@ export default {
           aqiLevel: '',
           feedback: '',
         };
-      }else {
+      } else {
         console.log("反馈信息失败");
         ElMessage.error({message: '反馈信息失败，请稍后再试！'});
       }
     };
 
     const browsePersonalInfo = () => {
+      personalInfo.value.realName = supervisorStore.supervisor.realName;
+      personalInfo.value.sex = supervisorStore.supervisor.sex === 1 ? '男': '女';
+      personalInfo.value.birthday = supervisorStore.supervisor.birthday;
+      personalInfo.value.telId = supervisorStore.supervisor.telId;
       updateLocation('公众监督员功能', '浏览个人信息');
-      // Add logic to browse personal information
+      currentTable.value = 'browsePersonalInfo';
+    };
+
+    const updatePersonalInfo = async () => {
+      // 首先判断是否有表单为空
+      if (!personalInfo.value.realName || !personalInfo.value.birthday || !personalInfo.value.telId) {
+        ElMessage.warning('有为空的信息项，请填写完整');
+      }else {
+        // 否则开始更新个人信息
+        if (await supervisorStore.updateSupervisor(personalInfo.value)) {
+          ElMessage.success({message: '个人信息更新成功！'});
+          supervisorStore.supervisor = personalInfo.value;
+        } else {
+          ElMessage.error({message: '该电话号码已被注册，请更换电话号码！'});
+        }
+      }
     };
 
     const handleProvinceChange = async (provinceId) => {
@@ -305,6 +357,7 @@ export default {
       supervisorStore,
       formattedTitle,
       reportForm,
+      personalInfo,
       aqiLevelDescriptions,
       defaultActive,
       submitReport,
@@ -321,6 +374,7 @@ export default {
       provinces,
       cities,
       handleProvinceChange,
+      updatePersonalInfo,
     };
   },
 };
@@ -400,6 +454,12 @@ export default {
   color: white;
   display: inline-block;
   margin-right: 10px;
+}
+
+.custom-tag {
+  background-color: #7777e3;
+  border-color: #7777e3;
+  color: white;
 }
 
 .el-button--danger {
