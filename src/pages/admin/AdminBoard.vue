@@ -189,8 +189,8 @@
 									</el-descriptions-item>
 									<el-descriptions-item label="预估等级">
 										<el-tag size="small"
-											style="margin-right: 8px;">{{ infoDetail1.currentAQLDetail.level }}</el-tag>
-										<el-tag size="small">{{ infoDetail1.currentAQLDetail.name }}</el-tag>
+											style="margin-right: 8px;">{{ infoDetail1.currentAQIDetail.level }}</el-tag>
+										<el-tag size="small">{{ infoDetail1.currentAQIDetail.name }}</el-tag>
 									</el-descriptions-item>
 									<el-descriptions-item label="反馈日期时间">
 										<el-tag size="small" style="margin-right: 8px;">{{ infoDetail1.date }}</el-tag>
@@ -294,7 +294,7 @@
 				},
 				address: "甘井子区凌风街乘风社区",
 				feedback: "月黑风高，空气浑浊，难道是杀人夜？",
-				currentAQLDetail: {
+				currentAQIDetail: {
 					level: "四级",
 					name: "中度污染",
 				},
@@ -316,7 +316,7 @@
 				},
 				address: "甘井子区凌风街乘风社区",
 				feedback: "月黑风高，空气浑浊，难道是杀人夜？",
-				currentAQLDetail: {
+				currentAQIDetail: {
 					level: "四级",
 					name: "中度污染",
 				},
@@ -338,7 +338,7 @@
 				},
 				address: "甘井子区凌风街乘风社区",
 				feedback: "月黑风高，空气浑浊，难道是杀人夜？",
-				currentAQLDetail: {
+				currentAQIDetail: {
 					level: "四级",
 					name: "中度污染",
 				},
@@ -606,7 +606,7 @@
 						dateInspector: 'null',
 						timeInspector: 'null',
 						timeSupervisor: 'null',
-						timeSupervisor: 'null',
+						dateSupervisor: 'null',
 					};
 
 					info.num = (infoCurrentPageNum3.value - 1) * infoPageSize.value + i + 1;
@@ -690,9 +690,10 @@
 				infoDetail1.value.address = data.address;
 				infoDetail1.value.feedback = data.feedback;
 				const aqiInfo = await aqiStore.getAQIDetail(data.aqiLevel);
-				infoDetail1.value.currentAQLDetail.name = aqiInfo.name;
-				infoDetail1.value.currentAQLDetail.level = aqiInfo.level;
-				const date = new Date(data.time);
+				infoDetail1.value.currentAQIDetail.name = aqiInfo.name;
+				infoDetail1.value.currentAQIDetail.level = aqiInfo.level;
+				const date = new Date(data.timeSupervisor);
+				
 				infoDetail1.value.date =
 					`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 				infoDetail1.value.time =
@@ -715,9 +716,9 @@
 				infoDetail2.value.address = data.address;
 				infoDetail2.value.feedback = data.feedback;
 				const aqiInfo = await aqiStore.getAQIDetail(data.aqiLevel);
-				infoDetail2.value.currentAQLDetail.name = aqiInfo.name;
-				infoDetail2.value.currentAQLDetail.level = aqiInfo.level;
-				const date = new Date(data.time);
+				infoDetail2.value.currentAQIDetail.name = aqiInfo.name;
+				infoDetail2.value.currentAQIDetail.level = aqiInfo.level;
+				const date = new Date(data.timeSupervisor);
 				infoDetail2.value.date =
 					`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 				infoDetail2.value.time =
@@ -740,8 +741,8 @@
 				infoDetail3.value.address = data.address;
 				infoDetail3.value.feedback = data.feedback;
 				const aqiInfo = await aqiStore.getAQIDetail(data.aqiLevel);
-				infoDetail3.value.currentAQLDetail.name = aqiInfo.name;
-				infoDetail3.value.currentAQLDetail.level = aqiInfo.level;
+				infoDetail3.value.currentAQIDetail.name = aqiInfo.name;
+				infoDetail3.value.currentAQIDetail.level = aqiInfo.level;
 				const date1 = new Date(data.timeSupervisor);
 				infoDetail3.value.dateSupervisor =
 					`${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
