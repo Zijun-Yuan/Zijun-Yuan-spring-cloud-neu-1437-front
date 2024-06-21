@@ -29,7 +29,6 @@ export const useLocationStore = defineStore('location', {
 			} catch (error) {
 				console.error('Failed to fetch data:', error);
 			}
-
 		},
 
 		async createProvinceMap(provinces) {
@@ -86,6 +85,26 @@ export const useLocationStore = defineStore('location', {
 				await this.initLocationStore();
 			}
 			return this.provinces;
+		},
+
+		async getCityAndProvinceByNames(provinceName, cityName) {
+			if (!this.initFlag) {
+				await this.initLocationStore();
+			}
+			const province = this.provinces.find(p => p.provinceName === provinceName);
+			if (!province) {
+				console.error('Province not found.');
+				return null;
+			}
+			const city = this.cities.find(c => c.cityName === cityName && c.provinceId === province.provinceId);
+			if (!city) {
+				console.error('City not found in the given province.');
+				return null;
+			}
+			return {
+				province,
+				city
+			};
 		},
 
 		async test() {

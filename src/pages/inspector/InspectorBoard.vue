@@ -33,11 +33,10 @@
           </el-menu>
         </el-aside>
         <el-main>
-          <!-- 这里为待检测任务的表格 -->
           <div v-if="showContent === 'uncompleted'" class="table-container">
-            <el-table :data="uncompletedInfoList" :header-cell-style="{textAlign: 'center'}" border
-                      height="450" stripe style="width: 100%" :row-style="{height: '0'}">
-              <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="55" /> <!-- 显示序号 -->
+            <el-table :data="paginatedUncompletedList" :header-cell-style="{textAlign: 'center'}" border
+                      height="590" stripe style="width: 100%" :row-style="{height: '0'}">
+              <el-table-column type="index" label="序号" :index="indexMethodUncompleted" align="center" width="55" />
               <el-table-column label="省份" align="center" width="75">
                 <template #default="{ row }">
                   <span>{{ row.province.provinceName }}</span>
@@ -48,7 +47,7 @@
                   <span>{{ row.city.cityName }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="address" label="地址" align="center" width="150" />
+              <el-table-column prop="address" label="地址" align="center" width="200" />
               <el-table-column label="AQI" align="center" width="85">
                 <template #default="{ row }">
                   <div v-if="row.aqiLevel !== undefined && row.aqiLevel !== null"
@@ -68,23 +67,31 @@
                 </template>
               </el-table-column>
             </el-table>
+            <el-pagination
+                v-if="uncompletedInfoList.length > pageSize"
+                :current-page="uncompletedCurrentPage"
+                :page-size="pageSize"
+                layout="total, prev, pager, next"
+                :total="uncompletedInfoList.length"
+                @current-change="handleUncompletedPageChange"
+            />
           </div>
-          <!-- 这里为已完成任务的表格 -->
           <div v-else-if="showContent === 'completed'" class="table-container">
-            <el-table :data="completedInfoList" :header-cell-style="{textAlign: 'center'}" border height="450" stripe style="width: 100%">
-              <el-table-column type="index" label="序号" :index="indexMethod" align="center" /> <!-- 显示序号 -->
-              <el-table-column label="省份" align="center">
+            <el-table :data="paginatedCompletedList" :header-cell-style="{textAlign: 'center'}" border
+                      height="590" stripe style="width: 100%" :row-style="{height: '0'}">
+              <el-table-column type="index" label="序号" :index="indexMethodCompleted" align="center" width="55" />
+              <el-table-column label="省份" align="center" width="75">
                 <template #default="{ row }">
                   <span>{{ row.province.provinceName }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="城市" align="center">
+              <el-table-column label="城市" align="center" width="75">
                 <template #default="{ row }">
                   <span>{{ row.city.cityName }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="address" label="地址" align="center" />
-              <el-table-column label="AQI" align="center">
+              <el-table-column prop="address" label="地址" align="center"  width="220" />
+              <el-table-column label="AQI" align="center"  width="85">
                 <template #default="{ row }">
                   <div v-if="row.aqiLevel !== undefined && row.aqiLevel !== null"
                        class="aqi-box"
@@ -93,14 +100,22 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column prop="so2" label="二氧化硫(SO2)浓度" align="center" />
-              <el-table-column prop="co" label="一氧化碳(CO)浓度" align="center" />
-              <el-table-column prop="o3" label="臭氧(O3)浓度" align="center" />
-              <el-table-column prop="pm25" label="PM2.5浓度" align="center" />
+              <el-table-column prop="so2" label="二氧化硫(SO2)浓度" align="center" width="95" />
+              <el-table-column prop="co" label="一氧化碳(CO)浓度" align="center" width="95" />
+              <el-table-column prop="o3" label="臭氧(O3)浓度" align="center" width="95" />
+              <el-table-column prop="pm25" label="PM2.5浓度" align="center" width="80" />
               <el-table-column prop="timeInspector" label="检测时间" align="center" />
             </el-table>
+            <!-- 分页控制 -->
+            <el-pagination
+                v-if="completedInfoList.length > pageSize"
+                :current-page="completedCurrentPage"
+                :page-size="pageSize"
+                layout="total, prev, pager, next"
+                :total="completedInfoList.length"
+                @current-change="handleCompletedPageChange"
+            />
           </div>
-          <!-- 个人信息展示 -->
           <div v-else-if="showContent === 'profile'" class="profile-container">
             <h2>个人信息</h2>
             <p>姓名: {{ inspectorStore.inspectorName }}</p>
@@ -114,15 +129,15 @@
 </template>
 
 <script>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useInspectorStore } from '@/stores/inspectorStore';
-import { getInfoList, getInspectorByCode } from '@/api/inspector';
+import { getInfoList } from '@/api/inspector';
 import { useLocationStore } from "@/stores/locationStore";
 import { useAQIStore } from '@/stores/aqiLevelStore';
 
 export default {
   name: 'InspectorBoard',
-  setup: function () {
+  setup() {
     const showContent = ref('uncompleted');
     const inspectorStore = useInspectorStore();
     const locationStore = useLocationStore();
@@ -131,6 +146,9 @@ export default {
     const infoList = ref([]);
     const uncompletedInfoList = ref([]);
     const completedInfoList = ref([]);
+    const pageSize = ref(10); // 每页数量
+    const uncompletedCurrentPage = ref(1); // 当前页码
+    const completedCurrentPage = ref(1); // 当前页码
 
     const fetchInfoList = async () => {
       try {
@@ -146,6 +164,20 @@ export default {
         console.error('Error during fetching info list:', error);
       }
     };
+
+    // 计算分页后未完成任务的数据
+    const paginatedUncompletedList = computed(() => {
+      const start = (uncompletedCurrentPage.value - 1) * pageSize.value;
+      const end = start + pageSize.value;
+      return uncompletedInfoList.value.slice(start, end);
+    });
+
+    // 计算分页后已完成任务的数据
+    const paginatedCompletedList = computed(() => {
+      const start = (completedCurrentPage.value - 1) * pageSize.value;
+      const end = start + pageSize.value;
+      return completedInfoList.value.slice(start, end);
+    });
 
     // 展示待检测的任务列表
     const showUncompleted = async () => {
@@ -195,8 +227,6 @@ export default {
             city: city,
             aqiLevel: item.aqiLevel || 7
           };
-          // 处理状态
-          // 0: 已删除 1: 公众监督员supervisor已提交 2: 已指派网格员inspector 3: 网格员inspector已填写
           if (item.status === 3) {
             completedItems.push(processedItem);
           } else if (item.status === 2) {
@@ -206,6 +236,19 @@ export default {
       }
       completedInfoList.value = completedItems;
       uncompletedInfoList.value = uncompletedItems;
+      updatePaginatedLists(); // 更新分页数据
+    };
+
+    // 更新分页后的任务列表
+    const updatePaginatedLists = () => {
+      paginatedUncompletedList.value = uncompletedInfoList.value.slice(
+          (uncompletedCurrentPage.value - 1) * pageSize.value,
+          uncompletedCurrentPage.value * pageSize.value
+      );
+      paginatedCompletedList.value = completedInfoList.value.slice(
+          (completedCurrentPage.value - 1) * pageSize.value,
+          completedCurrentPage.value * pageSize.value
+      );
     };
 
     // 获取AQI详情
@@ -213,8 +256,15 @@ export default {
       return aqiStore.getAQIDetail(level);
     }
 
-    // 显示序号
-    const indexMethod = (index) => index + 1;
+    // 显示未完成任务序号
+    const indexMethodUncompleted = (index) => {
+      return (uncompletedCurrentPage.value - 1) * pageSize.value + index + 1;
+    };
+
+    // 显示已完成任务序号
+    const indexMethodCompleted = (index) => {
+      return (completedCurrentPage.value - 1) * pageSize.value + index + 1;
+    };
 
     // 处理菜单选择事件
     const handleSelect = (index) => {
@@ -237,6 +287,19 @@ export default {
       // 在这里执行驳回的逻辑
     }
 
+    // 页码变化处理函数
+    const handleUncompletedPageChange = (page) => {
+      uncompletedCurrentPage.value = page;
+      // 重新计算分页数据
+      updatePaginatedLists();
+    };
+
+    const handleCompletedPageChange = (page) => {
+      completedCurrentPage.value = page;
+      // 重新计算分页数据
+      updatePaginatedLists();
+    };
+
     onMounted(() => {
       locationStore.initLocationStore();
       fetchInfoList();
@@ -249,14 +312,22 @@ export default {
       infoList,
       uncompletedInfoList,
       completedInfoList,
+      paginatedUncompletedList,
+      paginatedCompletedList,
       getProvince,
       getCity,
       getAQIDetail,
-      indexMethod,
+      indexMethodUncompleted,
+      indexMethodCompleted,
       handleCheck,
       handleReject,
       handleSelect,
-      inspectorStore
+      handleUncompletedPageChange,
+      handleCompletedPageChange,
+      inspectorStore,
+      pageSize,
+      uncompletedCurrentPage,
+      completedCurrentPage
     };
   },
 }
@@ -287,7 +358,7 @@ export default {
   color: white;
 }
 .table-container {
-  //margin-top: 20px;
+  margin-top: 0;
 }
 .el-table th {
   background-color: #f2f6fc;
