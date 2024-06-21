@@ -196,7 +196,7 @@
 </template>
 
 <script>
-import { onMounted, ref, computed } from 'vue';
+import {onMounted, ref, computed, watch} from 'vue';
 import { useInspectorStore } from '@/stores/inspectorStore';
 import { getInfoList } from '@/api/inspector';
 import { useLocationStore } from "@/stores/locationStore";
@@ -210,19 +210,20 @@ export default {
     const locationStore = useLocationStore();
     const aqiStore = useAQIStore();
 
-    const infoList = ref([]);
-    const uncompletedInfoList = ref([]);
-    const completedInfoList = ref([]);
-    const filteredUncompletedList = ref([]);
-    const filteredCompletedList = ref([]);
-    const provinceList = ref([]);
-    const aqiLevelList = ref([]);
-    const filterProvince = ref(null);
-    const filterCity = ref(null);
-    const filterAQI = ref(null);
-    const pageSize = ref(10);
-    const uncompletedCurrentPage = ref(1);
-    const completedCurrentPage = ref(1);
+    let infoList = ref([]);
+    let uncompletedInfoList = ref([]);
+    let completedInfoList = ref([]);
+    let filteredUncompletedList = ref([]);
+    let filteredCompletedList = ref([]);
+    let provinceList = ref([]);
+    let aqiLevelList = ref([]);
+    let filterProvince = ref(null);
+    let filterCity = ref(null);
+    let filterAQI = ref(null);
+    let filteredCityList = ref([]);
+    let pageSize = ref(10);
+    let uncompletedCurrentPage = ref(1);
+    let completedCurrentPage = ref(1);
 
     const fetchInfoList = async () => {
       try {
@@ -377,8 +378,17 @@ export default {
       updatePaginatedLists();
     };
 
-    const computedFilteredCityList = computed(() => {
-      return filterProvince.value ? locationStore.getCitiesByProvinceId(filterProvince.value) : [];
+    const handleProvinceChange = async (provinceId) => {
+      filteredCityList.value = await locationStore.getCitiesByProvinceId(provinceId);
+      filterCity.value = null; // 重置城市选择
+    };
+
+    watch(filterProvince, (provinceId) => {
+      if (provinceId) {
+        handleProvinceChange(provinceId);
+      } else {
+        filteredCityList.value = [];
+      }
     });
 
     onMounted(async () => {
@@ -394,7 +404,7 @@ export default {
       filterCity,
       filterAQI,
       provinceList,
-      filteredCityList: computedFilteredCityList,
+      filteredCityList,
       showCompleted,
       showUncompleted,
       infoList,
