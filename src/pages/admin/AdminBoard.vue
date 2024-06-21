@@ -49,6 +49,20 @@
 					</el-header>
 
 					<el-main>
+						<template>
+							<div>
+								<el-select v-model="selectedProvince" placeholder="请选择省份"
+									@change="handleProvinceChange">
+									<el-option v-for="province in provinces" :key="province.provinceId"
+										:label="province.provinceName" :value="province.provinceId" />
+								</el-select>
+								<el-select v-model="selectedCity" :disabled="!selectedProvince" placeholder="请选择城市">
+									<el-option v-for="city in cities" :key="city.cityCode" :label="city.cityName"
+										:value="city.cityCode" />
+								</el-select>
+							</div>
+						</template>
+
 						<el-scrollbar>
 							<!-- status = 1 列表 -->
 							<el-table v-if="currentTable === 'table1'" :data="currentInfoList1">
@@ -135,7 +149,7 @@
 								v-if="currentTable === 'table3'" :small="small" :disabled="disabled"
 								:background="background" layout="prev, pager, next, jumper" :page-count="infoPageNum3"
 								@current-change="handleInfoPageChange3" />
-								
+
 							<!-- 详细信息1 -->
 							<template v-if="currentTable === 'table11'">
 								<el-descriptions class="margin-top" title="公众监督信息详情" :column="1" :size="size" border>
@@ -238,6 +252,11 @@
 			const small = ref(false);
 			const background = ref(true);
 			const disabled = ref(false)
+
+			let selectedProvince = ref(null);
+			let selectedCity = ref(null);
+			let provinces = ref([]);
+			let cities = ref([]);
 			let currentTable = ref({});
 			let currentInfoList1 = ref([]);
 			let currentInfoList2 = ref([]);
@@ -251,6 +270,8 @@
 			let infoNum1 = ref(0);
 			let infoNum2 = ref(0);
 			let infoNum3 = ref(0);
+			let provinceList = ref([]);
+			let cityList = ref([]);
 
 			let infoDetail1 = ref({
 				id: "38",
@@ -324,6 +345,32 @@
 				},
 			});
 
+
+			// 加载省份数据
+			const loadProvinces = async () => {
+				await locationStore.initLocationStore();
+				provinces.value = locationStore.provinces;
+				console.log(provinces.value);
+			};
+
+			// 当省份改变时更新城市数据
+			const handleProvinceChange = async (provinceId) => {
+				cities.value = await locationStore.getCitiesByProvinceId(provinceId);
+				selectedCity.value = null; // 重置城市选择
+			};
+
+			// 初始化加载省份
+			loadProvinces();
+
+			// 观察省份选择的变化
+			watch(selectedProvince, (newValue) => {
+				if (newValue) {
+					handleProvinceChange(newValue);
+				} else {
+					cities.value = [];
+				}
+			});
+
 			watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
 				formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
 			});
@@ -338,10 +385,22 @@
 			const initTable1 = async () => {
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table1';
-				infoNum1.value = await adminStore.getInfoCountByStatus(1);
+				infoNum1.value = await adminStore.getInfoCount({
+					status: 1,
+				});
 				console.log(infoNum1.value);
 				infoPageNum1.value = Math.ceil(infoNum1.value / infoPageSize.value);
-				await adminStore.fetchInfoList(1, infoPageSize.value, 1);
+				await adminStore.fetchInfoList({
+					aqiLevel: null,
+					cityCode: null,
+					inspectorName: null,
+					pageNum: 1,
+					pageSize: infoPageSize.value,
+					status: 1,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: null
+				});
 				showInfoList1();
 			};
 
@@ -350,9 +409,21 @@
 			const initTable2 = async () => {
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table2';
-				infoNum2.value = await adminStore.getInfoCountByStatus(2);
+				infoNum2.value = await adminStore.getInfoCount({
+					status: 2,
+				});
 				infoPageNum2.value = Math.ceil(infoNum1.value / infoPageSize.value);
-				await adminStore.fetchInfoList(1, infoPageSize.value, 2);
+				await adminStore.fetchInfoList({
+					aqiLevel: null,
+					cityCode: null,
+					inspectorName: null,
+					pageNum: 1,
+					pageSize: infoPageSize.value,
+					status: 2,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: null
+				});
 				showInfoList2();
 			};
 
@@ -360,9 +431,21 @@
 			const initTable3 = async () => {
 				updateLocation('确认AQI数据管理', '确认AQI数据列表');
 				currentTable.value = 'table3';
-				infoNum3.value = await adminStore.getInfoCountByStatus(3);
+				infoNum3.value = await adminStore.getInfoCount({
+					status: 3,
+				});
 				infoPageNum3.value = Math.ceil(infoNum1.value / infoPageSize.value);
-				await adminStore.fetchInfoList(1, infoPageSize.value, 3);
+				await adminStore.fetchInfoList({
+					aqiLevel: null,
+					cityCode: null,
+					inspectorName: null,
+					pageNum: 1,
+					pageSize: infoPageSize.value,
+					status: 3,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: null
+				});
 				showInfoList3();
 			};
 
@@ -370,7 +453,18 @@
 			const handleInfoPageChange1 = async (page) => {
 				// console.log(infoPageNum.value);
 				infoCurrentPageNum1.value = page;
-				await adminStore.fetchInfoList(infoCurrentPageNum1.value, infoPageSize.value, 1);
+				await adminStore.fetchInfoList(
+				{
+					aqiLevel: null,
+					cityCode: null,
+					inspectorName: null,
+					pageNum: infoCurrentPageNum1.value,
+					pageSize: infoPageSize.value,
+					status: 1,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: null
+				});
 
 				showInfoList1();
 			};
@@ -379,7 +473,17 @@
 			const handleInfoPageChange2 = async (page) => {
 				// console.log(infoPageNum.value);
 				infoCurrentPageNum2.value = page;
-				await adminStore.fetchInfoList2(infoCurrentPageNum2.value, infoPageSize.value, 2);
+				await adminStore.fetchInfoList({
+					aqiLevel: null,
+					cityCode: null,
+					inspectorName: null,
+					pageNum: infoCurrentPageNum2.value,
+					pageSize: infoPageSize.value,
+					status: 2,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: null
+				});
 
 				showInfoList2();
 			};
@@ -388,7 +492,17 @@
 			const handleInfoPageChange3 = async (page) => {
 				// console.log(infoPageNum.value);
 				infoCurrentPageNum3.value = page;
-				await adminStore.fetchInfoList3(infoCurrentPageNum3.value, infoPageSize.value, 3);
+				await adminStore.fetchInfoList({
+					aqiLevel: null,
+					cityCode: null,
+					inspectorName: null,
+					pageNum: infoCurrentPageNum3.value,
+					pageSize: infoPageSize.value,
+					status: 3,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: null
+				});
 
 				showInfoList3();
 			};
@@ -501,14 +615,14 @@
 					info.aqiInfo = aqiInfo.name + "(" + aqiInfo.level + ")";
 
 					info.label = adminStore.infoList3[i].label;
-		
+
 					date1 = new Date(adminStore.infoList3[i].timeInspector);
 					info.dateInspector =
 						`${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
 					info.timeInspector =
 						`${String(date1.getHours()).padStart(2, '0')}:${String(date1.getMinutes()).padStart(2, '0')}:${String(date1.getSeconds()).padStart(2, '0')}`;
 					currentInfoList3.value.push(info);
-					
+
 					date2 = new Date(adminStore.infoList3[i].timeInspector);
 					info.dateInspector =
 						`${date2.getFullYear()}-${String(date2.getMonth() + 1).padStart(2, '0')}-${String(date2.getDate()).padStart(2, '0')}`;
@@ -531,7 +645,7 @@
 				console.log("showPointerdata:", data.id);
 				const info = await adminStore.getInfoById(data.id);
 				showInfoDetails1(info);
-				
+
 			};
 
 			//查看table2信息的详细信息
@@ -640,9 +754,22 @@
 			const infoBack1 = async () => {
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table1';
-				infoNum1.value = await adminStore.getInfoCountByStatus(1);
+				infoNum1.value = await adminStore.getInfoCount({
+					status: 1,
+				});
 				infoPageNum1.value = Math.ceil(infoNum1.value / infoPageSize.value);
-				await adminStore.fetchInfoList(infoCurrentPageNum1.value, infoPageSize.value, 1);
+				await adminStore.fetchInfoList(
+				{
+					aqiLevel: null,
+					cityCode: null,
+					inspectorName: null,
+					pageNum: infoCurrentPageNum1.value,
+					pageSize: infoPageSize.value,
+					status: 1,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: null
+				});
 				// console.log(adminStore.infoList);
 				showInfoList1();
 			};
@@ -651,9 +778,22 @@
 			const infoBack2 = async () => {
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table2';
-				infoNum2.value = await adminStore.getInfoCountByStatus(2);
+
+				infoNum2.value = await adminStore.getInfoCount({
+					status: 1,
+				});
 				infoPageNum2.value = Math.ceil(infoNum2.value / infoPageSize.value);
-				await adminStore.fetchInfoList(infoCurrentPageNum2.value, infoPageSize.value, 2);
+				await adminStore.fetchInfoList({
+					aqiLevel: null,
+					cityCode: null,
+					inspectorName: null,
+					pageNum: infoCurrentPageNum2.value,
+					pageSize: infoPageSize.value,
+					status: 2,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: null
+				});
 				// console.log(adminStore.infoList);
 				showInfoList2();
 			};
@@ -662,9 +802,21 @@
 			const infoBack3 = async () => {
 				updateLocation('确认AQI数据管理', '确认AQI数据列表');
 				currentTable.value = 'table3';
-				infoNum3.value = await adminStore.getInfoCountByStatus(3);
+				infoNum3.value = await adminStore.getInfoCount({
+					status: 3,
+				});
 				infoPageNum3.value = Math.ceil(infoNum3.value / infoPageSize.value);
-				await adminStore.fetchInfoList(infoCurrentPageNum3.value, infoPageSize.value, 3);
+				await adminStore.fetchInfoList({
+					aqiLevel: null,
+					cityCode: null,
+					inspectorName: null,
+					pageNum: infoCurrentPageNum3.value,
+					pageSize: infoPageSize.value,
+					status: 3,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: null
+				});
 				// console.log(adminStore.infoList);
 				showInfoList3();
 			};
@@ -698,6 +850,8 @@
 			};
 
 			return {
+				loadProvinces,
+				handleProvinceChange,
 				formattedTitle,
 				updateLocation,
 				mainTitle,
@@ -744,6 +898,10 @@
 				infoBack1,
 				infoBack2,
 				infoBack3,
+				selectedProvince,
+				selectedCity,
+				provinces,
+				cities,
 			};
 		},
 	};

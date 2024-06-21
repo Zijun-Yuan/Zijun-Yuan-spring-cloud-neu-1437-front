@@ -11,13 +11,11 @@ export const useAdminStore = defineStore('admin', {
 		infoList3: [],
 	}),
 	actions: {
-		async getInfoCountByStatus(status) {
+		async getInfoCount(params) {
 			// console.log("start getInfoCountByStatus");
+			console.log(params);
 			try {
-				const params = {
-					status: status,
-				};
-				const response = await AdminAPI.getInfoCountByStatus({
+				const response = await AdminAPI.getInfoCount({
 					params: params
 				});
 				// console.log("fetched num response: ", response.data.data);
@@ -29,17 +27,12 @@ export const useAdminStore = defineStore('admin', {
 		},
 
 
-		async fetchInfoList(pageNum, pageSize, status) {
+		async fetchInfoList(params) {
 			try {
-				const params = {
-					pageNum: pageNum,
-					pageSize: pageSize,
-					status: status,
-				};
-				const response = await AdminAPI.getInfoListByStatus({
+				console.log("fetchInfoList",params);
+				const response = await AdminAPI.getInfoList({
 					params: params
 				});
-				console.log("fetched list by status: " + status);
 				console.log("fetched InfoList: ", response.data.data);
 				if (status === 1) {
 					this.infoList1 = response.data.data.list;

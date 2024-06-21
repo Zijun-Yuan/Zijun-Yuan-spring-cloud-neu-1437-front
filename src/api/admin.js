@@ -1,22 +1,13 @@
 import axios from './axios';
 
-
-//获取所有反馈信息数量
-export function getInfoCountByStatus(data){
-	return axios.get('/admin/getInfoCountByStatus',data);
+//获取所有事务
+export function getInfoList(data){
+	return axios.post(`/admin/getMultiQueryInfoList`,data);
 }
-
-
-
-//获取当页反馈事务列表
-export function getInfoListByStatus(data) {
-  return axios.get('/admin/getAllListByStatus',data);
-}
-
 
 //获取所有事务数量信息数量
-export function getInfoCount(){
-	return axios.get(`/admin/getInfoCount`);
+export function getInfoCount(data){
+	return axios.post(`/admin/getMultiQueryInfoCount`,data);
 }
 
 //获取指定信息
