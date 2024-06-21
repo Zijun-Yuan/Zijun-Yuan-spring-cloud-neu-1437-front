@@ -34,6 +34,40 @@
         </el-aside>
         <el-main>
           <div v-if="showContent === 'uncompleted'" class="table-container">
+            <!-- Combination Search Controls -->
+            <el-row :gutter="20" class="mb-2">
+              <el-col :span="8">
+                <el-select v-model="filterProvince" placeholder="选择省份" clearable @change="handleFilterChange">
+                  <el-option
+                      v-for="province in provinceList"
+                      :key="province.provinceId"
+                      :label="province.provinceName"
+                      :value="province.provinceId"
+                  />
+                </el-select>
+              </el-col>
+              <el-col :span="8">
+                <el-select v-model="filterCity" placeholder="选择城市" clearable @change="handleFilterChange">
+                  <el-option
+                      v-for="city in filteredCityList"
+                      :key="city.cityCode"
+                      :label="city.cityName"
+                      :value="city.cityCode"
+                  />
+                </el-select>
+              </el-col>
+              <el-col :span="8">
+                <el-select v-model="filterAQI" placeholder="选择AQI级别" clearable @change="handleFilterChange">
+                  <el-option
+                      v-for="aqi in aqiLevelList"
+                      :key="aqi.level"
+                      :label="aqi.name"
+                      :value="aqi.number"
+                  />
+                </el-select>
+              </el-col>
+            </el-row>
+
             <el-table :data="paginatedUncompletedList" :header-cell-style="{textAlign: 'center'}" border
                       height="590" stripe style="width: 100%" :row-style="{height: '0'}">
               <el-table-column type="index" label="序号" :index="indexMethodUncompleted" align="center" width="55" />
@@ -68,15 +102,49 @@
               </el-table-column>
             </el-table>
             <el-pagination
-                v-if="uncompletedInfoList.length > pageSize"
+                v-if="filteredUncompletedList.length > pageSize"
                 :current-page="uncompletedCurrentPage"
                 :page-size="pageSize"
                 layout="total, prev, pager, next"
-                :total="uncompletedInfoList.length"
+                :total="filteredUncompletedList.length"
                 @current-change="handleUncompletedPageChange"
             />
           </div>
           <div v-else-if="showContent === 'completed'" class="table-container">
+            <!-- Combination Search Controls -->
+            <el-row :gutter="20" class="mb-2">
+              <el-col :span="8">
+                <el-select v-model="filterProvince" placeholder="选择省份" clearable @change="handleFilterChange">
+                  <el-option
+                      v-for="province in provinceList"
+                      :key="province.provinceId"
+                      :label="province.provinceName"
+                      :value="province.provinceId"
+                  />
+                </el-select>
+              </el-col>
+              <el-col :span="8">
+                <el-select v-model="filterCity" placeholder="选择城市" clearable @change="handleFilterChange">
+                  <el-option
+                      v-for="city in filteredCityList"
+                      :key="city.cityCode"
+                      :label="city.cityName"
+                      :value="city.cityCode"
+                  />
+                </el-select>
+              </el-col>
+              <el-col :span="8">
+                <el-select v-model="filterAQI" placeholder="选择AQI级别" clearable @change="handleFilterChange">
+                  <el-option
+                      v-for="aqi in aqiLevelList"
+                      :key="aqi.level"
+                      :label="aqi.name"
+                      :value="aqi.number"
+                  />
+                </el-select>
+              </el-col>
+            </el-row>
+
             <el-table :data="paginatedCompletedList" :header-cell-style="{textAlign: 'center'}" border
                       height="590" stripe style="width: 100%" :row-style="{height: '0'}">
               <el-table-column type="index" label="序号" :index="indexMethodCompleted" align="center" width="55" />
@@ -106,13 +174,12 @@
               <el-table-column prop="pm25" label="PM2.5浓度" align="center" width="80" />
               <el-table-column prop="timeInspector" label="检测时间" align="center" />
             </el-table>
-            <!-- 分页控制 -->
             <el-pagination
-                v-if="completedInfoList.length > pageSize"
+                v-if="filteredCompletedList.length > pageSize"
                 :current-page="completedCurrentPage"
                 :page-size="pageSize"
                 layout="total, prev, pager, next"
-                :total="completedInfoList.length"
+                :total="filteredCompletedList.length"
                 @current-change="handleCompletedPageChange"
             />
           </div>
@@ -146,14 +213,21 @@ export default {
     const infoList = ref([]);
     const uncompletedInfoList = ref([]);
     const completedInfoList = ref([]);
-    const pageSize = ref(10); // 每页数量
-    const uncompletedCurrentPage = ref(1); // 当前页码
-    const completedCurrentPage = ref(1); // 当前页码
+    const filteredUncompletedList = ref([]);
+    const filteredCompletedList = ref([]);
+    const provinceList = ref([]);
+    const aqiLevelList = ref([]);
+    const filterProvince = ref(null);
+    const filterCity = ref(null);
+    const filterAQI = ref(null);
+    const pageSize = ref(10);
+    const uncompletedCurrentPage = ref(1);
+    const completedCurrentPage = ref(1);
 
     const fetchInfoList = async () => {
       try {
         const inspectorCode = inspectorStore.inspectorCode;
-        const response = await getInfoList(inspectorCode); // 在获取信息列表后处理数据
+        const response = await getInfoList(inspectorCode);
         if (response.data.code === 0) {
           infoList.value = response.data.data;
           await processInfoList();
@@ -165,33 +239,48 @@ export default {
       }
     };
 
-    // 计算分页后未完成任务的数据
+    const filterLists = () => {
+      const filterUncompleted = uncompletedInfoList.value.filter(item =>
+          (!filterProvince.value || item.province.provinceId === filterProvince.value) &&
+          (!filterCity.value || item.city.cityCode === filterCity.value) &&
+          (!filterAQI.value || item.aqiLevel === filterAQI.value)
+      );
+      const filterCompleted = completedInfoList.value.filter(item =>
+          (!filterProvince.value || item.province.provinceId === filterProvince.value) &&
+          (!filterCity.value || item.city.cityCode === filterCity.value) &&
+          (!filterAQI.value || item.aqiLevel === filterAQI.value)
+      );
+      filteredUncompletedList.value = filterUncompleted;
+      filteredCompletedList.value = filterCompleted;
+      updatePaginatedLists();
+    };
+
+    const handleFilterChange = () => {
+      filterLists();
+    };
+
     const paginatedUncompletedList = computed(() => {
       const start = (uncompletedCurrentPage.value - 1) * pageSize.value;
       const end = start + pageSize.value;
-      return uncompletedInfoList.value.slice(start, end);
+      return filteredUncompletedList.value.slice(start, end);
     });
 
-    // 计算分页后已完成任务的数据
     const paginatedCompletedList = computed(() => {
       const start = (completedCurrentPage.value - 1) * pageSize.value;
       const end = start + pageSize.value;
-      return completedInfoList.value.slice(start, end);
+      return filteredCompletedList.value.slice(start, end);
     });
 
-    // 展示待检测的任务列表
     const showUncompleted = async () => {
       showContent.value = 'uncompleted';
       await fetchInfoList();
     };
 
-    // 展示已完成的任务列表
     const showCompleted = async () => {
       showContent.value = 'completed';
       await fetchInfoList();
     };
 
-    // 获取省份信息
     const getProvince = async (cityCode) => {
       try {
         return await locationStore.getProvinceByCityCode(cityCode);
@@ -199,9 +288,8 @@ export default {
         console.error('Failed to get province:', error);
         return { provinceName: '' };
       }
-    }
+    };
 
-    // 获取城市信息
     const getCity = async (cityCode) => {
       try {
         return await locationStore.getCityAndProvinceByCityCode(cityCode);
@@ -209,9 +297,8 @@ export default {
         console.error('Failed to get city:', error);
         return { cityName: '' };
       }
-    }
+    };
 
-    // 处理任务列表（待检测和已完成 以及 省份城市信息的获取）
     const processInfoList = async () => {
       const items = infoList.value;
       const uncompletedItems = [];
@@ -236,37 +323,32 @@ export default {
       }
       completedInfoList.value = completedItems;
       uncompletedInfoList.value = uncompletedItems;
-      updatePaginatedLists(); // 更新分页数据
+      filterLists();
     };
 
-    // 更新分页后的任务列表
     const updatePaginatedLists = () => {
-      paginatedUncompletedList.value = uncompletedInfoList.value.slice(
+      paginatedUncompletedList.value = filteredUncompletedList.value.slice(
           (uncompletedCurrentPage.value - 1) * pageSize.value,
           uncompletedCurrentPage.value * pageSize.value
       );
-      paginatedCompletedList.value = completedInfoList.value.slice(
+      paginatedCompletedList.value = filteredCompletedList.value.slice(
           (completedCurrentPage.value - 1) * pageSize.value,
           completedCurrentPage.value * pageSize.value
       );
     };
 
-    // 获取AQI详情
     const getAQIDetail = (level) => {
       return aqiStore.getAQIDetail(level);
-    }
+    };
 
-    // 显示未完成任务序号
     const indexMethodUncompleted = (index) => {
       return (uncompletedCurrentPage.value - 1) * pageSize.value + index + 1;
     };
 
-    // 显示已完成任务序号
     const indexMethodCompleted = (index) => {
       return (completedCurrentPage.value - 1) * pageSize.value + index + 1;
     };
 
-    // 处理菜单选择事件
     const handleSelect = (index) => {
       if (index === '1') {
         showUncompleted();
@@ -275,43 +357,51 @@ export default {
       } else if (index === '3') {
         showContent.value = 'profile';
       }
-    }
-
-    // 处理 "去检测" 按钮点击事件
-    const handleCheck = (row) => {
-      // 在这里执行去检测的逻辑
     };
 
-    // 处理"驳回"按钮点击事件
-    const handleReject = (row) => {
-      // 在这里执行驳回的逻辑
-    }
+    const handleCheck = (row) => {
+      // Logic for going to check
+    };
 
-    // 页码变化处理函数
+    const handleReject = (row) => {
+      // Logic for rejecting
+    };
+
     const handleUncompletedPageChange = (page) => {
       uncompletedCurrentPage.value = page;
-      // 重新计算分页数据
       updatePaginatedLists();
     };
 
     const handleCompletedPageChange = (page) => {
       completedCurrentPage.value = page;
-      // 重新计算分页数据
       updatePaginatedLists();
     };
 
-    onMounted(() => {
-      locationStore.initLocationStore();
-      fetchInfoList();
+    const computedFilteredCityList = computed(() => {
+      return filterProvince.value ? locationStore.getCitiesByProvinceId(filterProvince.value) : [];
+    });
+
+    onMounted(async () => {
+      await locationStore.initLocationStore();
+      provinceList.value = await locationStore.getAllProvinces();
+      aqiLevelList.value = aqiStore.getAllAQILevels();
+      await fetchInfoList();
     });
 
     return {
       showContent,
+      filterProvince,
+      filterCity,
+      filterAQI,
+      provinceList,
+      filteredCityList: computedFilteredCityList,
       showCompleted,
       showUncompleted,
       infoList,
       uncompletedInfoList,
       completedInfoList,
+      filteredUncompletedList,
+      filteredCompletedList,
       paginatedUncompletedList,
       paginatedCompletedList,
       getProvince,
@@ -322,15 +412,17 @@ export default {
       handleCheck,
       handleReject,
       handleSelect,
+      handleFilterChange,
       handleUncompletedPageChange,
       handleCompletedPageChange,
       inspectorStore,
       pageSize,
       uncompletedCurrentPage,
-      completedCurrentPage
+      completedCurrentPage,
+      aqiLevelList
     };
   },
-}
+};
 </script>
 
 <style>
@@ -376,5 +468,8 @@ export default {
   align-items: center;
   justify-content: center;
   color: white;
+}
+.mb-2 {
+  margin-bottom: 20px;
 }
 </style>
