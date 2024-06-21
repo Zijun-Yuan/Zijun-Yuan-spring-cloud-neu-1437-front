@@ -49,50 +49,58 @@
 					</el-header>
 
 					<el-main>
-						<template>
-							<div>
-								<el-select v-model="selectedProvince" placeholder="请选择省份"
-									@change="handleProvinceChange">
-									<el-option v-for="province in provinces" :key="province.provinceId"
-										:label="province.provinceName" :value="province.provinceId" />
-								</el-select>
-								<el-select v-model="selectedCity" :disabled="!selectedProvince" placeholder="请选择城市">
-									<el-option v-for="city in cities" :key="city.cityCode" :label="city.cityName"
-										:value="city.cityCode" />
-								</el-select>
-							</div>
-						</template>
+
 
 						<el-scrollbar>
 							<!-- status = 1 列表 -->
-							<el-table v-if="currentTable === 'table1'" :data="currentInfoList1">
-								<el-table-column prop="num" label="编号" width="100"></el-table-column>
-								<el-table-column prop="supervisorName" label="反馈者姓名" width="180"></el-table-column>
-								<el-table-column prop="province.provinceName" label="所在省" width="100"></el-table-column>
-								<el-table-column prop="city.cityName" label="所在市" width="100"></el-table-column>
-								<el-table-column prop="aqiInfo" label="预估污染等级" width="130"></el-table-column>
-								<el-table-column prop="date" label="反馈日期" width="180"></el-table-column>
-								<el-table-column prop="time" label="反馈时间" width="180"></el-table-column>
-								<el-table-column label="操作" width="180">
-									<template v-slot="scope">
-										<el-button type="primary" circle @click="showInfo1(scope.row)">
-											<el-icon>
-												<InfoFilled />
-											</el-icon>
-										</el-button>
-										<el-button type="danger" circle @click="showPointer(scope.row)">
-											<el-icon>
-												<Pointer />
-											</el-icon>
-										</el-button>
-									</template>
-								</el-table-column>
-							</el-table>
-							<!-- status = 1信息列表页码 -->
-							<el-pagination v-model="infoCurrentPageNum1" :current-page="infoCurrentPageNum1"
-								v-if="currentTable === 'table1'" :small="small" :disabled="disabled"
-								:background="background" layout="prev, pager, next, jumper" :page-count="infoPageNum1"
-								@current-change="handleInfoPageChange1" />
+							<template v-if="currentTable === 'table1'">
+								<div>
+									<el-select v-model="selectedProvince" placeholder="请选择省份"
+										@change="handleProvinceChange">
+										<el-option v-for="province in provinces" :key="province.provinceId"
+											:label="province.provinceName" :value="province.provinceId" />
+									</el-select>
+									<el-select v-model="selectedCity" :disabled="!selectedProvince" placeholder="请选择城市">
+										<el-option v-for="city in cities" :key="city.cityCode" :label="city.cityName"
+											:value="city.cityCode" />
+									</el-select>
+								</div>
+								<div>
+									<el-table :data="currentInfoList1">
+										<el-table-column prop="num" label="编号" width="100"></el-table-column>
+										<el-table-column prop="supervisorName" label="反馈者姓名"
+											width="180"></el-table-column>
+										<el-table-column prop="province.provinceName" label="所在省"
+											width="100"></el-table-column>
+										<el-table-column prop="city.cityName" label="所在市" width="100"></el-table-column>
+										<el-table-column prop="aqiInfo" label="预估污染等级" width="130"></el-table-column>
+										<el-table-column prop="date" label="反馈日期" width="180"></el-table-column>
+										<el-table-column prop="time" label="反馈时间" width="180"></el-table-column>
+										<el-table-column label="操作" width="180">
+											<template v-slot="scope">
+												<el-button type="primary" circle @click="showInfo1(scope.row)">
+													<el-icon>
+														<InfoFilled />
+													</el-icon>
+												</el-button>
+												<el-button type="danger" circle @click="showPointer(scope.row)">
+													<el-icon>
+														<Pointer />
+													</el-icon>
+												</el-button>
+											</template>
+										</el-table-column>
+									</el-table>
+								</div>
+								<div>
+									<el-pagination v-model="infoCurrentPageNum1" :current-page="infoCurrentPageNum1"
+										:small="small" :disabled="disabled" :background="background"
+										layout="prev, pager, next, jumper" :page-count="infoPageNum1"
+										@current-change="handleInfoPageChange1" />
+								</div>
+
+							</template>
+
 
 							<!-- status = 2 列表 -->
 							<el-table v-if="currentTable === 'table2'" :data="currentInfoList2">
@@ -185,9 +193,8 @@
 										<el-tag size="small">{{ infoDetail1.currentAQLDetail.name }}</el-tag>
 									</el-descriptions-item>
 									<el-descriptions-item label="反馈日期时间">
-										<el-tag size="small"
-											style="margin-right: 8px;">{{ infoDetail1.feedbackDateTime.date }}</el-tag>
-										<el-tag size="small">{{ infoDetail1.feedbackDateTime.time }}</el-tag>
+										<el-tag size="small" style="margin-right: 8px;">{{ infoDetail1.date }}</el-tag>
+										<el-tag size="small">{{ infoDetail1.time }}</el-tag>
 									</el-descriptions-item>
 								</el-descriptions>
 							</template>
@@ -248,7 +255,7 @@
 			const adminStore = useAdminStore();
 			const aqiStore = useAQIStore();
 			const locationStore = useLocationStore();
-			const infoPageSize = ref(3);
+			const infoPageSize = ref(10);
 			const small = ref(false);
 			const background = ref(true);
 			const disabled = ref(false)
@@ -291,10 +298,8 @@
 					level: "四级",
 					name: "中度污染",
 				},
-				feedbackDateTime: {
-					date: "2022-10-27",
-					time: "16:29:26",
-				},
+				date: "2022-10-27",
+				time: "16:29:26",
 			});
 
 			let infoDetail2 = ref({
@@ -315,10 +320,8 @@
 					level: "四级",
 					name: "中度污染",
 				},
-				feedbackDateTime: {
-					date: "2022-10-27",
-					time: "16:29:26",
-				},
+				date: "2022-10-27",
+				time: "16:29:26",
 			});
 
 			let infoDetail3 = ref({
@@ -339,10 +342,9 @@
 					level: "四级",
 					name: "中度污染",
 				},
-				feedbackDateTime: {
-					date: "2022-10-27",
-					time: "16:29:26",
-				},
+				date: "2022-10-27",
+				time: "16:29:26",
+
 			});
 
 
@@ -359,6 +361,9 @@
 				selectedCity.value = null; // 重置城市选择
 			};
 
+			const handleSelect = async () => {
+
+			};
 			// 初始化加载省份
 			loadProvinces();
 
@@ -399,7 +404,7 @@
 					status: 1,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null
+					timeSupervisor: null,
 				});
 				showInfoList1();
 			};
@@ -412,7 +417,7 @@
 				infoNum2.value = await adminStore.getInfoCount({
 					status: 2,
 				});
-				infoPageNum2.value = Math.ceil(infoNum1.value / infoPageSize.value);
+				infoPageNum2.value = Math.ceil(infoNum2.value / infoPageSize.value);
 				await adminStore.fetchInfoList({
 					aqiLevel: null,
 					cityCode: null,
@@ -422,7 +427,7 @@
 					status: 2,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null
+					timeSupervisor: null,
 				});
 				showInfoList2();
 			};
@@ -434,7 +439,7 @@
 				infoNum3.value = await adminStore.getInfoCount({
 					status: 3,
 				});
-				infoPageNum3.value = Math.ceil(infoNum1.value / infoPageSize.value);
+				infoPageNum3.value = Math.ceil(infoNum3.value / infoPageSize.value);
 				await adminStore.fetchInfoList({
 					aqiLevel: null,
 					cityCode: null,
@@ -444,7 +449,7 @@
 					status: 3,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null
+					timeSupervisor: null,
 				});
 				showInfoList3();
 			};
@@ -453,8 +458,7 @@
 			const handleInfoPageChange1 = async (page) => {
 				// console.log(infoPageNum.value);
 				infoCurrentPageNum1.value = page;
-				await adminStore.fetchInfoList(
-				{
+				await adminStore.fetchInfoList({
 					aqiLevel: null,
 					cityCode: null,
 					inspectorName: null,
@@ -463,7 +467,7 @@
 					status: 1,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null
+					timeSupervisor: null,
 				});
 
 				showInfoList1();
@@ -482,7 +486,7 @@
 					status: 2,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null
+					timeSupervisor: null,
 				});
 
 				showInfoList2();
@@ -501,7 +505,7 @@
 					status: 3,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null
+					timeSupervisor: null,
 				});
 
 				showInfoList3();
@@ -527,7 +531,7 @@
 					info.supervisorName = adminStore.infoList1[i].supervisorName;
 					info.province = await locationStore.getProvinceByCityCode(adminStore.infoList1[i].cityCode);
 					info.city = await locationStore.getCityAndProvinceByCityCode(adminStore.infoList1[i].cityCode);
-					const aqiInfo = aqiStore.getAQLDetail(adminStore.infoList1[i].aqiLevel);
+					const aqiInfo = aqiStore.getAQIDetail(adminStore.infoList1[i].aqiLevel);
 					info.aqiInfo = aqiInfo.name + "(" + aqiInfo.level + ")";
 
 					info.label = adminStore.infoList1[i].label;
@@ -565,7 +569,7 @@
 					info.supervisorName = adminStore.infoList2[i].supervisorName;
 					info.province = await locationStore.getProvinceByCityCode(adminStore.infoList2[i].cityCode);
 					info.city = await locationStore.getCityAndProvinceByCityCode(adminStore.infoList2[i].cityCode);
-					const aqiInfo = aqiStore.getAQLDetail(adminStore.infoList2[i].aqiLevel);
+					const aqiInfo = aqiStore.getAQIDetail(adminStore.infoList2[i].aqiLevel);
 					info.aqiInfo = aqiInfo.name + "(" + aqiInfo.level + ")";
 
 					info.label = adminStore.infoList2[i].label;
@@ -610,24 +614,25 @@
 					info.inspectorName = adminStore.infoList3[i].inspectorName;
 					info.supervisorName = adminStore.infoList3[i].supervisorName;
 					info.province = await locationStore.getProvinceByCityCode(adminStore.infoList3[i].cityCode);
+
 					info.city = await locationStore.getCityAndProvinceByCityCode(adminStore.infoList3[i].cityCode);
-					const aqiInfo = aqiStore.getAQLDetail(adminStore.infoList3[i].aqiLevel);
+
+					const aqiInfo = aqiStore.getAQIDetail(adminStore.infoList3[i].aqiLevel);
 					info.aqiInfo = aqiInfo.name + "(" + aqiInfo.level + ")";
 
 					info.label = adminStore.infoList3[i].label;
 
-					date1 = new Date(adminStore.infoList3[i].timeInspector);
-					info.dateInspector =
+					date1 = new Date(adminStore.infoList3[i].timeSupervisor);
+					info.dateSupervisor =
 						`${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
-					info.timeInspector =
+					info.timeSupervisor =
 						`${String(date1.getHours()).padStart(2, '0')}:${String(date1.getMinutes()).padStart(2, '0')}:${String(date1.getSeconds()).padStart(2, '0')}`;
-					currentInfoList3.value.push(info);
-
 					date2 = new Date(adminStore.infoList3[i].timeInspector);
 					info.dateInspector =
 						`${date2.getFullYear()}-${String(date2.getMonth() + 1).padStart(2, '0')}-${String(date2.getDate()).padStart(2, '0')}`;
 					info.timeInspector =
 						`${String(date2.getHours()).padStart(2, '0')}:${String(date2.getMinutes()).padStart(2, '0')}:${String(date2.getSeconds()).padStart(2, '0')}`;
+					// console.log("info"+i+info);
 					currentInfoList3.value.push(info);
 					// console.log(currentInfoList3.value[i]);
 					// console.log(i);
@@ -684,13 +689,13 @@
 				infoDetail1.value.location.city = city.cityName;
 				infoDetail1.value.address = data.address;
 				infoDetail1.value.feedback = data.feedback;
-				const aqiInfo = await aqiStore.getAQLDetail(data.aqiLevel);
+				const aqiInfo = await aqiStore.getAQIDetail(data.aqiLevel);
 				infoDetail1.value.currentAQLDetail.name = aqiInfo.name;
 				infoDetail1.value.currentAQLDetail.level = aqiInfo.level;
 				const date = new Date(data.time);
-				infoDetail1.value.feedbackDateTime.date =
+				infoDetail1.value.date =
 					`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-				infoDetail1.value.feedbackDateTime.time =
+				infoDetail1.value.time =
 					`${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
 			};
 
@@ -709,13 +714,13 @@
 				infoDetail2.value.location.city = city.cityName;
 				infoDetail2.value.address = data.address;
 				infoDetail2.value.feedback = data.feedback;
-				const aqiInfo = await aqiStore.getAQLDetail(data.aqiLevel);
+				const aqiInfo = await aqiStore.getAQIDetail(data.aqiLevel);
 				infoDetail2.value.currentAQLDetail.name = aqiInfo.name;
 				infoDetail2.value.currentAQLDetail.level = aqiInfo.level;
 				const date = new Date(data.time);
-				infoDetail2.value.feedbackDateTime.date =
+				infoDetail2.value.date =
 					`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-				infoDetail2.value.feedbackDateTime.time =
+				infoDetail2.value.time =
 					`${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
 			};
 
@@ -734,18 +739,18 @@
 				infoDetail3.value.location.city = city.cityName;
 				infoDetail3.value.address = data.address;
 				infoDetail3.value.feedback = data.feedback;
-				const aqiInfo = await aqiStore.getAQLDetail(data.aqiLevel);
+				const aqiInfo = await aqiStore.getAQIDetail(data.aqiLevel);
 				infoDetail3.value.currentAQLDetail.name = aqiInfo.name;
 				infoDetail3.value.currentAQLDetail.level = aqiInfo.level;
 				const date1 = new Date(data.timeSupervisor);
-				infoDetail3.value.feedbackDateTime.dateSupervisor =
+				infoDetail3.value.dateSupervisor =
 					`${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
-				infoDetail3.value.feedbackDateTime.timeSupervisor =
+				infoDetail3.value.timeSupervisor =
 					`${String(date1.getHours()).padStart(2, '0')}:${String(date1.getMinutes()).padStart(2, '0')}:${String(date1.getSeconds()).padStart(2, '0')}`;
 				const date2 = new Date(data.timeInspector);
-				infoDetail3.value.feedbackDateTime.dateInspector =
+				infoDetail3.value.dateInspector =
 					`${date2.getFullYear()}-${String(date2.getMonth() + 1).padStart(2, '0')}-${String(date2.getDate()).padStart(2, '0')}`;
-				infoDetail3.value.feedbackDateTime.timeInspector =
+				infoDetail3.value.timeInspector =
 					`${String(date2.getHours()).padStart(2, '0')}:${String(date2.getMinutes()).padStart(2, '0')}:${String(date2.getSeconds()).padStart(2, '0')}`;
 			};
 
@@ -758,8 +763,7 @@
 					status: 1,
 				});
 				infoPageNum1.value = Math.ceil(infoNum1.value / infoPageSize.value);
-				await adminStore.fetchInfoList(
-				{
+				await adminStore.fetchInfoList({
 					aqiLevel: null,
 					cityCode: null,
 					inspectorName: null,
@@ -768,7 +772,7 @@
 					status: 1,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null
+					timeSupervisor: null,
 				});
 				// console.log(adminStore.infoList);
 				showInfoList1();
@@ -792,7 +796,7 @@
 					status: 2,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null
+					timeSupervisor: null,
 				});
 				// console.log(adminStore.infoList);
 				showInfoList2();
@@ -815,7 +819,7 @@
 					status: 3,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null
+					timeSupervisor: null,
 				});
 				// console.log(adminStore.infoList);
 				showInfoList3();
@@ -850,6 +854,7 @@
 			};
 
 			return {
+				handleSelect,
 				loadProvinces,
 				handleProvinceChange,
 				formattedTitle,
@@ -862,6 +867,7 @@
 				currentTable,
 				currentInfoList1,
 				currentInfoList2,
+				currentInfoList3,
 				infoNum1,
 				infoPageNum1,
 				infoCurrentPageNum1,

@@ -16,6 +16,7 @@ export const useAQIStore = defineStore('aqi', {
     }),
     actions: {
         getAQIDetail(level) {
+
             if (this.aqiMap[level]) {
                 this.currentAQIDetail = this.aqiMap[level];
                 return this.currentAQIDetail;
