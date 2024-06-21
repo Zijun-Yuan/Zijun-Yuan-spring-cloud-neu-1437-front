@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia';
 import * as supervisorAPI from '@/api/supervisor.js';
-import {ElMessage} from "element-plus";
+
 export const useSupervisorStore = defineStore('supervisor', {
     state: () => ({
         token: '',
@@ -20,7 +20,6 @@ export const useSupervisorStore = defineStore('supervisor', {
             try {
                 const response = await supervisorAPI.supervisorLogin(data);
                 if (response.data.data !== null) {
-                    console.log('Login successful, response data:', response.data.data);
                     this.supervisor.telId = data.supervisorCode;
                     this.supervisor.supervisorId = response.data.data.supervisorId;
                     this.supervisor.realName = response.data.data.realName;
@@ -73,9 +72,21 @@ export const useSupervisorStore = defineStore('supervisor', {
 
         async updateSupervisor(data){
             try {
-                const response = await supervisorAPI.editPersonal(data);
+                const beforeSupervisor = await supervisorAPI.getSupervisorByTelId(this.supervisor.telId)
+                console.log(data);
+                beforeSupervisor.data.data.realName = data.realName;
+                beforeSupervisor.data.data.birthday = data.birthday;
+                beforeSupervisor.data.data.sex = data.sex;
+                beforeSupervisor.data.data.telId = data.telId;
+                console.log(beforeSupervisor.data.data);
+
+                const response = await supervisorAPI.editPersonal(beforeSupervisor.data.data);
                 if (response.data.code === 0) {
                     console.log('Supervisor updated successfully, response data:', response.data);
+                    this.supervisor.realName = data.realName;
+                    this.supervisor.birthday = data.birthday;
+                    this.supervisor.sex = data.sex;
+                    this.supervisor.telId = data.telId;
                     return true;
                 } else {
                     console.log('Supervisor updating failed, response data:', response.data);

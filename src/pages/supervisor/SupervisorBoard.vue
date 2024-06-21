@@ -130,7 +130,7 @@
                 <el-input v-model="personalInfo.realName" placeholder="姓名"></el-input>
               </el-form-item>
               <el-form-item label="性别">
-                <el-select v-model="personalInfo.sex" placeholder="请选择性别">
+                <el-select v-model="selectedSex" placeholder="请选择性别">
                   <el-option label="男" value=1></el-option>
                   <el-option label="女" value=0></el-option>
                 </el-select>
@@ -212,6 +212,15 @@ export default {
       telId: '',
     });
 
+    const selectedSex = computed({
+      get() {
+        return personalInfo.value.sex;
+      },
+      set(value) {
+        personalInfo.value.sex = value;
+      }
+    });
+
     watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
       formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
     });
@@ -262,7 +271,7 @@ export default {
         };
         date = new Date(supervisorStore.feedbackList[i].timeSupervisor);
 
-        const aqiInfo = aqiLevelStore.getAQLDetail(supervisorStore.feedbackList[i].aqiLevel);
+        const aqiInfo = aqiLevelStore.getAQIDetail(supervisorStore.feedbackList[i].aqiLevel);
         info.aqiLevel = aqiInfo.name + "(" + aqiInfo.level + ")";
         info.address = supervisorStore.feedbackList[i].address;
         info.feedback = supervisorStore.feedbackList[i].feedback;
@@ -358,6 +367,7 @@ export default {
       formattedTitle,
       reportForm,
       personalInfo,
+      selectedSex,
       aqiLevelDescriptions,
       defaultActive,
       submitReport,
