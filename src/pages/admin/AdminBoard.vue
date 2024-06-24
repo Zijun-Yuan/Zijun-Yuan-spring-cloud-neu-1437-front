@@ -3,7 +3,7 @@
 		<el-container>
 			<el-header class="layout-header">东软环保公众监督平台管理系统</el-header>
 			<el-container class="layout-container-demo" style="height: 100vh;">
-				<el-aside width="300px">
+				<el-aside width="200px">
 					<el-scrollbar>
 						<el-menu :default-openeds="['1', '3']" class="custom-menu" @select="handleSelect">
 							<el-sub-menu index="1">
@@ -49,29 +49,65 @@
 					</el-header>
 
 					<el-main>
-
-
 						<el-scrollbar>
 							<!-- status = 1 列表 -->
 							<template v-if="currentTable === 'table1'">
-								<div>
-									<el-select v-model="selectedProvince" placeholder="请选择省份"
-										@change="handleProvinceChange">
-										<el-option v-for="province in provinces" :key="province.provinceId"
-											:label="province.provinceName" :value="province.provinceId" />
-									</el-select>
-									<el-select v-model="selectedCity" :disabled="!selectedProvince" placeholder="请选择城市">
-										<el-option v-for="city in cities" :key="city.cityCode" :label="city.cityName"
-											:value="city.cityCode" />
-									</el-select>
+								<div style="margin-top: 10px;margin-bottom: 10px;margin-left: 10px">
+									<el-row :gutter="24" style="color: gray;">
+										<el-col :span="4">
+											<span>省区域
+												<el-select v-model="selectedProvince" placeholder="—全部—"
+													@change="handleProvinceChange" style="width: 130px;">
+													<el-option v-for="province in provinces" :key="province.provinceId"
+														:label="province.provinceName" :value="province.provinceId" />
+												</el-select>
+											</span>
+										</el-col>
+										<el-col :span="4">
+											<span>市区域
+												<el-select v-model="selectedCity" :disabled="!selectedProvince"
+													placeholder="—全部—" style="width: 120px;">
+													<el-option v-for="city in cities" :key="city.cityCode"
+														:label="city.cityName" :value="city.cityCode" />
+												</el-select>
+											</span>
+										</el-col>
+										<el-col :span="4">
+											<span>预估等级
+												<el-select v-model="selectedLevel" placeholder="—全部—" clearable
+													style="width: 110px;">
+													<el-option v-for="aqi in aqiLevelList" :key="aqi.level"
+														:label="aqi.name" :value="aqi.number" />
+												</el-select>
+											</span>
+										</el-col>
+										<el-col :span="5">
+											<span>反馈日期
+												<el-date-picker v-model="selectedDateSupervisor" type="date"
+													placeholder="反馈日期" style="width: 120px;"
+													@change="handleDateChange" />
+											</span>
+										</el-col>
+										<el-col :span="3">
+											<el-button type="primary" color="red" @click="handleReset()">清空</el-button>
+											<el-button type="primary" color="blue"
+												@click="handleSearch()">查询</el-button>
+										</el-col>
+										<el-col :span="4">
+											<el-radio-group v-model="radio" class="ml-4">
+												<el-radio label="1" size="large">未指派</el-radio>
+												<el-radio label="2" size="large">已指派</el-radio>
+											</el-radio-group>
+										</el-col>
+									</el-row>
 								</div>
 								<div>
 									<el-table :data="currentInfoList1">
 										<el-table-column prop="num" label="编号" width="100"></el-table-column>
 										<el-table-column prop="supervisorName" label="反馈者姓名"
-											width="180"></el-table-column>
+											width="120"></el-table-column>
 										<el-table-column prop="province.provinceName" label="所在省"
-											width="100"></el-table-column>
+											width="200"></el-table-column>
 										<el-table-column prop="city.cityName" label="所在市" width="100"></el-table-column>
 										<el-table-column prop="aqiInfo" label="预估污染等级" width="130"></el-table-column>
 										<el-table-column prop="date" label="反馈日期" width="180"></el-table-column>
@@ -218,7 +254,8 @@
 <script>
 	import {
 		ref,
-		watch
+		watch,
+		onMounted,
 	} from 'vue';
 	import {
 		useRouter
@@ -258,12 +295,18 @@
 			const infoPageSize = ref(10);
 			const small = ref(false);
 			const background = ref(true);
-			const disabled = ref(false)
+			const disabled = ref(false);
+			const aqiLevelList = ref([]);
 
 			let selectedProvince = ref(null);
 			let selectedCity = ref(null);
+			let selectedLevel = ref(null);
+			let selectedDateSupervisor = ref(null);
+			let selectedDateInspector = ref(null);
 			let provinces = ref([]);
 			let cities = ref([]);
+			let radio = ref('1');
+
 			let currentTable = ref({});
 			let currentInfoList1 = ref([]);
 			let currentInfoList2 = ref([]);
@@ -348,6 +391,29 @@
 			});
 
 
+			const handleSearch = async () => {
+
+				const date1 = new Date(selectedDateSupervisor.value);
+				console.log(selectedDateSupervisor);
+				// 	console.log(handledDate1);
+				// 	const date2 = new Date()selectedDateInspector.value;
+				console.log("selectedProvince:", selectedProvince.value,
+					"selectedCity:", selectedCity.value, "selectedLevel:", selectedLevel.value, "radio:", radio.value,
+					"selectedDateSupervisor:", selectedDateSupervisor.value, "selectedDateInspector:",
+					selectedDateInspector.value);
+			};
+
+
+			const handleReset = () => {
+
+			};
+
+
+			onMounted(async () => {
+				aqiLevelList.value = aqiStore.getAllAQILevels();
+				await loadProvinces();
+			});
+
 			// 加载省份数据
 			const loadProvinces = async () => {
 				await locationStore.initLocationStore();
@@ -358,14 +424,18 @@
 			// 当省份改变时更新城市数据
 			const handleProvinceChange = async (provinceId) => {
 				cities.value = await locationStore.getCitiesByProvinceId(provinceId);
+				console.log(selectedCity.value);
 				selectedCity.value = null; // 重置城市选择
 			};
+
+			const handleDateChange = (value) => {
+				console.log('New date selected:', value);
+			}
 
 			const handleSelect = async () => {
 
 			};
-			// 初始化加载省份
-			loadProvinces();
+
 
 			// 观察省份选择的变化
 			watch(selectedProvince, (newValue) => {
@@ -386,8 +456,17 @@
 				subTitle.value = newSubTitle;
 			};
 
+			const initSelectedData = async () => {
+				selectedProvince = ref(null);
+				selectedCity = ref(null);
+				selectedLevel = ref(null);
+				selectedDateSupervisor = ref(null);
+				selectedDateInspector = ref(null);
+			};
+
 			//初始化table1
 			const initTable1 = async () => {
+				await initSelectedData();
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table1';
 				infoNum1.value = await adminStore.getInfoCount({
@@ -459,7 +538,7 @@
 				// console.log(infoPageNum.value);
 				infoCurrentPageNum1.value = page;
 				await adminStore.fetchInfoList({
-					aqiLevel: null,
+					aqiLevel: selectedLevel.value,
 					cityCode: null,
 					inspectorName: null,
 					pageNum: infoCurrentPageNum1.value,
@@ -478,7 +557,7 @@
 				// console.log(infoPageNum.value);
 				infoCurrentPageNum2.value = page;
 				await adminStore.fetchInfoList({
-					aqiLevel: null,
+					aqiLevel: selectedLevel.value,
 					cityCode: null,
 					inspectorName: null,
 					pageNum: infoCurrentPageNum2.value,
@@ -497,7 +576,7 @@
 				// console.log(infoPageNum.value);
 				infoCurrentPageNum3.value = page;
 				await adminStore.fetchInfoList({
-					aqiLevel: null,
+					aqiLevel: selectedLevel.value,
 					cityCode: null,
 					inspectorName: null,
 					pageNum: infoCurrentPageNum3.value,
@@ -693,7 +772,7 @@
 				infoDetail1.value.currentAQIDetail.name = aqiInfo.name;
 				infoDetail1.value.currentAQIDetail.level = aqiInfo.level;
 				const date = new Date(data.timeSupervisor);
-				
+
 				infoDetail1.value.date =
 					`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 				infoDetail1.value.time =
@@ -906,9 +985,18 @@
 				infoBack2,
 				infoBack3,
 				selectedProvince,
+				selectedLevel,
 				selectedCity,
 				provinces,
 				cities,
+				aqiLevelList,
+				radio,
+				selectedDateInspector,
+				selectedDateSupervisor,
+				handleSearch,
+				handleReset,
+				initSelectedData,
+				handleDateChange,
 			};
 		},
 	};
