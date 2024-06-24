@@ -72,21 +72,21 @@ export const useSupervisorStore = defineStore('supervisor', {
 
         async updateSupervisor(data){
             try {
-                const beforeSupervisor = await supervisorAPI.getSupervisorByTelId(this.supervisor.telId)
-                console.log(data);
+                const beforeSupervisor = await supervisorAPI.getSupervisorByTelId(this.supervisor.telId);
+                console.log(beforeSupervisor.data.data);
                 beforeSupervisor.data.data.realName = data.realName;
                 beforeSupervisor.data.data.birthday = data.birthday;
-                beforeSupervisor.data.data.sex = data.sex;
+                beforeSupervisor.data.data.sex = (data.sex === "男" ? 1 : 0);
                 beforeSupervisor.data.data.telId = data.telId;
-                console.log(beforeSupervisor.data.data);
 
                 const response = await supervisorAPI.editPersonal(beforeSupervisor.data.data);
                 if (response.data.code === 0) {
                     console.log('Supervisor updated successfully, response data:', response.data);
                     this.supervisor.realName = data.realName;
                     this.supervisor.birthday = data.birthday;
-                    this.supervisor.sex = data.sex;
+                    this.supervisor.sex = (data.sex === "男" ? 1 : 0);
                     this.supervisor.telId = data.telId;
+                    console.log(this.supervisor);
                     return true;
                 } else {
                     console.log('Supervisor updating failed, response data:', response.data);

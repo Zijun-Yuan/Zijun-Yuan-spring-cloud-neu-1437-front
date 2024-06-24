@@ -1,4 +1,5 @@
 <template>
+  <el-backtop :right="100" :bottom="100"/>
   <div class="common-layout">
     <el-header class="layout-header">
       <el-row :gutter="20" justify="space-between">
@@ -56,13 +57,19 @@
             <el-table v-if="currentTable === 'feedbackList'" :data="currentInfoList"
                       empty-text="目前没有历史反馈信息"
                       style="width: 100%">
-              <el-table-column prop="aqiLevel" label="污染等级" width="150"></el-table-column>
+              <el-table-column type="index" label="序号" width="80">
+                <template #header>
+                  <span>序号</span>
+                  <el-button type="text" icon="el-icon-sort" @click="sortDescending"></el-button>
+                </template>
+              </el-table-column>
+              <el-table-column prop="aqiLevel" label="污染等级" width="100"></el-table-column>
               <el-table-column prop="date" label="反馈日期" width="150"></el-table-column>
               <el-table-column prop="time" label="反馈时间" width="150"></el-table-column>
-              <el-table-column prop="province.provinceName" label="省份" width="150"></el-table-column>
-              <el-table-column prop="city.cityName" label="城市" width="150"></el-table-column>
-              <el-table-column prop="address" label="具体位置" width="150"></el-table-column>
-              <el-table-column prop="feedback" label="描述" width="250"></el-table-column>
+              <el-table-column prop="province.provinceName" label="省份" width="100"></el-table-column>
+              <el-table-column prop="city.cityName" label="城市" width="100"></el-table-column>
+              <el-table-column prop="address" label="具体位置" width="200"></el-table-column>
+              <el-table-column prop="feedback" label="描述" width="300"></el-table-column>
             </el-table>
 
             <el-form v-else-if="currentTable === 'reportGridInformation'" ref="reportGridForm" label-width="100px">
@@ -120,9 +127,8 @@
               </el-form-item>
             </el-form>
 
-            <el-form v-else-if="currentTable === 'browsePersonalInfo'" ref="personalInfoForm" :model="personalInfo"
+            <el-form v-else-if="currentTable === 'browsePersonalInfoTable'" ref="personalInfoForm" :model="personalInfo"
                      label-width="100px">
-<!--             让基本信息这个表单项的标签显示为蓝色-->
               <el-form-item>
                 <el-tag type="info" class="custom-tag">基本信息</el-tag>
               </el-form-item>
@@ -130,9 +136,9 @@
                 <el-input v-model="personalInfo.realName" placeholder="姓名"></el-input>
               </el-form-item>
               <el-form-item label="性别">
-                <el-select v-model="selectedSex" placeholder="请选择性别">
-                  <el-option label="男" value=1></el-option>
-                  <el-option label="女" value=0></el-option>
+                <el-select v-model="personalInfo.sex" placeholder="请选择性别">
+                  <el-option label="男" value="男"></el-option>
+                  <el-option label="女" value="女"></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item label="生日">
@@ -179,10 +185,15 @@ export default {
     const locationStore = useLocationStore();
     const aqiLevelStore = useAQIStore();
     const defaultActive = ref('1-1');
+
     let currentTable = ref('');
     let currentInfoList = ref([]);
     let provinces = ref([]);
     let cities = ref([]);
+
+    const sortDescending = () => {
+      currentInfoList.value = [...currentInfoList.value].reverse();
+    };
 
     const reportForm = ref({
       province: '',
@@ -212,14 +223,6 @@ export default {
       telId: '',
     });
 
-    const selectedSex = computed({
-      get() {
-        return personalInfo.value.sex;
-      },
-      set(value) {
-        personalInfo.value.sex = value;
-      }
-    });
 
     watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
       formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
@@ -259,6 +262,7 @@ export default {
     const processFeedbackList = async () => {
       currentInfoList.value = []; // 重置数组
       let date = new Date();
+      console.log(supervisorStore.feedbackList);
       for (let i = 0; i < supervisorStore.feedbackList.length; i++) {
         let info = {
           aqiLevel: "null",
@@ -285,6 +289,7 @@ export default {
             `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
         currentInfoList.value.push(info);
       }
+      //currentInfoList.value.reverse();
     };
 
     const reportGridInformation = () => {
@@ -327,22 +332,21 @@ export default {
 
     const browsePersonalInfo = () => {
       personalInfo.value.realName = supervisorStore.supervisor.realName;
-      personalInfo.value.sex = supervisorStore.supervisor.sex === 1 ? '男': '女';
+      personalInfo.value.sex = (supervisorStore.supervisor.sex === 1 ? "男" : "女");
       personalInfo.value.birthday = supervisorStore.supervisor.birthday;
       personalInfo.value.telId = supervisorStore.supervisor.telId;
       updateLocation('公众监督员功能', '浏览个人信息');
-      currentTable.value = 'browsePersonalInfo';
+      currentTable.value = 'browsePersonalInfoTable';
     };
 
     const updatePersonalInfo = async () => {
       // 首先判断是否有表单为空
       if (!personalInfo.value.realName || !personalInfo.value.birthday || !personalInfo.value.telId) {
         ElMessage.warning('有为空的信息项，请填写完整');
-      }else {
+      } else {
         // 否则开始更新个人信息
         if (await supervisorStore.updateSupervisor(personalInfo.value)) {
           ElMessage.success({message: '个人信息更新成功！'});
-          supervisorStore.supervisor = personalInfo.value;
         } else {
           ElMessage.error({message: '该电话号码已被注册，请更换电话号码！'});
         }
@@ -352,6 +356,7 @@ export default {
     const handleProvinceChange = async (provinceId) => {
       if (provinceId) {
         cities.value = await locationStore.getCitiesByProvinceId(provinceId);
+        reportForm.value.city = '';
       } else {
         cities.value = [];
         reportForm.value.city = '';
@@ -367,9 +372,9 @@ export default {
       formattedTitle,
       reportForm,
       personalInfo,
-      selectedSex,
       aqiLevelDescriptions,
       defaultActive,
+      sortDescending,
       submitReport,
       updateLocation,
       logout,
@@ -470,15 +475,5 @@ export default {
   background-color: #7777e3;
   border-color: #7777e3;
   color: white;
-}
-
-.el-button--danger {
-  background-color: #f56c6c;
-  border-color: #f56c6c;
-}
-
-.el-button--danger:hover {
-  background-color: #f78989;
-  border-color: #f78989;
 }
 </style>

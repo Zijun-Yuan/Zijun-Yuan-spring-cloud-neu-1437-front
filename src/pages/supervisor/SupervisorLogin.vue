@@ -6,6 +6,9 @@
     </div>
     <div class="right-section">
       <!-- 右边的登录输入栏 -->
+      <div class="register-header" style="text-align:center;">
+        <h3>监督员登录</h3>
+      </div>
       <el-form class="login-form" :model="loginForm">
         <el-form-item label="账号" prop="username">
           <el-input v-model="loginForm.telId" placeholder="请输入手机号"></el-input>
@@ -18,6 +21,7 @@
           <el-button @click="handleRegister">注册</el-button>
         </el-form-item>
       </el-form>
+      <div class="login-message" v-if="errorMessage">{{errorMessage}}</div>
     </div>
   </div>
 </template>
@@ -45,14 +49,14 @@ export default {
         password: loginForm.value.password,
       };
       if(!loginForm.value.telId || !loginForm.value.password){
-        ElMessage.error('账号或密码不能为空');
+        errorMessage.value = '账号或密码不能为空';
       }else {
         await supervisorState.supervisorLogin(data);
         if (supervisorState.supervisor.telId === data.supervisorCode){
           await router.push('/supervisor/main');
           ElMessage.success('登录成功');
         }else {
-          ElMessage.error('账号或密码不正确，请重试');
+          errorMessage.value = '账号或密码不正确，请重试';
           loginForm.value.password = '';  // 清空密码输入框
         }
       }
@@ -83,11 +87,11 @@ export default {
   max-width: 500px;
   max-height: 500px;
   border-radius: 50%; /* 将左侧图片变为圆形 */
+  margin-right: 20px; /* 新加入的样式，增加与表单之间的间隔 */
 }
 
 .right-section {
   max-width: 300px;
-  margin: 0 auto;
   padding: 20px;
   border: 1px solid #e0e0e0;
   border-radius: 5px;
@@ -96,5 +100,11 @@ export default {
 .login-form {
   max-width: 300px;
   margin: 0 auto;
+}
+
+.login-message {
+  color: red;
+  text-align: center;
+  margin-top: 10px; /* 新加入的样式，增加消息与输入框之间的间隔 */
 }
 </style>
