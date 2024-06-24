@@ -15,10 +15,8 @@ export const useAdminStore = defineStore('admin', {
 			// console.log("start getInfoCountByStatus");
 			console.log(params);
 			try {
-				const response = await AdminAPI.getInfoCount({
-					params: params
-				});
-				// console.log("fetched num response: ", response.data.data);
+				const response = await AdminAPI.getInfoCount(params);
+				console.log("fetched num response: ", response.data.data);
 				// console.log("fetched status",+status+" num: ", response.data.data);
 				return response.data.data;
 			} catch (error) {
@@ -28,22 +26,23 @@ export const useAdminStore = defineStore('admin', {
 
 
 		async fetchInfoList(params) {
+			console.log("fetchInfoList",params);
 			try {
-				console.log("fetchInfoList",params);
-				const response = await AdminAPI.getInfoList({
-					params: params
-				});
-				console.log("fetched InfoList: ", response.data.data);
-				if (status === 1) {
+				const response = await AdminAPI.getInfoList(params);
+				console.log("fetched InfoList: ", response.data.data.list);
+				if (params.status === 1) {
 					this.infoList1 = response.data.data.list;
+					// console.log("InfoList1: ", this.infoList1);
 					return;
 				}
-				if (status === 2) {
+				if (params.status === 2) {
 					this.infoList2 = response.data.data.list;
+					// console.log("InfoList2: ", this.infoList2);
 					return;
 				}
-				if (status === 3) {
+				if (params.status === 3) {
 					this.infoList3 = response.data.data.list;
+					// console.log("InfoList3: ", this.infoList3);
 					return;
 				}
 				
@@ -97,5 +96,15 @@ export const useAdminStore = defineStore('admin', {
 		logout() {
 			this.token = '';
 		},
+		getInfoList1() {
+			return this.infoList1;
+		},
+		getInfoList2() {
+			return this.infoList2;
+		},
+		getInfoList3() {
+			return this.infoList3;
+		},
+		
 	}
 });
