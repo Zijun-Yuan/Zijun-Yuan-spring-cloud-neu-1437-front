@@ -87,6 +87,15 @@ export const useLocationStore = defineStore('location', {
 			return this.provinces;
 		},
 
+		async getCitieCodeListByProvinceId(provinceId) {
+			if (!this.initFlag) {
+				await this.initLocationStore();
+			}
+			return this.cities
+				.filter(city => city.provinceId === provinceId)
+				.map(city => city.cityCode); 
+		},
+
 		async test() {
 			await this.initLocationStore();
 			console.log(this.getCityAndProvinceByCityCode('101010200'));
