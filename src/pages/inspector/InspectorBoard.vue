@@ -34,10 +34,9 @@
         </el-aside>
         <el-main>
           <div v-if="showContent === 'uncompleted'" class="table-container">
-            <!-- Combination Search Controls -->
             <el-row :gutter="20" class="mb-2">
               <el-col :span="8">
-                <el-select v-model="filterProvince" placeholder="选择省份" clearable @change="handleFilterChange">
+                <el-select v-model="filterProvince" size="small" placeholder="选择省份" clearable @change="handleFilterChange">
                   <el-option
                       v-for="province in provinceList"
                       :key="province.provinceId"
@@ -47,7 +46,7 @@
                 </el-select>
               </el-col>
               <el-col :span="8">
-                <el-select v-model="filterCity" placeholder="选择城市" clearable @change="handleFilterChange">
+                <el-select v-model="filterCity" size="small" placeholder="选择城市" clearable @change="handleFilterChange">
                   <el-option
                       v-for="city in filteredCityList"
                       :key="city.cityCode"
@@ -57,7 +56,7 @@
                 </el-select>
               </el-col>
               <el-col :span="8">
-                <el-select v-model="filterAQI" placeholder="选择AQI级别" clearable @change="handleFilterChange">
+                <el-select v-model="filterAQI" size="small" placeholder="选择AQI级别" clearable @change="handleFilterChange">
                   <el-option
                       v-for="aqi in aqiLevelList"
                       :key="aqi.level"
@@ -114,7 +113,7 @@
             <!-- Combination Search Controls -->
             <el-row :gutter="20" class="mb-2">
               <el-col :span="8">
-                <el-select v-model="filterProvince" placeholder="选择省份" clearable @change="handleFilterChange">
+                <el-select v-model="filterProvince" size="small" placeholder="选择省份" clearable @change="handleFilterChange">
                   <el-option
                       v-for="province in provinceList"
                       :key="province.provinceId"
@@ -124,7 +123,7 @@
                 </el-select>
               </el-col>
               <el-col :span="8">
-                <el-select v-model="filterCity" placeholder="选择城市" clearable @change="handleFilterChange">
+                <el-select v-model="filterCity" size="small" placeholder="选择城市" clearable @change="handleFilterChange">
                   <el-option
                       v-for="city in filteredCityList"
                       :key="city.cityCode"
@@ -134,7 +133,7 @@
                 </el-select>
               </el-col>
               <el-col :span="8">
-                <el-select v-model="filterAQI" placeholder="选择AQI级别" clearable @change="handleFilterChange">
+                <el-select v-model="filterAQI" size="small" placeholder="选择AQI级别" clearable @change="handleFilterChange">
                   <el-option
                       v-for="aqi in aqiLevelList"
                       :key="aqi.level"
@@ -185,20 +184,140 @@
           </div>
           <div v-else-if="showContent === 'profile'" class="profile-container">
             <h2>个人信息</h2>
-            <p>姓名: {{ inspectorStore.inspectorName }}</p>
+            <p>姓名: {{ inspector.inspectorName }}</p>
             <p>编号: {{ inspectorStore.inspectorCode }}</p>
             <!-- 您可以在这里添加更多个人信息 -->
           </div>
         </el-main>
       </el-container>
     </el-container>
+
+    <!-- Dialog for "去检测" -->
+    <el-dialog v-model="dialogVisible">
+      <el-descriptions
+          title="基本信息"
+          :column="2"
+          border
+      >
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon :style="iconStyle">
+                <location />
+              </el-icon>
+              网格信息
+            </div>
+          </template>
+          <el-tag>{{ currentRow.province.provinceName }} -- {{ currentRow.city.cityName }}</el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon :style="iconStyle">
+                <office-building />
+              </el-icon>
+              详细地址
+            </div>
+          </template>
+          {{ currentRow.address }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon :style="iconStyle">
+                <tickets />
+              </el-icon>
+              AQI预估
+            </div>
+          </template>
+          <div v-if="currentRow.aqiLevel !== undefined && currentRow.aqiLevel !== null"
+               class="aqi-box"
+               :style="{ background: getAQIDetail(currentRow.aqiLevel)?.color }">
+            <span>{{ getAQIDetail(currentRow.aqiLevel)?.name }}</span>
+          </div>
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon :style="iconStyle">
+                <tickets />
+              </el-icon>
+              反馈信息
+            </div>
+          </template>
+          {{ currentRow.feedback }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon :style="iconStyle">
+                <user />
+              </el-icon>
+              公众监督员
+            </div>
+          </template>
+          {{ currentRow.supervisorName }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon :style="iconStyle">
+                <iphone />
+              </el-icon>
+              监督时间
+            </div>
+          </template>
+          {{ currentRow.timeSupervisor }}
+        </el-descriptions-item>
+      </el-descriptions>
+
+      <el-form :model="currentRow" label-width="120px" class="mt-2" size="small">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="SO2浓度：">
+              <el-input v-model="infoChange.so2" placeholder="输入SO2浓度">
+                <template #append>ug/m3</template>
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="CO浓度：">
+              <el-input v-model="infoChange.co" placeholder="输入CO浓度">
+                <template #append>ug/m3</template>
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="O3浓度：">
+              <el-input v-model="infoChange.o3" placeholder="输入O3浓度">
+                <template #append>ug/m3</template>
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="PM2.5浓度：">
+              <el-input v-model="infoChange.pm25" placeholder="输入PM2.5浓度">
+                <template #append>ug/m3</template>
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div class="button-container">
+        <el-button type="primary" @click="submitInspection">确认提交</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 import {onMounted, ref, computed, watch} from 'vue';
 import { useInspectorStore } from '@/stores/inspectorStore';
-import { getInfoList } from '@/api/inspector';
+import { getInfoList, feedbackInfo, getInspectorByCode } from '@/api/inspector';
 import { useLocationStore } from "@/stores/locationStore";
 import { useAQIStore } from '@/stores/aqiLevelStore';
 
@@ -209,6 +328,27 @@ export default {
     const inspectorStore = useInspectorStore();
     const locationStore = useLocationStore();
     const aqiStore = useAQIStore();
+
+    let inspector = ref({});
+    let dialogVisible = ref(false);
+    let currentRow = ref({});
+    // 这里要改，有些元素不能有空值！！！
+    let infoChange = ref({
+      infoId: '',
+      status: 3,
+      aqiLevel: '',
+      cityCode: '',
+      address: '',
+      feedback: '',
+      timeSupervisor: '',
+      timeInspector: '',
+      so2: '',
+      co: '',
+      o3: '',
+      pm25: '',
+      supervisorName: '',
+      inspectorName: ''
+    });
 
     let infoList = ref([]);
     let uncompletedInfoList = ref([]);
@@ -361,7 +501,9 @@ export default {
     };
 
     const handleCheck = (row) => {
-      // Logic for going to check
+      console.log('Check:', row);
+      currentRow.value = row;
+      dialogVisible.value = true;
     };
 
     const handleReject = (row) => {
@@ -383,6 +525,14 @@ export default {
       filterCity.value = null; // 重置城市选择
     };
 
+    const submitInspection = () => {
+      // 提交检测结果的逻辑
+      // console.log('Inspection result:', infoChange.value);
+      infoChange.value.infoId = currentRow.value.infoId;
+      feedbackInfo(infoChange.value);
+      dialogVisible.value = false;
+    };
+
     watch(filterProvince, (provinceId) => {
       if (provinceId) {
         handleProvinceChange(provinceId);
@@ -393,6 +543,8 @@ export default {
 
     onMounted(async () => {
       await locationStore.initLocationStore();
+      // inspector.value = await getInspectorByCode(inspectorStore.inspectorCode).value;
+      // console.log('Inspector:', inspector);
       provinceList.value = await locationStore.getAllProvinces();
       aqiLevelList.value = aqiStore.getAllAQILevels();
       await fetchInfoList();
@@ -429,7 +581,12 @@ export default {
       pageSize,
       uncompletedCurrentPage,
       completedCurrentPage,
-      aqiLevelList
+      aqiLevelList,
+      dialogVisible,
+      currentRow,
+      infoChange,
+      inspector,
+      submitInspection
     };
   },
 };
@@ -481,5 +638,20 @@ export default {
 }
 .mb-2 {
   margin-bottom: 20px;
+}
+.cell-item {
+  display: flex;
+  align-items: center;
+}
+.mt-2 {
+  margin-top: 20px;
+  margin-left: -20px;
+  margin-right: 30px;
+}
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  margin-right: 10px;
 }
 </style>

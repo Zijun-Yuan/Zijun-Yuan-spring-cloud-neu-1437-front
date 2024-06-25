@@ -395,6 +395,9 @@
 
 				const date1 = new Date(selectedDateSupervisor.value);
 				console.log(selectedDateSupervisor);
+				const cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince.value);
+				
+				console.log(cityCodeList.value);
 				// 	console.log(handledDate1);
 				// 	const date2 = new Date()selectedDateInspector.value;
 				console.log("selectedProvince:", selectedProvince.value,
@@ -424,7 +427,7 @@
 			// 当省份改变时更新城市数据
 			const handleProvinceChange = async (provinceId) => {
 				cities.value = await locationStore.getCitiesByProvinceId(provinceId);
-				console.log(selectedCity.value);
+				// console.log(selectedCity.value);
 				selectedCity.value = null; // 重置城市选择
 			};
 
@@ -457,11 +460,11 @@
 			};
 
 			const initSelectedData = async () => {
-				selectedProvince = ref(null);
-				selectedCity = ref(null);
-				selectedLevel = ref(null);
-				selectedDateSupervisor = ref(null);
-				selectedDateInspector = ref(null);
+				selectedProvince.value = null;
+				selectedCity.value = null;
+				selectedLevel.value = null;
+				selectedDateSupervisor.value= null;
+				selectedDateInspector.value = null;
 			};
 
 			//初始化table1
@@ -491,6 +494,7 @@
 
 			//初始化table2
 			const initTable2 = async () => {
+				await initSelectedData();
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table2';
 				infoNum2.value = await adminStore.getInfoCount({
@@ -513,6 +517,7 @@
 
 			//初始化table3
 			const initTable3 = async () => {
+				await initSelectedData();
 				updateLocation('确认AQI数据管理', '确认AQI数据列表');
 				currentTable.value = 'table3';
 				infoNum3.value = await adminStore.getInfoCount({
