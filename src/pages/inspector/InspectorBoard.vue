@@ -3,15 +3,16 @@
     <el-container class="full-height">
       <el-header>
         <el-row>
-          <el-col :span="21">
+          <el-col :span="22">
             <h5 class="mb-2">网格员工作台</h5>
           </el-col>
-          <el-col :span="3" class="user-name">
-            {{ inspectorStore.inspectorName }}
+          <el-col :span="2" class="user-info" text-align="right">
+            <h5 class="mb-2">欢迎您，{{ inspectorStore.realName }}</h5>
           </el-col>
         </el-row>
       </el-header>
       <el-container>
+
         <el-aside width="220px" class="menu-aside full-height">
           <el-menu
               default-active="1"
@@ -32,6 +33,7 @@
             </el-menu-item>
           </el-menu>
         </el-aside>
+
         <el-main>
           <div v-if="showContent === 'uncompleted'" class="table-container">
             <el-row :gutter="20" class="mb-2">
@@ -100,6 +102,7 @@
                 </template>
               </el-table-column>
             </el-table>
+
             <el-pagination
                 v-if="filteredUncompletedList.length > pageSize"
                 :current-page="uncompletedCurrentPage"
@@ -107,10 +110,11 @@
                 layout="total, prev, pager, next"
                 :total="filteredUncompletedList.length"
                 @current-change="handleUncompletedPageChange"
+                class="pagination-container"
             />
           </div>
+
           <div v-else-if="showContent === 'completed'" class="table-container">
-            <!-- Combination Search Controls -->
             <el-row :gutter="20" class="mb-2">
               <el-col :span="8">
                 <el-select v-model="filterProvince" size="small" placeholder="选择省份" clearable @change="handleFilterChange">
@@ -173,18 +177,22 @@
               <el-table-column prop="pm25" label="PM2.5浓度" align="center" width="80" />
               <el-table-column prop="timeInspector" label="检测时间" align="center" />
             </el-table>
+
             <el-pagination
                 v-if="filteredCompletedList.length > pageSize"
                 :current-page="completedCurrentPage"
                 :page-size="pageSize"
                 layout="total, prev, pager, next"
                 :total="filteredCompletedList.length"
+                :align="center"
                 @current-change="handleCompletedPageChange"
+                class="pagination-container"
             />
           </div>
+
           <div v-else-if="showContent === 'profile'" class="profile-container">
             <h2>个人信息</h2>
-            <p>姓名: {{ inspector.inspectorName }}</p>
+            <p>姓名: {{ inspectorStore.realName }}</p>
             <p>编号: {{ inspectorStore.inspectorCode }}</p>
             <!-- 您可以在这里添加更多个人信息 -->
           </div>
@@ -192,7 +200,6 @@
       </el-container>
     </el-container>
 
-    <!-- Dialog for "去检测" -->
     <el-dialog v-model="dialogVisible">
       <el-descriptions
           title="基本信息"
@@ -273,35 +280,59 @@
 
       <el-form :model="currentRow" label-width="120px" class="mt-2" size="small">
         <el-row :gutter="20">
-          <el-col :span="12">
+          <el-col :span="11">
             <el-form-item label="SO2浓度：">
-              <el-input v-model="infoChange.so2" placeholder="输入SO2浓度">
+              <el-input v-model="so2Number" placeholder="输入SO2浓度">
                 <template #append>ug/m3</template>
               </el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="1">
+            <div class="aqi-box-number"
+                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiSO2))?.color }">
+              <span>{{ getAQIDetail(getAQILevelByCheck(aqiSO2))?.level }}</span>
+            </div>
+          </el-col>
+          <el-col :span="11">
             <el-form-item label="CO浓度：">
-              <el-input v-model="infoChange.co" placeholder="输入CO浓度">
-                <template #append>ug/m3</template>
+              <el-input v-model="coNumber" placeholder="输入CO浓度">
+                <template #append>mg/m3</template>
               </el-input>
             </el-form-item>
+          </el-col>
+          <el-col :span="1">
+            <div class="aqi-box-number"
+                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiCO))?.color }">
+              <span>{{ getAQIDetail(getAQILevelByCheck(aqiCO))?.level }}</span>
+            </div>
           </el-col>
         </el-row>
         <el-row :gutter="20">
-          <el-col :span="12">
+          <el-col :span="11">
             <el-form-item label="O3浓度：">
-              <el-input v-model="infoChange.o3" placeholder="输入O3浓度">
+              <el-input v-model="o3Number" placeholder="输入O3浓度">
                 <template #append>ug/m3</template>
               </el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="1">
+            <div class="aqi-box-number"
+                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiO3))?.color }">
+              <span>{{ getAQIDetail(getAQILevelByCheck(aqiO3))?.level }}</span>
+            </div>
+          </el-col>
+          <el-col :span="11">
             <el-form-item label="PM2.5浓度：">
-              <el-input v-model="infoChange.pm25" placeholder="输入PM2.5浓度">
+              <el-input v-model="pm25Number" placeholder="输入PM2.5浓度">
                 <template #append>ug/m3</template>
               </el-input>
             </el-form-item>
+          </el-col>
+          <el-col :span="1">
+            <div class="aqi-box-number"
+                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiPM25))?.color }">
+              <span>{{ getAQIDetail(getAQILevelByCheck(aqiPM25))?.level }}</span>
+            </div>
           </el-col>
         </el-row>
       </el-form>
@@ -320,6 +351,7 @@ import { useInspectorStore } from '@/stores/inspectorStore';
 import { getInfoList, feedbackInfo, getInspectorByCode } from '@/api/inspector';
 import { useLocationStore } from "@/stores/locationStore";
 import { useAQIStore } from '@/stores/aqiLevelStore';
+import {ElMessage} from "element-plus";
 
 export default {
   name: 'InspectorBoard',
@@ -329,10 +361,12 @@ export default {
     const locationStore = useLocationStore();
     const aqiStore = useAQIStore();
 
-    let inspector = ref({});
     let dialogVisible = ref(false);
     let currentRow = ref({});
-    // 这里要改，有些元素不能有空值！！！
+    let so2Number = ref(0);
+    let coNumber = ref(0);
+    let o3Number = ref(0);
+    let pm25Number = ref(0);
     let infoChange = ref({
       infoId: '',
       status: 3,
@@ -478,7 +512,7 @@ export default {
       );
     };
 
-    const getAQIDetail = (level) => {
+    let getAQIDetail = (level) => {
       return aqiStore.getAQIDetail(level);
     };
 
@@ -501,7 +535,6 @@ export default {
     };
 
     const handleCheck = (row) => {
-      console.log('Check:', row);
       currentRow.value = row;
       dialogVisible.value = true;
     };
@@ -526,10 +559,29 @@ export default {
     };
 
     const submitInspection = () => {
-      // 提交检测结果的逻辑
-      // console.log('Inspection result:', infoChange.value);
       infoChange.value.infoId = currentRow.value.infoId;
+      infoChange.value.cityCode = currentRow.value.cityCode;
+      infoChange.value.address = currentRow.value.address;
+      infoChange.value.feedback = currentRow.value.feedback;
+      infoChange.value.timeSupervisor = currentRow.value.timeSupervisor;
+      infoChange.value.timeInspector = new Date().toISOString().slice(0, 19);
+      infoChange.value.so2 = so2Number.value;
+      infoChange.value.co = coNumber.value;
+      infoChange.value.o3 = o3Number.value;
+      infoChange.value.pm25 = pm25Number.value;
+      infoChange.value.aqiLevel = Math.max(
+          getAQILevelByCheck(aqiSO2.value),
+          getAQILevelByCheck(aqiCO.value),
+          getAQILevelByCheck(aqiO3.value),
+          getAQILevelByCheck(aqiPM25.value));
+      infoChange.value.supervisorName = currentRow.value.supervisorName;
+      infoChange.value.inspectorName = inspectorStore.realName;
+
       feedbackInfo(infoChange.value);
+      ElMessage({
+        message: '上传成功！',
+        type: 'success',
+      })
       dialogVisible.value = false;
     };
 
@@ -543,12 +595,114 @@ export default {
 
     onMounted(async () => {
       await locationStore.initLocationStore();
-      // inspector.value = await getInspectorByCode(inspectorStore.inspectorCode).value;
-      // console.log('Inspector:', inspector);
       provinceList.value = await locationStore.getAllProvinces();
       aqiLevelList.value = aqiStore.getAllAQILevels();
       await fetchInfoList();
     });
+
+    let getAQILevelByCheck = (check) => {
+      return aqiStore.getAQILevelByCheck(check);
+    };
+
+    const aqiSO2 = computed(() => {
+      return calculateAQI_SO2(so2Number.value);
+    });
+
+    const aqiCO = computed(() => {
+      return calculateAQI_CO(coNumber.value);
+    });
+
+    const aqiO3 = computed(() => {
+      return calculateAQI_O3(o3Number.value);
+    });
+
+    const aqiPM25 = computed(() => {
+      return calculateAQI_PM25(pm25Number.value);
+    });
+
+    function calculateAQI_SO2(so2Number) {
+      if (so2Number >= 0 && so2Number <= 50) {
+        return so2Number;
+      } else if (so2Number > 50 && so2Number <= 150) {
+        return 50 + (50 * (so2Number - 50) / 100);
+      } else if (so2Number > 150 && so2Number <= 475) {
+        return 100 + (50 * (so2Number - 150) / 325);
+      } else if (so2Number > 475 && so2Number <= 800) {
+        return 150 + (50 * (so2Number - 475) / 325);
+      } else if (so2Number > 800 && so2Number <= 1600) {
+        return 200 + (100 * (so2Number - 800) / 800);
+      } else if (so2Number > 1600 && so2Number <= 2100) {
+        return 300 + (100 * (so2Number - 1600) / 500);
+      } else if (so2Number > 2100 && so2Number <= 2620) {
+        return 400 + (100 * (so2Number - 2100) / 520);
+      } else if (so2Number > 2620) {
+        return 500;
+      } else {
+        return 0;
+      }
+    }
+
+    function calculateAQI_CO(coNumber) {
+      if (coNumber >= 0 && coNumber <= 2) {
+        return coNumber * 50 / 2;
+      } else if (coNumber > 2 && coNumber <= 4) {
+        return 50 + (50 * (coNumber - 2) / 2);
+      } else if (coNumber > 4 && coNumber <= 14) {
+        return 100 + (100 * (coNumber - 4) / 10);
+      } else if (coNumber > 14 && coNumber <= 24) {
+        return 200 + (100 * (coNumber - 14) / 10);
+      } else if (coNumber > 24 && coNumber <= 36) {
+        return 300 + (100 * (coNumber - 24) / 12);
+      } else if (coNumber > 36 && coNumber <= 48) {
+        return 400 + (100 * (coNumber - 36) / 12);
+      } else if (coNumber > 48) {
+        return 500;
+      } else {
+        return 0;
+      }
+    }
+
+    function calculateAQI_O3(o3Number) {
+      if (o3Number >= 0 && o3Number <= 160) {
+        return o3Number * 50 / 160;
+      } else if (o3Number > 160 && o3Number <= 200) {
+        return 50 + (50 * (o3Number - 160) / 40);
+      } else if (o3Number > 200 && o3Number <= 300) {
+        return 100 + (100 * (o3Number - 200) / 100);
+      } else if (o3Number > 300 && o3Number <= 400) {
+        return 200 + (100 * (o3Number - 300) / 100);
+      } else if (o3Number > 400 && o3Number <= 800) {
+        return 300 + (100 * (o3Number - 400) / 400);
+      } else if (o3Number > 800 && o3Number <= 1000) {
+        return 400 + (100 * (o3Number - 800) / 200);
+      } else if (o3Number > 1000) {
+        return 500;
+      } else {
+        return 0;
+      }
+    }
+
+    function calculateAQI_PM25(pm25Number) {
+      if (pm25Number >= 0 && pm25Number <= 35) {
+        return pm25Number * 50 / 35;
+      } else if (pm25Number > 35 && pm25Number <= 75) {
+        return 50 + (50 * (pm25Number - 35) / 40);
+      } else if (pm25Number > 75 && pm25Number <= 115) {
+        return 100 + (50 * (pm25Number - 75) / 40);
+      } else if (pm25Number > 115 && pm25Number <= 150) {
+        return 150 + (50 * (pm25Number - 115) / 35);
+      } else if (pm25Number > 150 && pm25Number <= 250) {
+        return 200 + (100 * (pm25Number - 150) / 100);
+      } else if (pm25Number > 250 && pm25Number <= 350) {
+        return 300 + (100 * (pm25Number - 250) / 100);
+      } else if (pm25Number > 350 && pm25Number <= 500) {
+        return 400 + (100 * (pm25Number - 350) / 150);
+      } else if (pm25Number > 500) {
+        return 500;
+      } else {
+        return 0;
+      }
+    }
 
     return {
       showContent,
@@ -584,9 +738,21 @@ export default {
       aqiLevelList,
       dialogVisible,
       currentRow,
+      so2Number,
+      coNumber,
+      o3Number,
+      pm25Number,
       infoChange,
-      inspector,
-      submitInspection
+      submitInspection,
+      getAQILevelByCheck,
+      aqiSO2,
+      aqiCO,
+      aqiO3,
+      aqiPM25,
+      calculateAQI_SO2,
+      calculateAQI_CO,
+      calculateAQI_O3,
+      calculateAQI_PM25
     };
   },
 };
@@ -636,6 +802,15 @@ export default {
   justify-content: center;
   color: white;
 }
+.aqi-box-number {
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
 .mb-2 {
   margin-bottom: 20px;
 }
@@ -645,13 +820,18 @@ export default {
 }
 .mt-2 {
   margin-top: 20px;
-  margin-left: -20px;
-  margin-right: 30px;
+  margin-left: -30px;
+  margin-right: 40px;
 }
 .button-container {
   display: flex;
   justify-content: center;
   margin-top: 10px;
   margin-right: 10px;
+}
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>
