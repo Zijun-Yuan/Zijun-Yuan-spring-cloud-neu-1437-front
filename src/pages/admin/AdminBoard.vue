@@ -52,7 +52,7 @@
 						<el-scrollbar>
 							<!-- status = 1 列表 -->
 							<template v-if="currentTable === 'table1'">
-								<div style="margin-top: 10px;margin-bottom: 10px;margin-left: 10px">
+								<div style="margin-top: 10px;margin-bottom: 10px;margin-left: 10px ">
 									<el-row :gutter="24" style="color: gray;">
 										<el-col :span="4">
 											<span>省区域
@@ -84,8 +84,7 @@
 										<el-col :span="5">
 											<span>反馈日期
 												<el-date-picker v-model="selectedDateSupervisor" type="date"
-													placeholder="反馈日期" style="width: 120px;"
-													@change="handleDateChange" />
+													placeholder="反馈日期" style="width: 120px;" />
 											</span>
 										</el-col>
 										<el-col :span="3">
@@ -95,8 +94,8 @@
 										</el-col>
 										<el-col :span="4">
 											<el-radio-group v-model="radio" class="ml-4">
-												<el-radio label="1" size="large">未指派</el-radio>
-												<el-radio label="2" size="large">已指派</el-radio>
+												<el-radio :value="1" size="large">未指派</el-radio>
+												<el-radio :value="2" size="large">已指派</el-radio>
 											</el-radio-group>
 										</el-col>
 									</el-row>
@@ -132,73 +131,82 @@
 									<el-pagination v-model="infoCurrentPageNum1" :current-page="infoCurrentPageNum1"
 										:small="small" :disabled="disabled" :background="background"
 										layout="prev, pager, next, jumper" :page-count="infoPageNum1"
-										@current-change="handleInfoPageChange1" />
+										@current-change="handleInfoPageChange1"  v-if="infoPageNum1>=2 "/>
 								</div>
-
+							</template>
+							
+							
+							<!-- status = 2 列表 -->
+							<template v-if="currentTable === 'table2'">
+								<el-table :data="currentInfoList2">
+									<el-table-column prop="num" label="编号" width="100"></el-table-column>
+									<el-table-column prop="supervisorName" label="反馈者姓名" width="180"></el-table-column>
+									<el-table-column prop="inspectorName" label="网格员姓名" width="180"></el-table-column>
+									<el-table-column prop="province.provinceName" label="所在省"
+										width="100"></el-table-column>
+									<el-table-column prop="city.cityName" label="所在市" width="100"></el-table-column>
+									<el-table-column prop="aqiInfo" label="预估污染等级" width="130"></el-table-column>
+									<el-table-column prop="date" label="反馈日期" width="180"></el-table-column>
+									<el-table-column prop="time" label="反馈时间" width="180"></el-table-column>
+									<el-table-column label="操作" width="180">
+										<template v-slot="scope">
+											<el-button type="primary" circle @click="showInfo2(scope.row)">
+												<el-icon>
+													<InfoFilled />
+												</el-icon>
+											</el-button>
+										</template>
+									</el-table-column>
+								</el-table>
+								<!-- status = 2信息列表页码 -->
+								<el-pagination v-model="infoCurrentPageNum2" :current-page="infoCurrentPageNum2"
+									v-if="infoPageNum2>=2 " :small="small" :disabled="disabled" :background="background"
+									layout="prev, pager, next, jumper" :page-count="infoPageNum2"
+									@current-change="handleInfoPageChange2" />
 							</template>
 
 
-							<!-- status = 2 列表 -->
-							<el-table v-if="currentTable === 'table2'" :data="currentInfoList2">
-								<el-table-column prop="num" label="编号" width="100"></el-table-column>
-								<el-table-column prop="supervisorName" label="反馈者姓名" width="180"></el-table-column>
-								<el-table-column prop="inspectorName" label="网格员姓名" width="180"></el-table-column>
-								<el-table-column prop="province.provinceName" label="所在省" width="100"></el-table-column>
-								<el-table-column prop="city.cityName" label="所在市" width="100"></el-table-column>
-								<el-table-column prop="aqiInfo" label="预估污染等级" width="130"></el-table-column>
-								<el-table-column prop="date" label="反馈日期" width="180"></el-table-column>
-								<el-table-column prop="time" label="反馈时间" width="180"></el-table-column>
-								<el-table-column label="操作" width="180">
-									<template v-slot="scope">
-										<el-button type="primary" circle @click="showInfo2(scope.row)">
-											<el-icon>
-												<InfoFilled />
-											</el-icon>
-										</el-button>
-									</template>
-								</el-table-column>
-							</el-table>
-							<!-- status = 2信息列表页码 -->
-							<el-pagination v-model="infoCurrentPageNum2" :current-page="infoCurrentPageNum2"
-								v-if="currentTable === 'table2'" :small="small" :disabled="disabled"
-								:background="background" layout="prev, pager, next, jumper" :page-count="infoPageNum2"
-								@current-change="handleInfoPageChange2" />
-
 
 							<!-- status = 3 列表-->
-							<el-table v-if="currentTable === 'table3'" :data="currentInfoList3">
-								<el-table-column prop="num" label="编号" width="100"></el-table-column>
-								<el-table-column prop="province.provinceName" label="所在省" width="100"></el-table-column>
-								<el-table-column prop="city.cityName" label="所在市" width="100"></el-table-column>
-								<el-table-column prop="aqiInfo" label="AQI等级" width="130"></el-table-column>
-								<el-table-column prop="dateSupervisor" label="反馈日期" width="180"></el-table-column>
-								<el-table-column prop="timeSupervisor" label="反馈时间" width="180"></el-table-column>
-								<el-table-column prop="dateInspector" label="确认日期" width="180"></el-table-column>
-								<el-table-column prop="timeInspector" label="确认时间" width="180"></el-table-column>
-								<el-table-column prop="inspectorName" label="网格员" width="180"></el-table-column>
-								<el-table-column prop="supervisorName" label="反馈者" width="180"></el-table-column>
+							<template v-if="currentTable === 'table3'">
+								<el-table :data="currentInfoList3">
+									<el-table-column prop="num" label="编号" width="80"></el-table-column>
+									<el-table-column prop="province.provinceName" label="所在省"
+										width="100"></el-table-column>
+									<el-table-column prop="city.cityName" label="所在市" width="100"></el-table-column>
+									<el-table-column prop="aqiInfo" label="AQI等级" width="120"></el-table-column>
+									<el-table-column prop="dateSupervisor" label="反馈日期" width="150"></el-table-column>
+									<el-table-column prop="timeSupervisor" label="反馈时间" width="120"></el-table-column>
+									<el-table-column prop="dateInspector" label="确认日期" width="150"></el-table-column>
+									<el-table-column prop="timeInspector" label="确认时间" width="120"></el-table-column>
+									<el-table-column prop="inspectorName" label="网格员" width="100"></el-table-column>
+									<el-table-column prop="supervisorName" label="反馈者" width="100"></el-table-column>
 
-								<el-table-column label="操作" width="180">
-									<template v-slot="scope">
-										<el-button type="primary" circle @click="showInfo3(scope.row)">
-											<el-icon>
-												<InfoFilled />
-											</el-icon>
-										</el-button>
-									</template>
-								</el-table-column>
-							</el-table>
-							<!-- status = 3信息列表页码 -->
-							<el-pagination v-model="infoCurrentPageNum3" :current-page="infoCurrentPageNum3"
-								v-if="currentTable === 'table3'" :small="small" :disabled="disabled"
-								:background="background" layout="prev, pager, next, jumper" :page-count="infoPageNum3"
-								@current-change="handleInfoPageChange3" />
+									<el-table-column label="操作" width="100">
+										<template v-slot="scope">
+											<el-button type="primary" circle @click="showInfo3(scope.row)">
+												<el-icon>
+													<InfoFilled />
+												</el-icon>
+											</el-button>
+										</template>
+									</el-table-column>
+								</el-table>
+								<!-- status = 3信息列表页码 -->
+								<el-pagination v-model="infoCurrentPageNum3" :current-page="infoCurrentPageNum3"
+									v-if="infoPageNum3>=2" :small="small" :disabled="disabled" :background="background"
+									layout="prev, pager, next, jumper" :page-count="infoPageNum3"
+									@current-change="handleInfoPageChange3" />
+							</template>
+
 
 							<!-- 详细信息1 -->
-							<template v-if="currentTable === 'table11'">
-								<el-descriptions class="margin-top" title="公众监督信息详情" :column="1" :size="size" border>
+							<template v-if="currentTable === 'table11' ||currentTable === 'table12'">
+								<el-descriptions style="margin-top: 10px;margin-bottom: 10px;margin-left: 10px"
+									class="margin-top" title="公众监督信息详情" :column="1" border>
 									<template #extra>
-										<el-button type="primary" color="#98c8f2" @click="infoBack1">返回</el-button>
+										<el-button style="margin-top: 10px;margin-bottom: 10px;margin-right: 20px"
+											type="primary" color="#98c8f2" @click="infoBack1">返回</el-button>
 									</template>
 									<el-descriptions-item label="公众监督反馈信息编号">
 										{{ infoDetail1.id }}
@@ -233,14 +241,126 @@
 										<el-tag size="small">{{ infoDetail1.time }}</el-tag>
 									</el-descriptions-item>
 								</el-descriptions>
+								<el-row :gutter="22"
+									style="color: gray;margin-top: 10px;margin-bottom: 10px;margin-left: 10px">
+									<el-col :span="4">
+										<span>是否异地指派
+											<el-switch v-model="yidizhipai" class="ml-2"
+												style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" /></span>
+									</el-col>
+									<el-col :span="4">
+										<span>省区域
+											<el-select v-model="selectedProvince1" placeholder="—全部—"
+												@change="handleProvinceChange1" style="width: 130px;">
+												<el-option v-for="province in provinces1" :key="province.provinceId"
+													:label="province.provinceName" :value="province.provinceId" />
+											</el-select>
+										</span>
+									</el-col>
+									<el-col :span="4">
+										<span>市区域
+											<el-select v-model="selectedCity1" :disabled="!selectedProvince1"
+												placeholder="—全部—" style="width: 120px;">
+												<el-option v-for="city in cities1" :key="city.cityCode"
+													:label="city.cityName" :value="city.cityCode" />
+											</el-select>
+										</span>
+									</el-col>
+									<el-col :span="4">
+										<span>指派给
+											<el-select v-model="selectedInspector" placeholder="—全部—"
+												style="width: 120px;">
+												<el-option v-for="inspector in inspectors.list"
+													:key="inspector.inspectorId" :label="inspector.realName"
+													:value="inspector.inspectorId" />
+											</el-select>
+										</span>
+									</el-col>
+								</el-row>
 							</template>
 
-							<!-- 表格2 -->
-							<!-- <el-table v-if="currentTable === 'table2'" :data="table2Data">
-								<el-table-column prop="date" label="日期" width="180"></el-table-column>
-								<el-table-column prop="name" label="姓名" width="180"></el-table-column>
-								<el-table-column prop="address" label="地址"></el-table-column>
-							</el-table> -->
+
+							<template v-if="currentTable === 'table21'">
+								<el-descriptions style="margin-top: 10px;margin-bottom: 10px;margin-left: 10px"
+									class="margin-top" title="公众监督信息详情" :column="1" :size="size" border>
+									<template style="margin-top: 10px;margin-bottom: 10px;margin-right: 10px" #extra>
+										<el-button type="primary" color="#98c8f2" @click="infoBack2">返回</el-button>
+									</template>
+									<el-descriptions-item label="公众监督反馈信息编号">
+										{{ infoDetail1.id }}
+									</el-descriptions-item>
+									<el-descriptions-item label="反馈者信息">
+										<el-tag size="small"
+											style="margin-right: 8px;">{{ infoDetail2.userInfo.name }}</el-tag>
+										<el-tag size="small"
+											style="margin-right: 8px;">{{ infoDetail2.userInfo.sex }}</el-tag>
+										<el-tag size="small">{{ infoDetail2.userInfo.birthday }}</el-tag>
+									</el-descriptions-item>
+									<el-descriptions-item label="反馈者联系电话">
+										{{ infoDetail2.userInfo.phoneNum }}
+									</el-descriptions-item>
+									<el-descriptions-item label="反馈信息所在地址">
+										<el-tag size="small"
+											style="margin-right: 8px;">{{ infoDetail2.location.province }}</el-tag>
+										<el-tag size="small"
+											style="margin-right: 8px;">{{ infoDetail2.location.city }}</el-tag>
+										<el-tag size="small">{{ infoDetail2.address }}</el-tag>
+									</el-descriptions-item>
+									<el-descriptions-item label="反馈信息表述">
+										{{ infoDetail2.feedback }}
+									</el-descriptions-item>
+									<el-descriptions-item label="预估等级">
+										<el-tag size="small"
+											style="margin-right: 8px;">{{ infoDetail2.currentAQIDetail.level }}</el-tag>
+										<el-tag size="small">{{ infoDetail2.currentAQIDetail.name }}</el-tag>
+									</el-descriptions-item>
+									<el-descriptions-item label="反馈日期时间">
+										<el-tag size="small" style="margin-right: 8px;">{{ infoDetail2.date }}</el-tag>
+										<el-tag size="small">{{ infoDetail2.time }}</el-tag>
+									</el-descriptions-item>
+								</el-descriptions>
+							</template>
+
+							<template v-if="currentTable === 'table31'">
+								<el-descriptions style="margin-top: 10px;margin-bottom: 10px;margin-left: 10px"
+									class="margin-top" title="确认数据详情" :column="1" :size="size" border>
+									<template style="margin-top: 10px;margin-bottom: 10px;margin-right: 10px" #extra>
+										<el-button type="primary" color="#98c8f2" @click="infoBack3">返回</el-button>
+									</template>
+									<el-descriptions-item label="公众监督反馈信息编号">
+										{{ infoDetail3.id }}
+									</el-descriptions-item>
+									<el-descriptions-item label="反馈者信息">
+										<el-tag size="small"
+											style="margin-right: 8px;">{{ infoDetail3.userInfo.name }}</el-tag>
+										<el-tag size="small"
+											style="margin-right: 8px;">{{ infoDetail3.userInfo.sex }}</el-tag>
+										<el-tag size="small">{{ infoDetail3.userInfo.birthday }}</el-tag>
+									</el-descriptions-item>
+									<el-descriptions-item label="反馈者联系电话">
+										{{ infoDetail3.userInfo.phoneNum }}
+									</el-descriptions-item>
+									<el-descriptions-item label="反馈信息所在地址">
+										<el-tag size="small"
+											style="margin-right: 8px;">{{ infoDetail3.location.province }}</el-tag>
+										<el-tag size="small"
+											style="margin-right: 8px;">{{ infoDetail3.location.city }}</el-tag>
+										<el-tag size="small">{{ infoDetail3.address }}</el-tag>
+									</el-descriptions-item>
+									<el-descriptions-item label="反馈信息表述">
+										{{ infoDetail3.feedback }}
+									</el-descriptions-item>
+									<el-descriptions-item label="预估等级">
+										<el-tag size="small"
+											style="margin-right: 8px;">{{ infoDetail3.currentAQIDetail.level }}</el-tag>
+										<el-tag size="small">{{ infoDetail3.currentAQIDetail.name }}</el-tag>
+									</el-descriptions-item>
+									<el-descriptions-item label="反馈日期时间">
+										<el-tag size="small" style="margin-right: 8px;">{{ infoDetail3.date }}</el-tag>
+										<el-tag size="small">{{ infoDetail3.time }}</el-tag>
+									</el-descriptions-item>
+								</el-descriptions>
+							</template>
 
 						</el-scrollbar>
 					</el-main>
@@ -297,14 +417,20 @@
 			const background = ref(true);
 			const disabled = ref(false);
 			const aqiLevelList = ref([]);
-
+			let yidizhipai = ref(true);
+			let selectedInspector = ref(null);
 			let selectedProvince = ref(null);
 			let selectedCity = ref(null);
+			let selectedProvince1 = ref(null);
+			let selectedCity1 = ref(null);
 			let selectedLevel = ref(null);
 			let selectedDateSupervisor = ref(null);
 			let selectedDateInspector = ref(null);
 			let provinces = ref([]);
 			let cities = ref([]);
+			let provinces1 = ref([]);
+			let cities1 = ref([]);
+			let inspectors = ref([]);
 			let radio = ref('1');
 
 			let currentTable = ref({});
@@ -390,25 +516,85 @@
 
 			});
 
-
 			const handleSearch = async () => {
+				// console.log("handleSearch");
+				if (selectedDateSupervisor.value === null) {
+					var handledDate1 = null;
+				} else {
+					var date1 = new Date(selectedDateSupervisor.value);
+					var handledDate1 =
+						`${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
+				}
 
-				const date1 = new Date(selectedDateSupervisor.value);
-				console.log(selectedDateSupervisor);
-				const cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince.value);
-				
-				console.log(cityCodeList.value);
+				var cityCodeList = [];
+				if (selectedProvince.value != null) {
+					// console.log(selectedProvince.value);s
+					if (selectedCity.value === null) {
+						// console.log(selectedCity.value);
+						cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince.value);
+						// console.log(cityCodeList);
+					} else {
+						cityCodeList = [];
+						// console.log(selectedCity.value);
+						cityCodeList.push(selectedCity.value);
+					}
+				}
+				// console.log(selectedProvince.value);
+				// console.log(cityCodeList);
+				await adminStore.fetchInfoList({
+					aqiLevel: selectedLevel.value,
+					cityCode: cityCodeList,
+					inspectorName: null,
+					status: 1,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: handledDate1,
+					pageNum: 1,
+					pageSize: infoPageSize.value,
+				});
+				var infoNum = await adminStore.getInfoCount({
+					aqiLevel: selectedLevel.value,
+					cityCode: cityCodeList,
+					inspectorName: null,
+					status: radio.value,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: handledDate1,
+				});
+				if (radio.value == 1) {
+					infoNum1.value = infoNum;
+					infoPageNum1.value = Math.ceil(infoNum1.value / infoPageSize.value);
+					showInfoList1();
+					ElMessage({
+						message: '查询成功',
+						type: 'success',
+					})
+					// console.log("showInfoList1");
+				} else if (radio.value == 2) {
+					infoNum2.value = infoNum;
+					infoPageNum2.value = Math.ceil(infoNum2.value / infoPageSize.value);
+					// console.log("showInfoList2");
+					showInfoList2();
+					ElMessage({
+						message: '查询成功',
+						type: 'success',
+					})
+				} else {
+					ElMessage.error('查询失败。');
+					console.error("radio.value error");
+				}
 				// 	console.log(handledDate1);
 				// 	const date2 = new Date()selectedDateInspector.value;
 				console.log("selectedProvince:", selectedProvince.value,
-					"selectedCity:", selectedCity.value, "selectedLevel:", selectedLevel.value, "radio:", radio.value,
+					"selectedCity:", selectedCity.value, "selectedLevel:", selectedLevel.value, "radio:", radio
+					.value,
 					"selectedDateSupervisor:", selectedDateSupervisor.value, "selectedDateInspector:",
 					selectedDateInspector.value);
 			};
 
 
-			const handleReset = () => {
-
+			const handleReset = async () => {
+				await initSelectedData();
 			};
 
 
@@ -421,7 +607,8 @@
 			const loadProvinces = async () => {
 				await locationStore.initLocationStore();
 				provinces.value = locationStore.provinces;
-				console.log(provinces.value);
+				provinces1.value = locationStore.provinces;
+				// console.log(provinces.value);
 			};
 
 			// 当省份改变时更新城市数据
@@ -431,14 +618,24 @@
 				selectedCity.value = null; // 重置城市选择
 			};
 
-			const handleDateChange = (value) => {
-				console.log('New date selected:', value);
-			}
+			const handleProvinceChange1 = async (provinceId) => {
+				cities1.value = await locationStore.getCitiesByProvinceId(provinceId);
+				// console.log(selectedCity.value);
+				selectedCity.value = null; // 重置城市选择
+			};
 
 			const handleSelect = async () => {
 
 			};
 
+			watch(radio, (newValue, oldValue) => {
+				if (newValue == 1) {
+					initTable1();
+				} else if (newValue == 2) {
+					initTable2();
+				}
+				console.log(`radio值从${oldValue}变更为${newValue}`);
+			});
 
 			// 观察省份选择的变化
 			watch(selectedProvince, (newValue) => {
@@ -446,6 +643,14 @@
 					handleProvinceChange(newValue);
 				} else {
 					cities.value = [];
+				}
+			});
+
+			watch(selectedProvince1, (newValue) => {
+				if (newValue) {
+					handleProvinceChange(newValue);
+				} else {
+					cities1.value = [];
 				}
 			});
 
@@ -463,12 +668,15 @@
 				selectedProvince.value = null;
 				selectedCity.value = null;
 				selectedLevel.value = null;
-				selectedDateSupervisor.value= null;
+				selectedDateSupervisor.value = null;
 				selectedDateInspector.value = null;
 			};
 
 			//初始化table1
 			const initTable1 = async () => {
+				console.log("radio", radio.value);
+				radio.value = 1;
+				console.log("initTable1");
 				await initSelectedData();
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table1';
@@ -494,6 +702,7 @@
 
 			//初始化table2
 			const initTable2 = async () => {
+				console.log("initTable2");
 				await initSelectedData();
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table2';
@@ -517,6 +726,7 @@
 
 			//初始化table3
 			const initTable3 = async () => {
+				console.log("initTable3");
 				await initSelectedData();
 				updateLocation('确认AQI数据管理', '确认AQI数据列表');
 				currentTable.value = 'table3';
@@ -536,24 +746,42 @@
 					timeSupervisor: null,
 				});
 				showInfoList3();
+
 			};
 
 			//table1页数变化
 			const handleInfoPageChange1 = async (page) => {
-				// console.log(infoPageNum.value);
-				infoCurrentPageNum1.value = page;
+				console.log(handleInfoPageChange1);
+				if (selectedDateSupervisor.value === null) {
+					var handledDate1 = null;
+				} else {
+					var date1 = new Date(selectedDateSupervisor.value);
+					var handledDate1 =
+						`${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
+				}
+
+				var cityCodeList = [];
+				if (selectedProvince.value != null) {
+					if (selectedCity.value === null) {
+						cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince.value);
+					} else {
+						cityCodeList = [];
+
+						cityCodeList.push(selectedCity.value);
+					}
+				}
 				await adminStore.fetchInfoList({
 					aqiLevel: selectedLevel.value,
-					cityCode: null,
+					cityCode: cityCodeList,
 					inspectorName: null,
-					pageNum: infoCurrentPageNum1.value,
-					pageSize: infoPageSize.value,
 					status: 1,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null,
+					timeSupervisor: handledDate1,
+					pageNum: infoCurrentPageNum1.value,
+					pageSize: infoPageSize.value,
 				});
-
+				infoCurrentPageNum1.value = page;
 				showInfoList1();
 			};
 
@@ -597,6 +825,7 @@
 
 			//从Stores进行数据展示InfoList1
 			const showInfoList1 = async () => {
+				console.log("showInfoList1");
 				let date = new Date();
 				currentInfoList1.value = [];
 				for (let i = 0; i < adminStore.infoList1.length; i++) {
@@ -635,6 +864,7 @@
 
 			//从Stores进行数据展示InfoList2
 			const showInfoList2 = async () => {
+				console.log("showInfoList2");
 				let date = new Date();
 				currentInfoList2.value = [];
 				for (let i = 0; i < adminStore.infoList2.length; i++) {
@@ -642,6 +872,7 @@
 						num: 'null',
 						id: 'null',
 						supervisorName: 'null',
+						inspectorName: 'null',
 						cityCode: 'null',
 						aqiLevel: 'null',
 						label: 'null',
@@ -651,11 +882,11 @@
 					info.num = (infoCurrentPageNum2.value - 1) * infoPageSize.value + i + 1;
 					info.id = adminStore.infoList2[i].infoId;
 					info.supervisorName = adminStore.infoList2[i].supervisorName;
+					info.inspectorName = adminStore.infoList2[i].inspectorName;
 					info.province = await locationStore.getProvinceByCityCode(adminStore.infoList2[i].cityCode);
 					info.city = await locationStore.getCityAndProvinceByCityCode(adminStore.infoList2[i].cityCode);
 					const aqiInfo = aqiStore.getAQIDetail(adminStore.infoList2[i].aqiLevel);
 					info.aqiInfo = aqiInfo.name + "(" + aqiInfo.level + ")";
-
 					info.label = adminStore.infoList2[i].label;
 
 					date = new Date(adminStore.infoList2[i].timeSupervisor);
@@ -675,6 +906,7 @@
 
 			//从Stores进行数据展示InfoList3
 			const showInfoList3 = async () => {
+				console.log("showInfoList3");
 				let date1 = new Date();
 				let date2 = new Date();
 				currentInfoList3.value = [];
@@ -731,7 +963,6 @@
 			const showInfo1 = async (data) => {
 				updateLocation('公众监督数据管理', '公众监督数据详情');
 				currentTable.value = 'table11';
-				console.log("showPointerdata:", data.id);
 				const info = await adminStore.getInfoById(data.id);
 				showInfoDetails1(info);
 
@@ -743,8 +974,6 @@
 				currentTable.value = 'table21';
 				const info = await adminStore.getInfoById(data.id);
 				showInfoDetails2(info);
-				// console.log("showPointer:", info);
-
 			};
 
 
@@ -754,7 +983,6 @@
 				currentTable.value = 'table31';
 				const info = await adminStore.getInfoById(data.id);
 				showInfoDetails3(info);
-				// console.log("showPointer:", info);
 			};
 
 
@@ -844,22 +1072,47 @@
 			const infoBack1 = async () => {
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table1';
-				infoNum1.value = await adminStore.getInfoCount({
-					status: 1,
-				});
-				infoPageNum1.value = Math.ceil(infoNum1.value / infoPageSize.value);
+
+				if (selectedDateSupervisor.value === null) {
+					var handledDate1 = null;
+				} else {
+					var date1 = new Date(selectedDateSupervisor.value);
+					var handledDate1 =
+						`${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
+				}
+
+				var cityCodeList = [];
+				if (selectedProvince.value != null) {
+					if (selectedCity.value === null) {
+						cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince.value);
+					} else {
+						cityCodeList = [];
+						cityCodeList.push(selectedCity.value);
+					}
+				}
+
 				await adminStore.fetchInfoList({
-					aqiLevel: null,
-					cityCode: null,
+					aqiLevel: selectedLevel.value,
+					cityCode: cityCodeList,
 					inspectorName: null,
-					pageNum: infoCurrentPageNum1.value,
-					pageSize: infoPageSize.value,
 					status: 1,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null,
+					timeSupervisor: handledDate1,
+					pageNum: infoCurrentPageNum1.value,
+					pageSize: infoPageSize.value,
 				});
-				// console.log(adminStore.infoList);
+				var infoNum = await adminStore.getInfoCount({
+					aqiLevel: selectedLevel.value,
+					cityCode: cityCodeList,
+					inspectorName: null,
+					status: radio.value,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: handledDate1,
+				});
+				infoNum1.value = infoNum;
+				infoPageNum1.value = Math.ceil(infoNum1.value / infoPageSize.value);
 				showInfoList1();
 			};
 
@@ -868,22 +1121,46 @@
 				updateLocation('公众监督数据管理', '公众监督数据列表');
 				currentTable.value = 'table2';
 
-				infoNum2.value = await adminStore.getInfoCount({
-					status: 1,
-				});
-				infoPageNum2.value = Math.ceil(infoNum2.value / infoPageSize.value);
+				if (selectedDateSupervisor.value === null) {
+					var handledDate1 = null;
+				} else {
+					var date1 = new Date(selectedDateSupervisor.value);
+					var handledDate1 =
+						`${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
+				}
+
+				var cityCodeList = [];
+				if (selectedProvince.value != null) {
+					if (selectedCity.value === null) {
+						cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince.value);
+					} else {
+						cityCodeList = [];
+						cityCodeList.push(selectedCity.value);
+					}
+				}
+
 				await adminStore.fetchInfoList({
-					aqiLevel: null,
-					cityCode: null,
+					aqiLevel: selectedLevel.value,
+					cityCode: cityCodeList,
 					inspectorName: null,
-					pageNum: infoCurrentPageNum2.value,
-					pageSize: infoPageSize.value,
 					status: 2,
 					supervisorName: null,
 					timeInspector: null,
-					timeSupervisor: null,
+					timeSupervisor: handledDate1,
+					pageNum: infoCurrentPageNum2.value,
+					pageSize: infoPageSize.value,
 				});
-				// console.log(adminStore.infoList);
+				var infoNum = await adminStore.getInfoCount({
+					aqiLevel: selectedLevel.value,
+					cityCode: cityCodeList,
+					inspectorName: null,
+					status: radio.value,
+					supervisorName: null,
+					timeInspector: null,
+					timeSupervisor: handledDate1,
+				});
+				infoNum2.value = infoNum;
+				infoPageNum2.value = Math.ceil(infoNum2.value / infoPageSize.value);
 				showInfoList2();
 			};
 
@@ -911,11 +1188,12 @@
 			};
 
 			const showPointer = async (data) => {
+				// console.log("showPointer:", info);
 				updateLocation('公众监督数据管理', '公众监督数据详情');
 				currentTable.value = 'table12';
 				const info = await adminStore.getInfoById(data.id);
 				showInfoDetails1(info);
-				// console.log("showPointer:", info);
+				console.log("showPointer:", info);
 			};
 
 			const getProvinceGroupedInspectionStats = () => {
@@ -976,6 +1254,7 @@
 				handleInfoPageChange1,
 				handleInfoPageChange2,
 				handleInfoPageChange3,
+				handleProvinceChange1,
 				showInfo1,
 				showInfo2,
 				showInfo3,
@@ -990,18 +1269,25 @@
 				infoBack2,
 				infoBack3,
 				selectedProvince,
+				selectedProvince1,
 				selectedLevel,
 				selectedCity,
-				provinces,
-				cities,
-				aqiLevelList,
-				radio,
+				selectedCity1,
 				selectedDateInspector,
 				selectedDateSupervisor,
+				selectedInspector,
+				provinces,
+				cities,
+				provinces1,
+				cities1,
+				aqiLevelList,
+				radio,
 				handleSearch,
 				handleReset,
 				initSelectedData,
-				handleDateChange,
+				yidizhipai,
+				inspectors,
+
 			};
 		},
 	};

@@ -2,6 +2,8 @@
 import {
 	defineStore
 } from 'pinia';
+
+import { ElMessage } from 'element-plus'
 import * as AdminAPI from '@/api/admin.js';
 export const useAdminStore = defineStore('admin', {
 	state: () => ({
@@ -29,7 +31,12 @@ export const useAdminStore = defineStore('admin', {
 			console.log("fetchInfoList",params);
 			try {
 				const response = await AdminAPI.getInfoList(params);
-				console.log("fetched InfoList: ", response.data.data.list);
+				// console.log("fetched InfoList: ", response.data.data.list);
+				// console.log(response.data.data.list.length);
+				if(response.data.data.list.length===0){
+					console.log("no data");
+				}
+
 				if (params.status === 1) {
 					this.infoList1 = response.data.data.list;
 					// console.log("InfoList1: ", this.infoList1);
@@ -47,6 +54,7 @@ export const useAdminStore = defineStore('admin', {
 				}
 				
 			} catch (error) {
+				
 				console.error('Failed to fetch data:', error);
 			}
 		},
