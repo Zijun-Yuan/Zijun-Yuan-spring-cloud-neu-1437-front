@@ -98,7 +98,6 @@
               <el-table-column label="操作" align="center">
                 <template #default="{ row }">
                   <el-button size="small" type="success" @click="handleCheck(row)">去检测</el-button>
-                  <el-button size="small" type="danger" @click="handleReject(row)">驳回</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -338,7 +337,8 @@
       </el-form>
       <div class="button-container">
         <el-button type="primary" @click="submitInspection">确认提交</el-button>
-        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button @click="dialogVisible = false, so2Number.value = 0, coNumber.value = 0,
+          o3Number.value = 0, pm25Number.value = 0">取消</el-button>
       </div>
     </el-dialog>
 
@@ -512,10 +512,6 @@ export default {
       );
     };
 
-    let getAQIDetail = (level) => {
-      return aqiStore.getAQIDetail(level);
-    };
-
     const indexMethodUncompleted = (index) => {
       return (uncompletedCurrentPage.value - 1) * pageSize.value + index + 1;
     };
@@ -537,10 +533,6 @@ export default {
     const handleCheck = (row) => {
       currentRow.value = row;
       dialogVisible.value = true;
-    };
-
-    const handleReject = (row) => {
-      // Logic for rejecting
     };
 
     const handleUncompletedPageChange = (page) => {
@@ -583,6 +575,10 @@ export default {
         type: 'success',
       })
       dialogVisible.value = false;
+      so2Number.value = 0;
+      coNumber.value = 0;
+      o3Number.value = 0;
+      pm25Number.value = 0;
     };
 
     watch(filterProvince, (provinceId) => {
@@ -600,7 +596,11 @@ export default {
       await fetchInfoList();
     });
 
-    let getAQILevelByCheck = (check) => {
+    const getAQIDetail = (level) => {
+      return aqiStore.getAQIDetail(level);
+    };
+
+    const getAQILevelByCheck = (check) => {
       return aqiStore.getAQILevelByCheck(check);
     };
 
@@ -726,7 +726,6 @@ export default {
       indexMethodUncompleted,
       indexMethodCompleted,
       handleCheck,
-      handleReject,
       handleSelect,
       handleFilterChange,
       handleUncompletedPageChange,
