@@ -20,6 +20,11 @@ export function getSupervisorByInfoId(data) {
     return axios.get('/admin/getSupervisorByInfoId', data);
 }
 
+//根据infoid获取网格员信息
+export function getInspectorByInfoId(data) {
+    return axios.get('/admin/getInspectorByInfoId', data);
+}
+
 // 管理员登录
 export function adminLogin(data) {
     return axios.post(`/admin/login`, data);

@@ -5,6 +5,7 @@ import {
 
 import { ElMessage } from 'element-plus'
 import * as AdminAPI from '@/api/admin.js';
+import {setInfoToInspector} from "../api/admin";
 export const useAdminStore = defineStore('admin', {
 	state: () => ({
 		token: '',
@@ -97,6 +98,47 @@ export const useAdminStore = defineStore('admin', {
 					sex: data.sex,
 				};
 				return supervisor;
+			} catch (error) {
+				console.error("Failed to fetch infoCount:", error);
+			}
+		},
+
+
+		async getInspectorByInfoId(id) {
+			try {
+				const params = {
+					infoId: id
+				};
+
+				const response = await AdminAPI.getInspectorByInfoId({
+					params: params
+				});
+				// console.log("response ", response);
+				// console.log("response.data: ", response.data);
+				// console.log("fetched Inspector details: ", response.data.data);
+				const data = response.data.data;
+				const inspector = {
+					realName: data.realName,
+					telNum: data.telId,
+				};
+				return inspector;
+			} catch (error) {
+				console.error("Failed to fetch infoCount:", error);
+			}
+		},
+
+		async setInfoToInspector(infoId,inspectorId) {
+			try {
+				const params = {
+					infoId: infoId,
+					inspectorId: inspectorId,
+				};
+
+				const response = await AdminAPI.setInfoToInspector({
+					params: params
+				});
+				const data = response.data.data;
+				console.log(data.code);
 			} catch (error) {
 				console.error("Failed to fetch infoCount:", error);
 			}
