@@ -10,6 +10,9 @@ export function getInfoCount(data) {
     return axios.post(`/admin/getMultiQueryInfoCount`, data);
 }
 
+export function getInspectorsByCityCodeList(data){
+    return axios.post(`/admin/getListByCityCodeList`, data);
+}
 //获取指定信息
 export function getInfoById(data) {
     return axios.get('/admin/getInfoById', data);
@@ -18,6 +21,11 @@ export function getInfoById(data) {
 //根据infoid获取公众监督员信息
 export function getSupervisorByInfoId(data) {
     return axios.get('/admin/getSupervisorByInfoId', data);
+}
+
+//根据infoid获取网格员信息
+export function getInspectorByInfoId(data) {
+    return axios.get('/admin/getInspectorByInfoId', data);
 }
 
 // 管理员登录

@@ -293,7 +293,7 @@
                     <el-tag size="small">{{ infoDetail1.time }}</el-tag>
                   </el-descriptions-item>
                 </el-descriptions>
-                <el-row :gutter="22"
+                <el-row :gutter="20"
                         style="color: gray;margin-top: 10px;margin-bottom: 10px;margin-left: 10px">
                   <el-col :span="4">
 										<span>是否异地指派
@@ -303,15 +303,16 @@
                   <el-col :span="4">
 										<span>省区域
 											<el-select v-model="selectedProvince0" placeholder="—全部—"
-                                 @change="handleProvinceChange0" style="width: 130px;">
-												<el-option v-for="province in provinces" :key="province.provinceId"
+                                 @change="handleProvinceChange0" style="width: 130px;"
+                                 :disabled="isProvinceDisabled0">
+												<el-option v-for="province in provinces0" :key="province.provinceId"
                                    :label="province.provinceName" :value="province.provinceId"/>
 											</el-select>
 										</span>
                   </el-col>
                   <el-col :span="4">
 										<span>市区域
-											<el-select v-model="selectedCity0" :disabled="!selectedProvince0"
+											<el-select v-model="selectedCity0" :disabled="isCityDisabled0"
                                  placeholder="—全部—" style="width: 120px;">
 												<el-option v-for="city in cities0" :key="city.cityCode"
                                    :label="city.cityName" :value="city.cityCode"/>
@@ -322,15 +323,13 @@
 										<span>指派给
 											<el-select v-model="selectedInspector" placeholder="—全部—"
                                  style="width: 120px;">
-												<el-option v-for="inspector in inspectors.list"
+												<el-option v-for="inspector in inspectors"
                                    :key="inspector.inspectorId" :label="inspector.realName"
                                    :value="inspector.inspectorId"/>
 											</el-select>
 										</span>
-                    <el-col :span="3">
-                      <el-button type="primary" color="white"
-                                 @click="assign(infoDetail1.id)">指派
-                      </el-button>
+                    <el-col :span="4">
+                      <el-button type="primary" plain @click="assign(infoDetail1.id)">指派</el-button>
                     </el-col>
                   </el-col>
                 </el-row>
@@ -344,22 +343,22 @@
                     <el-button type="primary" color="#98c8f2" @click="infoBack2">返回</el-button>
                   </template>
                   <el-descriptions-item label="公众监督反馈信息编号">
-                    {{ infoDetail1.id }}
+                    {{ infoDetail2.id }}
                   </el-descriptions-item>
                   <el-descriptions-item label="公共监督员信息">
                     <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.supervisor.name }}
+                            style="margin-right: 8px;">{{ infoDetail2.supervisor.name }}
                     </el-tag>
                     <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.supervisor.phoneNum }}
+                            style="margin-right: 8px;">{{ infoDetail2.supervisor.phoneNum }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="网格员信息">
                     <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.inspector.name }}
+                            style="margin-right: 8px;">{{ infoDetail2.inspector.name }}
                     </el-tag>
                     <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.inspector.phoneNum }}
+                            style="margin-right: 8px;">{{ infoDetail2.inspector.phoneNum }}
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="反馈信息所在地址">
@@ -482,6 +481,7 @@ import {
 import {
   useLocationStore,
 } from '@/stores/locationStore.js';
+import {ElMessageBox} from "element-plus/lib/components";
 
 export default {
   name: 'AdminBoard',
@@ -523,7 +523,8 @@ export default {
     let cities0 = ref([]);
     let inspectors = ref([]);
     let radio = ref('1');
-
+    let isProvinceDisabled0 = ref(false);
+    let isCityDisabled0 = ref(true);
     let currentTable = ref({});
     let currentInfoList1 = ref([]);
     let currentInfoList2 = ref([]);
@@ -540,6 +541,7 @@ export default {
 
     let infoDetail1 = ref({
       id: "38",
+      cityCode: "",
       userInfo: {
         name: "欧阳锋",
         sex: "男",
@@ -581,10 +583,10 @@ export default {
         level: "四级",
         name: "中度污染",
       },
-      so2:"666",
-      co:"666",
-      o3:"6666",
-      pm25:"6666",
+      so2: "666",
+      co: "666",
+      o3: "6666",
+      pm25: "6666",
       date: "2022-10-27",
       time: "16:29:26",
     });
@@ -613,15 +615,50 @@ export default {
       timeSupervisor: "16:29:26",
       dateInspector: "2022-10-27",
       timeInspector: "16:29:26",
-      so2:"666",
-      co:"666",
-      o3:"6666",
-      pm25:"6666",
+      so2: "666",
+      co: "666",
+      o3: "6666",
+      pm25: "6666",
     });
+
+    const getSelectedInspectorName = () => {
+      const selected = inspectors.value.find(inspector => inspector.inspectorId === selectedInspector.value);
+      return selected ? selected.realName : '';
+    }
+
     const assign = async (infoId) => {
-      console.log(selectedInspector.value);
-      console.log(infoId);
-      // await adminStore.setInfoToInspector(infoId,inspectorId);
+      // console.log(selectedInspector.value);
+      // console.log(infoId);
+      // console.log("city:",selectedCity0.value);
+      // console.log("province:",selectedProvince0.value);
+      // console.log(selectedCity0.value);
+
+      ElMessageBox.confirm(
+          '您将指派网格员“'+getSelectedInspectorName()+'”'+"负责本信息，确定吗？",
+          '确认指派',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
+      )
+          .then(async () => {
+            ElMessage({
+              type: 'success',
+              message: '指派成功',
+            })
+            const data = await adminStore.getInfoById(infoId);
+            showInfo2(data);
+
+            // await adminStore.setInfoToInspector(infoId,selectedInspector.value);
+          })
+          .catch(() => {
+            ElMessage({
+              type: 'info',
+              message: '取消指派',
+            })
+          })
+
     }
 
     const handleSearch = async () => {
@@ -775,13 +812,29 @@ export default {
       await locationStore.initLocationStore();
       provinces.value = locationStore.provinces;
       provinces1.value = locationStore.provinces;
+      provinces0.value = locationStore.provinces;
       // console.log(provinces.value);
     };
 
 
     const handleProvinceChange0 = async (provinceId) => {
       cities0.value = await locationStore.getCitiesByProvinceId(provinceId);
-      selectedCity0.value = null; // 重置城市选择
+      // console.log(cities0.value);
+      var cityCodeList = [];
+      if (selectedProvince0.value != null) {
+        if (selectedCity0.value === null) {
+          cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince0.value);
+        } else {
+          cityCodeList = [];
+          cityCodeList.push(selectedCity0.value);
+        }
+      }
+      inspectors.value = await adminStore.getInspectorsByCityCodeList(cityCodeList);
+      if(!isProvinceDisabled0.value){
+        isCityDisabled0.value = false;
+        selectedCity0.value = null; // 重置城市选择
+
+      }
     };
     // 当省份改变时更新城市数据
     const handleProvinceChange = async (provinceId) => {
@@ -797,12 +850,40 @@ export default {
     const handleSelect = async () => {
 
     };
-    watch(yidizhipai, (newValue, oldValue) => {
-      if(yidizhipai){
-
-      }else {
-
+    watch(yidizhipai, async (newValue, oldValue) => {
+      // console.log(cities0.value);
+      // console.log(provinces0.value);
+      if (newValue) {
+        selectedCity0.value = null;
+        selectedProvince0.value = null;
+        isCityDisabled0.value = true;
+        isProvinceDisabled0.value = false;
+        inspectors.value = await  adminStore.getInspectors();
+        selectedInspector.value = null;
+      } else {
+        isCityDisabled0.value = true;
+        isProvinceDisabled0.value = true;
+        const cityProvince = await locationStore.getCityAndProvinceByCityCode(infoDetail1.value.cityCode);
+        selectedProvince0.value = cityProvince.provinceId;
+        cities0.value = await locationStore.getCitiesByProvinceId(selectedProvince0.value);
+        selectedCity0.value = cityProvince.cityCode;
+        var cityCodeList = [];
+        if (selectedProvince0.value != null) {
+          if (selectedCity0.value === null) {
+            cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince0.value);
+          } else {
+            cityCodeList = [];
+            cityCodeList.push(selectedCity0.value);
+          }
+        }
+        // console.log("yidizhipai",cityCodeList);
+        inspectors.value = await adminStore.getInspectorsByCityCodeList(cityCodeList);
+        console.log(inspectors.value);
+        // console.log(cities0.value);
+        // console.log(selectedCity0.value);
+        // console.log(selectedProvince0.value);
       }
+      console.log(selectedCity0.value);
       console.log(`yidizhipai值从${oldValue}变更为${newValue}`);
     });
 
@@ -827,6 +908,14 @@ export default {
     watch(selectedProvince0, (newValue) => {
       if (newValue) {
         handleProvinceChange0(newValue);
+      } else {
+        cities0.value = [];
+      }
+    });
+    watch(selectedCity0, async(newValue) => {
+      if (newValue) {
+        console.log(selectedCity0.value);
+        inspectors.value = await adminStore.getInspectorsByCityCodeList([selectedCity0.value]);
       } else {
         cities0.value = [];
       }
@@ -1183,6 +1272,7 @@ export default {
     //填充table1信息的细节
     const showInfoDetails1 = async (data) => {
       infoDetail1.value.id = data.infoId;
+      infoDetail1.value.cityCode = data.cityCode;
       const supervisor = await adminStore.getSupervisorByInfoId(data.infoId);
       console.log(supervisor);
       infoDetail1.value.userInfo.name = supervisor.realName;
@@ -1209,12 +1299,15 @@ export default {
     //填充table2信息的细节
     const showInfoDetails2 = async (data) => {
       infoDetail2.value.id = data.infoId;
-      const supervisor = await adminStore.getSupervisorByInfoId(data.infoId);
-      const inspector = await adminStore.getInspectorByInfoId(data.infoId);
-      infoDetail2.value.supervisor.name = supervisor.realName;
-      infoDetail2.value.supervisor.phoneNum = supervisor.telId;
-      infoDetail2.value.inspector.name = inspector.realName;
-      infoDetail2.value.inspector.phoneNum = inspector.telNum;
+      const supervisorData = await adminStore.getSupervisorByInfoId(data.infoId);
+      const inspectorData = await adminStore.getInspectorByInfoId(data.infoId);
+      console.log(supervisorData);
+      console.log(inspectorData);
+      infoDetail2.value.supervisor.name = supervisorData.realName;
+      infoDetail2.value.supervisor.phoneNum = supervisorData.telId;
+      infoDetail2.value.inspector.name = inspectorData.realName;
+      infoDetail2.value.inspector.phoneNum = inspectorData.telNum;
+      console.log("showInfoDetails2",infoDetail2);
       const province = await locationStore.getProvinceByCityCode(data.cityCode);
       const city = await locationStore.getCityAndProvinceByCityCode(data.cityCode);
       infoDetail2.value.location.province = province.provinceName;
@@ -1233,6 +1326,7 @@ export default {
           `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       infoDetail2.value.time =
           `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+
     };
 
     //填充table3信息的细节
@@ -1253,10 +1347,10 @@ export default {
       const aqiInfo = await aqiStore.getAQIDetail(data.aqiLevel);
       infoDetail3.value.currentAQIDetail.name = aqiInfo.name;
       infoDetail3.value.currentAQIDetail.level = aqiInfo.level;
-      infoDetail3.value.so2 = `SO2浓度：${data.so2} ug/m<sup>3</sup>`;
-      infoDetail3.value.co = `CO浓度：${data.co} ug/m<sup>3</sup>`;
-      infoDetail3.value.o3 = `O3浓度：${data.o3} ug/m<sup>3</sup>`;
-      infoDetail3.value.pm25 = `PM2.5浓度：${data.pm25} ug/m<sup>3</sup>`;
+      infoDetail3.value.so2 = `SO2浓度：${data.so2} ug/m3`;
+      infoDetail3.value.co = `CO浓度：${data.co} ug/m3`;
+      infoDetail3.value.o3 = `O3浓度：${data.o3} ug/m3`;
+      infoDetail3.value.pm25 = `PM2.5浓度：${data.pm25} ug/m3`;
       const date1 = new Date(data.timeSupervisor);
       infoDetail3.value.dateSupervisor =
           `${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
@@ -1418,7 +1512,9 @@ export default {
       currentTable.value = 'table12';
       const info = await adminStore.getInfoById(data.id);
       showInfoDetails1(info);
-      console.log("showPointer:", info);
+      // console.log("showPointer:", info);
+      inspectors.value = await adminStore.getInspectors();
+      console.log(inspectors.value);
     };
 
     const getProvinceGroupedInspectionStats = () => {
@@ -1521,6 +1617,9 @@ export default {
       yidizhipai,
       inspectors,
       assign,
+      isProvinceDisabled0,
+      isCityDisabled0,
+      getSelectedInspectorName,
     };
   },
 };
