@@ -45,12 +45,13 @@ export default {
 
     const handleLogin = async () => {
       const data = {
-        supervisorCode: loginForm.value.telId,
+        telId: loginForm.value.telId,
         password: loginForm.value.password,
       };
       if(!loginForm.value.telId || !loginForm.value.password){
         errorMessage.value = '账号或密码不能为空';
       }else {
+        console.log(data+"  1");
         await supervisorState.supervisorLogin(data);
         if (supervisorState.supervisor.telId === data.supervisorCode){
           await router.push('/supervisor/main');

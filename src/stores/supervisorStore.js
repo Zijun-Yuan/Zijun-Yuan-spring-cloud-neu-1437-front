@@ -19,6 +19,7 @@ export const useSupervisorStore = defineStore('supervisor', {
         async supervisorLogin(data) {
             try {
                 const response = await supervisorAPI.supervisorLogin(data);
+                console.log(response);
                 if (response.data.data !== null) {
                     this.supervisor.telId = data.supervisorCode;
                     this.supervisor.supervisorId = response.data.data.supervisorId;
