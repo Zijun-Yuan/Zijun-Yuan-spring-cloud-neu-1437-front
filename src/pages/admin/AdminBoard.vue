@@ -327,11 +327,6 @@
                                    :value="inspector.inspectorId"/>
 											</el-select>
 										</span>
-                    <el-col :span="3">
-                      <el-button type="primary" color="white"
-                                 @click="assign(infoDetail1.id)">指派
-                      </el-button>
-                    </el-col>
                   </el-col>
                 </el-row>
               </template>
@@ -346,21 +341,17 @@
                   <el-descriptions-item label="公众监督反馈信息编号">
                     {{ infoDetail1.id }}
                   </el-descriptions-item>
-                  <el-descriptions-item label="公共监督员信息">
+                  <el-descriptions-item label="反馈者信息">
                     <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.supervisor.name }}
+                            style="margin-right: 8px;">{{ infoDetail2.userInfo.name }}
                     </el-tag>
                     <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.supervisor.phoneNum }}
+                            style="margin-right: 8px;">{{ infoDetail2.userInfo.sex }}
                     </el-tag>
+                    <el-tag size="small">{{ infoDetail2.userInfo.birthday }}</el-tag>
                   </el-descriptions-item>
-                  <el-descriptions-item label="网格员信息">
-                    <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.inspector.name }}
-                    </el-tag>
-                    <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.inspector.phoneNum }}
-                    </el-tag>
+                  <el-descriptions-item label="反馈者联系电话">
+                    {{ infoDetail2.userInfo.phoneNum }}
                   </el-descriptions-item>
                   <el-descriptions-item label="反馈信息所在地址">
                     <el-tag size="small"
@@ -393,10 +384,22 @@
                   <template style="margin-top: 10px;margin-bottom: 10px;margin-right: 10px" #extra>
                     <el-button type="primary" color="#98c8f2" @click="infoBack3">返回</el-button>
                   </template>
-                  <el-descriptions-item label="确认信息数据编号">
+                  <el-descriptions-item label="公众监督反馈信息编号">
                     {{ infoDetail3.id }}
                   </el-descriptions-item>
-                  <el-descriptions-item label="确认信息所在地址">
+                  <el-descriptions-item label="反馈者信息">
+                    <el-tag size="small"
+                            style="margin-right: 8px;">{{ infoDetail3.userInfo.name }}
+                    </el-tag>
+                    <el-tag size="small"
+                            style="margin-right: 8px;">{{ infoDetail3.userInfo.sex }}
+                    </el-tag>
+                    <el-tag size="small">{{ infoDetail3.userInfo.birthday }}</el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="反馈者联系电话">
+                    {{ infoDetail3.userInfo.phoneNum }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="反馈信息所在地址">
                     <el-tag size="small"
                             style="margin-right: 8px;">{{ infoDetail3.location.province }}
                     </el-tag>
@@ -405,44 +408,18 @@
                     </el-tag>
                     <el-tag size="small">{{ infoDetail3.address }}</el-tag>
                   </el-descriptions-item>
-                  <el-descriptions-item label="确认AQI等级">
+                  <el-descriptions-item label="反馈信息表述">
+                    {{ infoDetail3.feedback }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="预估等级">
                     <el-tag size="small"
                             style="margin-right: 8px;">{{ infoDetail3.currentAQIDetail.level }}
                     </el-tag>
                     <el-tag size="small">{{ infoDetail3.currentAQIDetail.name }}</el-tag>
                   </el-descriptions-item>
-                  <el-descriptions-item label="公共监督员信息">
-                    <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.supervisor.name }}
-                    </el-tag>
-                    <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.supervisor.phoneNum }}
-                    </el-tag>
-                  </el-descriptions-item>
-                  <el-descriptions-item label="网格员信息">
-                    <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.inspector.name }}
-                    </el-tag>
-                    <el-tag size="small"
-                            style="margin-right: 8px;">{{ infoDetail3.inspector.phoneNum }}
-                    </el-tag>
-                  </el-descriptions-item>
-                  <el-descriptions-item label="公共监督员反馈信息描述">
-                    {{ infoDetail3.feedback }}
-                  </el-descriptions-item>
-                  <el-descriptions-item label="污染详情">
-                    <el-tag size="small" style="margin-right: 8px;">{{ infoDetail3.so2 }}</el-tag>
-                    <el-tag size="small" style="margin-right: 8px;">{{ infoDetail3.co }}</el-tag>
-                    <el-tag size="small" style="margin-right: 8px;">{{ infoDetail3.o3 }}</el-tag>
-                    <el-tag size="small">{{ infoDetail3.pm25 }}</el-tag>
-                  </el-descriptions-item>
                   <el-descriptions-item label="反馈日期时间">
-                    <el-tag size="small" style="margin-right: 8px;">{{ infoDetail3.dateSupervisor }}</el-tag>
-                    <el-tag size="small">{{ infoDetail3.timeSupervisor }}</el-tag>
-                  </el-descriptions-item>
-                  <el-descriptions-item label="确认日期时间">
-                    <el-tag size="small" style="margin-right: 8px;">{{ infoDetail3.dateInspector }}</el-tag>
-                    <el-tag size="small">{{ infoDetail3.timeInspector }}</el-tag>
+                    <el-tag size="small" style="margin-right: 8px;">{{ infoDetail3.date }}</el-tag>
+                    <el-tag size="small">{{ infoDetail3.time }}</el-tag>
                   </el-descriptions-item>
                 </el-descriptions>
               </template>
@@ -558,17 +535,14 @@ export default {
       },
       date: "2022-10-27",
       time: "16:29:26",
-
     });
 
     let infoDetail2 = ref({
       id: "38",
-      supervisor: {
+      userInfo: {
         name: "欧阳锋",
-        phoneNum: "17345988896",
-      },
-      inspector: {
-        name: "欧阳锋",
+        sex: "男",
+        birthday: "1980-11-13",
         phoneNum: "17345988896",
       },
       location: {
@@ -581,22 +555,16 @@ export default {
         level: "四级",
         name: "中度污染",
       },
-      so2:"666",
-      co:"666",
-      o3:"6666",
-      pm25:"6666",
       date: "2022-10-27",
       time: "16:29:26",
     });
 
     let infoDetail3 = ref({
       id: "38",
-      supervisor: {
+      userInfo: {
         name: "欧阳锋",
-        phoneNum: "17345988896",
-      },
-      inspector: {
-        name: "欧阳锋",
+        sex: "男",
+        birthday: "1980-11-13",
         phoneNum: "17345988896",
       },
       location: {
@@ -609,20 +577,10 @@ export default {
         level: "四级",
         name: "中度污染",
       },
-      dateSupervisor: "2022-10-27",
-      timeSupervisor: "16:29:26",
-      dateInspector: "2022-10-27",
-      timeInspector: "16:29:26",
-      so2:"666",
-      co:"666",
-      o3:"6666",
-      pm25:"6666",
+      date: "2022-10-27",
+      time: "16:29:26",
+
     });
-    const assign = async (infoId) => {
-      console.log(selectedInspector.value);
-      console.log(infoId);
-      // await adminStore.setInfoToInspector(infoId,inspectorId);
-    }
 
     const handleSearch = async () => {
       // console.log("handleSearch");
@@ -765,6 +723,7 @@ export default {
       await initSelectedData();
     };
 
+
     onMounted(async () => {
       aqiLevelList.value = aqiStore.getAllAQILevels();
       await loadProvinces();
@@ -797,15 +756,6 @@ export default {
     const handleSelect = async () => {
 
     };
-    watch(yidizhipai, (newValue, oldValue) => {
-      if(yidizhipai){
-
-      }else {
-
-      }
-      console.log(`yidizhipai值从${oldValue}变更为${newValue}`);
-    });
-
 
     watch(radio, (newValue, oldValue) => {
       if (newValue == 1) {
@@ -1210,21 +1160,17 @@ export default {
     const showInfoDetails2 = async (data) => {
       infoDetail2.value.id = data.infoId;
       const supervisor = await adminStore.getSupervisorByInfoId(data.infoId);
-      const inspector = await adminStore.getInspectorByInfoId(data.infoId);
-      infoDetail2.value.supervisor.name = supervisor.realName;
-      infoDetail2.value.supervisor.phoneNum = supervisor.telId;
-      infoDetail2.value.inspector.name = inspector.realName;
-      infoDetail2.value.inspector.phoneNum = inspector.telNum;
+      console.log(supervisor);
+      infoDetail2.value.userInfo.name = supervisor.realName;
+      infoDetail2.value.userInfo.sex = supervisor.sex;
+      infoDetail2.value.userInfo.birthday = supervisor.birthday;
+      infoDetail2.value.userInfo.phoneNum = supervisor.telId;
       const province = await locationStore.getProvinceByCityCode(data.cityCode);
       const city = await locationStore.getCityAndProvinceByCityCode(data.cityCode);
       infoDetail2.value.location.province = province.provinceName;
       infoDetail2.value.location.city = city.cityName;
       infoDetail2.value.address = data.address;
       infoDetail2.value.feedback = data.feedback;
-      infoDetail2.value.so2 = `SO2浓度：${data.so2} ug/m<sup>3</sup>`;
-      infoDetail2.value.co = `CO浓度：${data.co} ug/m<sup>3</sup>`;
-      infoDetail2.value.o3 = `O3浓度：${data.o3} ug/m<sup>3</sup>`;
-      infoDetail2.value.pm25 = `PM2.5浓度：${data.pm25} ug/m<sup>3</sup>`;
       const aqiInfo = await aqiStore.getAQIDetail(data.aqiLevel);
       infoDetail2.value.currentAQIDetail.name = aqiInfo.name;
       infoDetail2.value.currentAQIDetail.level = aqiInfo.level;
@@ -1239,11 +1185,11 @@ export default {
     const showInfoDetails3 = async (data) => {
       infoDetail3.value.id = data.infoId;
       const supervisor = await adminStore.getSupervisorByInfoId(data.infoId);
-      const inspector = await adminStore.getInspectorByInfoId(data.infoId);
-      infoDetail3.value.supervisor.name = supervisor.realName;
-      infoDetail3.value.supervisor.phoneNum = supervisor.telId;
-      infoDetail3.value.inspector.name = inspector.realName;
-      infoDetail3.value.inspector.phoneNum = inspector.telNum;
+      console.log(supervisor);
+      infoDetail3.value.userInfo.name = supervisor.realName;
+      infoDetail3.value.userInfo.sex = supervisor.sex;
+      infoDetail3.value.userInfo.birthday = supervisor.birthday;
+      infoDetail3.value.userInfo.phoneNum = supervisor.telId;
       const province = await locationStore.getProvinceByCityCode(data.cityCode);
       const city = await locationStore.getCityAndProvinceByCityCode(data.cityCode);
       infoDetail3.value.location.province = province.provinceName;
@@ -1253,10 +1199,6 @@ export default {
       const aqiInfo = await aqiStore.getAQIDetail(data.aqiLevel);
       infoDetail3.value.currentAQIDetail.name = aqiInfo.name;
       infoDetail3.value.currentAQIDetail.level = aqiInfo.level;
-      infoDetail3.value.so2 = `SO2浓度：${data.so2} ug/m<sup>3</sup>`;
-      infoDetail3.value.co = `CO浓度：${data.co} ug/m<sup>3</sup>`;
-      infoDetail3.value.o3 = `O3浓度：${data.o3} ug/m<sup>3</sup>`;
-      infoDetail3.value.pm25 = `PM2.5浓度：${data.pm25} ug/m<sup>3</sup>`;
       const date1 = new Date(data.timeSupervisor);
       infoDetail3.value.dateSupervisor =
           `${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
@@ -1520,7 +1462,7 @@ export default {
       initSelectedData,
       yidizhipai,
       inspectors,
-      assign,
+
     };
   },
 };
