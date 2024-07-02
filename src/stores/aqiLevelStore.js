@@ -5,7 +5,7 @@ export const useAQIStore = defineStore('aqi', {
     state: () => ({
         aqiMap: {
             "1": { level: "一", name: "优级", color: "#00e400", number: 1, min: 0, max: 50 },
-            "2": { level: "二", name: "良好", color: "#ffff00", number: 2, min: 50, max: 100 },
+            "2": { level: "二", name: "良好", color: "#e1e100", number: 2, min: 50, max: 100 },
             "3": { level: "三", name: "轻度污染", color: "#ff7e00", number: 3, min: 100, max: 150 },
             "4": { level: "四", name: "中度污染", color: "#ff0000", number: 4, min: 150, max: 200 },
             "5": { level: "五", name: "重度污染", color: "#99004c", number: 5, min: 200, max: 300 },
