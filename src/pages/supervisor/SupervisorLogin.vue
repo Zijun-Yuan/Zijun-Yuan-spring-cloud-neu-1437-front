@@ -51,9 +51,8 @@ export default {
       if(!loginForm.value.telId || !loginForm.value.password){
         errorMessage.value = '账号或密码不能为空';
       }else {
-        console.log(data+"  1");
         await supervisorState.supervisorLogin(data);
-        if (supervisorState.supervisor.telId === data.supervisorCode){
+        if (supervisorState.supervisor.telId === data.telId){
           await router.push('/supervisor/main');
           ElMessage.success('登录成功');
         }else {

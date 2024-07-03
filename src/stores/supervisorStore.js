@@ -21,7 +21,7 @@ export const useSupervisorStore = defineStore('supervisor', {
                 const response = await supervisorAPI.supervisorLogin(data);
                 console.log(response);
                 if (response.data.data !== null) {
-                    this.supervisor.telId = data.supervisorCode;
+                    this.supervisor.telId = response.data.data.telId;
                     this.supervisor.supervisorId = response.data.data.supervisorId;
                     this.supervisor.realName = response.data.data.realName;
                     this.supervisor.birthday = response.data.data.birthday;
@@ -56,22 +56,22 @@ export const useSupervisorStore = defineStore('supervisor', {
             }
         },
 
-        async addFeedback(data){
-          try {
-              const response = await supervisorAPI.addInfo(data);
-              if (response.data.code === 0) {
-                  console.log('Feedback added successfully, response data:', response.data);
-                  return true;
-              } else {
-                  console.log('Feedback adding failed, response data:', response.data);
-                  return false;
-              }
-          }  catch (error) {
-              console.error('Error during adding feedback:', error);
-          }
+        async addFeedback(data) {
+            try {
+                const response = await supervisorAPI.addInfo(data);
+                if (response.data.code === 0) {
+                    console.log('Feedback added successfully, response data:', response.data);
+                    return true;
+                } else {
+                    console.log('Feedback adding failed, response data:', response.data);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error during adding feedback:', error);
+            }
         },
 
-        async updateSupervisor(data){
+        async updateSupervisor(data) {
             try {
                 const beforeSupervisor = await supervisorAPI.getSupervisorByTelId(this.supervisor.telId);
                 console.log(beforeSupervisor.data.data);
@@ -93,7 +93,7 @@ export const useSupervisorStore = defineStore('supervisor', {
                     console.log('Supervisor updating failed, response data:', response.data);
                     return false;
                 }
-            }  catch (error) {
+            } catch (error) {
                 console.error('Error during updating supervisor:', error);
             }
         },
@@ -105,7 +105,7 @@ export const useSupervisorStore = defineStore('supervisor', {
         getToken() {
             return this.token;
         },
-        logout() {
+        async logout() {
             this.supervisor = {
                 supervisorId: null,
                 realName: '',
@@ -114,6 +114,11 @@ export const useSupervisorStore = defineStore('supervisor', {
                 sex: null,
                 age: null,
             };
+            try {
+                await supervisorAPI.supervisorLogout();
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
         },
     }
 });

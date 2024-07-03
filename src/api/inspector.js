@@ -1,4 +1,6 @@
 import axios from './axios';
+axios.defaults.withCredentials = true;
+
 
 // 网格员登录
 export function login(data){

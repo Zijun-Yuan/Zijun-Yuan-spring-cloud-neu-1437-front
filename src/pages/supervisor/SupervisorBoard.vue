@@ -331,6 +331,7 @@ export default {
     };
 
     const browsePersonalInfo = () => {
+      console.log(supervisorStore.supervisor.telId+" "+supervisorStore.supervisor.realName+" "+supervisorStore.supervisor.sex);
       personalInfo.value.realName = supervisorStore.supervisor.realName;
       personalInfo.value.sex = (supervisorStore.supervisor.sex === 1 ? "男" : "女");
       personalInfo.value.birthday = supervisorStore.supervisor.birthday;
