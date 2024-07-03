@@ -77,8 +77,6 @@ export function addInspector(data) {
     return axios.post(`/admin/addInspector`, data);
 }
 
-// Add other admin API requests here
-
 // 获取AQI等级统计数据
 export function getCountByAqiLevel(data) {
     return axios.get('/admin/countByAqiLevel', data);
@@ -99,3 +97,7 @@ export function getProvincialStatisticData() {
     return axios.get('/admin/getProvincialStatisticData');
 }
 
+// 获取大城市覆盖率
+export function getPerOfMajorCities() {
+    return axios.get('/admin/getPerOfMajorCities');
+}
