@@ -1,5 +1,4 @@
 import axios from './axios';
-
 //获取所有事务
 export function getInfoList(data) {
     return axios.post(`/admin/getMultiQueryInfoList`, data);
