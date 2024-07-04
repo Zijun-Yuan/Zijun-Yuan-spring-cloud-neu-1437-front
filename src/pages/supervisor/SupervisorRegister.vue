@@ -53,7 +53,9 @@ export default {
   name: 'SupervisorRegister',
   setup: function () {
     const router = useRouter();
+    // 公众监督员store
     const supervisorStore = useSupervisorStore();
+    // 注册表单
     const registerForm = ref({
       telId: '',
       realName: '',
@@ -65,6 +67,8 @@ export default {
       isdel: 0,
     });
     const formRef = ref(null);
+
+    // 密码校验器
     const confirmPasswordValidator = (rule, value, callback) => {
       if (value !== registerForm.value.password) {
         callback(new Error('两次输入的密码不一致'));
@@ -72,6 +76,8 @@ export default {
         callback();
       }
     };
+
+    // 表单校验规则
     const rules = {
       telId: [
         {required: true, message: '请输入手机号', trigger: 'blur'},
@@ -99,16 +105,19 @@ export default {
       ]
     };
 
+    // 选择器配置——日期
     const pickerOptions = {
       disabledDate(time) {
         return time.getTime() > Date.now();
       }
     };
 
+    // 返回登录界面
     const goToLogin = () => {
       router.push('/supervisor/login');
     }
 
+    // 提交注册信息
     const handleSubmit = async () => {
       if (formRef.value) { // Use formRef to access the form
         formRef.value.validate(async (valid) => {
@@ -143,6 +152,7 @@ export default {
 </script>
 
 <style scoped>
+/* 样式可以根据需要自行调整 */
 .register-wrap {
   padding-top: 30px;
   box-sizing: border-box;

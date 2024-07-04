@@ -67,6 +67,7 @@ export default {
 </script>
 
 <style>
+/* 样式可以根据需要自行调整 */
 .login-container {
   display: flex;
   justify-content: center;

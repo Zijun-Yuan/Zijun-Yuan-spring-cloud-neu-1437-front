@@ -16,6 +16,8 @@
         </el-col>
       </el-row>
     </el-header>
+
+    <!-- 左侧菜单栏 -->
     <el-container class="layout-container-demo">
       <el-aside width="300px">
         <el-scrollbar>
@@ -48,12 +50,14 @@
           </div>
         </el-header>
 
+        <!-- 主页面内容 -->
         <el-main>
           <el-scrollbar>
             <div v-if="currentTable === ''">
               <img src="@/assets/images/SupervisorLogin.jpg" alt="Placeholder Image"/>
             </div>
 
+            <!-- 历史反馈信息列表 -->
             <el-table v-if="currentTable === 'feedbackList'" :data="currentInfoList"
                       empty-text="目前没有历史反馈信息"
                       style="width: 100%">
@@ -72,6 +76,7 @@
               <el-table-column prop="feedback" label="描述" width="300"></el-table-column>
             </el-table>
 
+            <!-- 上报网格信息 -->
             <el-form v-else-if="currentTable === 'reportGridInformation'" ref="reportGridForm" label-width="100px">
               <el-row :gutter="20">
                 <el-col :span="6">
@@ -127,6 +132,7 @@
               </el-form-item>
             </el-form>
 
+            <!-- 浏览个人信息 -->
             <el-form v-else-if="currentTable === 'browsePersonalInfoTable'" ref="personalInfoForm" :model="personalInfo"
                      label-width="100px">
               <el-form-item>
@@ -191,10 +197,12 @@ export default {
     let provinces = ref([]);
     let cities = ref([]);
 
+    // 监听路由变化，更新标题
     const sortDescending = () => {
       currentInfoList.value = [...currentInfoList.value].reverse();
     };
 
+    // 表单
     const reportForm = ref({
       province: '',
       city: '',
@@ -203,6 +211,7 @@ export default {
       feedback: '',
     });
 
+    // AQI等级描述
     const aqiLevelDescriptions = [
       {level: '一', quality: '优', description: '空气质量令人满意，基本无空气污染'},
       {level: '二', quality: '良', description: '空气质量可接受，但某些污染物可能对极少数异常敏感人群健康有较弱影响'},
@@ -216,6 +225,7 @@ export default {
       {level: '六', quality: '严重污染', description: '健康人群运动耐受力降低，有明显强烈症状，提前出现某些疾病'}
     ];
 
+    // 个人信息
     const personalInfo = ref({
       realName: '',
       sex: '',
@@ -223,11 +233,12 @@ export default {
       telId: '',
     });
 
-
+    // 监听supervisorStore中的数据变化
     watch([mainTitle, subTitle], ([newMainTitle, newSubTitle]) => {
       formattedTitle.value = `${newMainTitle} / ${newSubTitle}`;
     });
 
+    // 退出账号方法
     const logout = () => {
       ElMessageBox.confirm('确定要退出当前账号吗？', '登出当前账号', {
         confirmButtonText: '确定',
@@ -243,11 +254,13 @@ export default {
       });
     }
 
+    // 更新标题方法
     const updateLocation = (newMainTitle, newSubTitle) => {
       mainTitle.value = newMainTitle;
       subTitle.value = newSubTitle;
     };
 
+    // 获取反馈信息列表
     const getFeedbackList = async () => {
       try {
         await supervisorStore.supervisorFeedbackList();
@@ -259,6 +272,7 @@ export default {
       }
     };
 
+    // 处理反馈信息列表
     const processFeedbackList = async () => {
       currentInfoList.value = []; // 重置数组
       let date = new Date();
@@ -292,11 +306,13 @@ export default {
       //currentInfoList.value.reverse();
     };
 
+    // 上报网格信息
     const reportGridInformation = () => {
       updateLocation('公众监督员功能', '上报网格信息');
       currentTable.value = 'reportGridInformation';
     };
 
+    // 信息上报
     const submitReport = async () => {
       // 检查表单是否填写完整
       if (!reportForm.value.province || !reportForm.value.city || !reportForm.value.address || !reportForm.value.aqiLevel || !reportForm.value.feedback) {
@@ -330,6 +346,7 @@ export default {
       }
     };
 
+    // 浏览个人信息
     const browsePersonalInfo = () => {
       personalInfo.value.realName = supervisorStore.supervisor.realName;
       personalInfo.value.sex = (supervisorStore.supervisor.sex === 1 ? "男" : "女");
@@ -339,6 +356,7 @@ export default {
       currentTable.value = 'browsePersonalInfoTable';
     };
 
+    // 更新个人信息
     const updatePersonalInfo = async () => {
       // 首先判断是否有表单为空
       if (!personalInfo.value.realName || !personalInfo.value.birthday || !personalInfo.value.telId) {
@@ -353,6 +371,7 @@ export default {
       }
     };
 
+    // 监听省份变化
     const handleProvinceChange = async (provinceId) => {
       if (provinceId) {
         cities.value = await locationStore.getCitiesByProvinceId(provinceId);
@@ -396,6 +415,7 @@ export default {
 </script>
 
 <style scoped>
+/* 样式可以根据需要自行调整 */
 .layout-container-demo {
   height: 100%;
 }

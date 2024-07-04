@@ -35,14 +35,18 @@ import {ElMessage} from "element-plus";
 export default {
   name: 'SupervisorLogin',
   setup() {
+    // 路由跳转
     const router = useRouter();
+    // 状态管理
     const supervisorState  = useSupervisorStore();
+    // 登录表单
     const loginForm = ref({
       telId: '',
       password: '',
     });
     const errorMessage = ref('');
 
+    // 登录方法
     const handleLogin = async () => {
       const data = {
         telId: loginForm.value.telId,
@@ -62,9 +66,12 @@ export default {
         }
       }
     };
+
+    // 注册方法
     const handleRegister = () => {
       router.push('/supervisor/register');
     };
+
     return {
       loginForm,
       handleLogin,
