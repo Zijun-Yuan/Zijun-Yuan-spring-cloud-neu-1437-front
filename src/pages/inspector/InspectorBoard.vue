@@ -13,6 +13,7 @@
       </el-header>
       <el-container>
 
+        <!-- 左侧菜单：1：待处理任务 2：已完成任务 3：个人信息 -->
         <el-aside width="220px" class="menu-aside full-height">
           <el-menu
               default-active="1"
@@ -34,6 +35,7 @@
           </el-menu>
         </el-aside>
 
+        <!-- 待处理任务的筛选栏设置，这里包含省份、城市、AQI三种筛选条件，使用el-select -->
         <el-main>
           <div v-if="showContent === 'uncompleted'" class="table-container">
             <el-row :gutter="20" class="mb-2">
@@ -69,6 +71,7 @@
               </el-col>
             </el-row>
 
+            <!-- 待处理任务表格展示 -->
             <el-table :data="paginatedUncompletedList" :header-cell-style="{textAlign: 'center'}" border
                       height="590" stripe style="width: 100%" :row-style="{height: '0'}">
               <el-table-column type="index" label="序号" :index="indexMethodUncompleted" align="center" width="55" />
@@ -102,6 +105,7 @@
               </el-table-column>
             </el-table>
 
+            <!-- 分页设置 -->
             <el-pagination
                 v-if="filteredUncompletedList.length > pageSize"
                 :current-page="uncompletedCurrentPage"
@@ -113,6 +117,7 @@
             />
           </div>
 
+          <!-- 已完成任务的筛选栏设置，这里包含省份、城市、AQI三种筛选条件，使用el-select -->
           <div v-else-if="showContent === 'completed'" class="table-container">
             <el-row :gutter="20" class="mb-2">
               <el-col :span="8">
@@ -147,6 +152,7 @@
               </el-col>
             </el-row>
 
+            <!-- 已完成任务表格展示 -->
             <el-table :data="paginatedCompletedList" :header-cell-style="{textAlign: 'center'}" border
                       height="590" stripe style="width: 100%" :row-style="{height: '0'}">
               <el-table-column type="index" label="序号" :index="indexMethodCompleted" align="center" width="55" />
@@ -177,6 +183,7 @@
               <el-table-column prop="timeInspector" label="检测时间" align="center" />
             </el-table>
 
+            <!-- 分页设置 -->
             <el-pagination
                 v-if="filteredCompletedList.length > pageSize"
                 :current-page="completedCurrentPage"
@@ -189,6 +196,7 @@
             />
           </div>
 
+          <!-- 个人信息展示 -->
           <div v-else-if="showContent === 'profile'" class="profile-container">
             <h2>个人信息</h2>
             <p>姓名: {{ inspectorStore.realName }}</p>
@@ -199,6 +207,8 @@
       </el-container>
     </el-container>
 
+    <!-- 弹窗：检测详情上传，包含详细信息、气体浓度等内容 -->
+    <!-- 这里使用el-dialog组件，它可以自定义弹窗的标题、内容、按钮等，具体用法请参考官方文档 -->
     <el-dialog v-model="dialogVisible">
       <el-descriptions
           title="基本信息"
@@ -277,6 +287,7 @@
         </el-descriptions-item>
       </el-descriptions>
 
+      <!-- 上传气体浓度信息 -->
       <el-form :model="currentRow" label-width="120px" class="mt-2" size="small">
         <el-row :gutter="20">
           <el-col :span="11">
@@ -356,6 +367,7 @@ import {ElMessage} from "element-plus";
 export default {
   name: 'InspectorBoard',
   setup() {
+    // 页面初始化时，获取个人信息、气象站信息、AQI等级信息
     const showContent = ref('uncompleted');
     const inspectorStore = useInspectorStore();
     const locationStore = useLocationStore();
@@ -400,6 +412,23 @@ export default {
     let uncompletedCurrentPage = ref(1);
     let completedCurrentPage = ref(1);
 
+    // 左侧菜单点击事件
+    const handleSelect = (index) => {
+      if (index === '1') {
+        showUncompleted();
+      } else if (index === '2') {
+        showCompleted();
+      } else if (index === '3') {
+        showContent.value = 'profile';
+      }
+    };
+
+    const handleCheck = (row) => {
+      currentRow.value = row;
+      dialogVisible.value = true;
+    };
+
+    // 获取相关表格的列表，通过inspectorCode识别用户身份给出对应列表
     const fetchInfoList = async () => {
       try {
         const inspectorCode = inspectorStore.inspectorCode;
@@ -415,6 +444,7 @@ export default {
       }
     };
 
+    // 处理信息列表，这里主要是对数据筛选的处理
     const filterLists = () => {
       const filterUncompleted = uncompletedInfoList.value.filter(item =>
           (!filterProvince.value || item.province.provinceId === filterProvince.value) &&
@@ -435,28 +465,66 @@ export default {
       filterLists();
     };
 
+    // 分页相关的计算属性（待处理）
     const paginatedUncompletedList = computed(() => {
       const start = (uncompletedCurrentPage.value - 1) * pageSize.value;
       const end = start + pageSize.value;
       return filteredUncompletedList.value.slice(start, end);
     });
 
+    // 分页相关的计算属性（已完成）
     const paginatedCompletedList = computed(() => {
       const start = (completedCurrentPage.value - 1) * pageSize.value;
       const end = start + pageSize.value;
       return filteredCompletedList.value.slice(start, end);
     });
 
+    // 分页更新方法
+    const updatePaginatedLists = () => {
+      paginatedUncompletedList.value = filteredUncompletedList.value.slice(
+          (uncompletedCurrentPage.value - 1) * pageSize.value,
+          uncompletedCurrentPage.value * pageSize.value
+      );
+      paginatedCompletedList.value = filteredCompletedList.value.slice(
+          (completedCurrentPage.value - 1) * pageSize.value,
+          completedCurrentPage.value * pageSize.value
+      );
+    };
+
+    // 待处理表格分页相关的计算属性
+    const handleUncompletedPageChange = (page) => {
+      uncompletedCurrentPage.value = page;
+      updatePaginatedLists();
+    };
+
+    // 已完成表格分页相关的计算属性
+    const handleCompletedPageChange = (page) => {
+      completedCurrentPage.value = page;
+      updatePaginatedLists();
+    };
+
+    // 表格的索引计算方法
+    const indexMethodUncompleted = (index) => {
+      return (uncompletedCurrentPage.value - 1) * pageSize.value + index + 1;
+    };
+
+    const indexMethodCompleted = (index) => {
+      return (completedCurrentPage.value - 1) * pageSize.value + index + 1;
+    };
+
+    // 待处理表格展示
     const showUncompleted = async () => {
       showContent.value = 'uncompleted';
       await fetchInfoList();
     };
 
+    // 已完成表格展示
     const showCompleted = async () => {
       showContent.value = 'completed';
       await fetchInfoList();
     };
 
+    // 获取省份筛选列表
     const getProvince = async (cityCode) => {
       try {
         return await locationStore.getProvinceByCityCode(cityCode);
@@ -466,6 +534,7 @@ export default {
       }
     };
 
+    // 获取城市筛选列表
     const getCity = async (cityCode) => {
       try {
         return await locationStore.getCityAndProvinceByCityCode(cityCode);
@@ -475,6 +544,7 @@ export default {
       }
     };
 
+    // 级联查询时，获取城市列表的方法
     const processInfoList = async () => {
       const items = infoList.value;
       const uncompletedItems = [];
@@ -502,55 +572,13 @@ export default {
       filterLists();
     };
 
-    const updatePaginatedLists = () => {
-      paginatedUncompletedList.value = filteredUncompletedList.value.slice(
-          (uncompletedCurrentPage.value - 1) * pageSize.value,
-          uncompletedCurrentPage.value * pageSize.value
-      );
-      paginatedCompletedList.value = filteredCompletedList.value.slice(
-          (completedCurrentPage.value - 1) * pageSize.value,
-          completedCurrentPage.value * pageSize.value
-      );
-    };
-
-    const indexMethodUncompleted = (index) => {
-      return (uncompletedCurrentPage.value - 1) * pageSize.value + index + 1;
-    };
-
-    const indexMethodCompleted = (index) => {
-      return (completedCurrentPage.value - 1) * pageSize.value + index + 1;
-    };
-
-    const handleSelect = (index) => {
-      if (index === '1') {
-        showUncompleted();
-      } else if (index === '2') {
-        showCompleted();
-      } else if (index === '3') {
-        showContent.value = 'profile';
-      }
-    };
-
-    const handleCheck = (row) => {
-      currentRow.value = row;
-      dialogVisible.value = true;
-    };
-
-    const handleUncompletedPageChange = (page) => {
-      uncompletedCurrentPage.value = page;
-      updatePaginatedLists();
-    };
-
-    const handleCompletedPageChange = (page) => {
-      completedCurrentPage.value = page;
-      updatePaginatedLists();
-    };
-
+    // 级联查询时，select组件的change事件处理方法
     const handleProvinceChange = async (provinceId) => {
       filteredCityList.value = await locationStore.getCitiesByProvinceId(provinceId);
       filterCity.value = null; // 重置城市选择
     };
 
+    // 信息上传处理方法
     const submitInspection = () => {
       infoChange.value.infoId = currentRow.value.infoId;
       infoChange.value.cityCode = currentRow.value.cityCode;
@@ -582,6 +610,7 @@ export default {
       pm25Number.value = 0;
     };
 
+    // 监听filterProvince变化，更新filteredCityList
     watch(filterProvince, (provinceId) => {
       if (provinceId) {
         handleProvinceChange(provinceId);
@@ -597,6 +626,7 @@ export default {
       await fetchInfoList();
     });
 
+    // 以下为AQI的对应计算部分逻辑，分别对应详细信息以及SO2、CO、O3、PM2.5四个气体的计算方法
     const getAQIDetail = (level) => {
       return aqiStore.getAQIDetail(level);
     };

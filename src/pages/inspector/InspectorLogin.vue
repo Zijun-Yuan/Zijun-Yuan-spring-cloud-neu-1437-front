@@ -30,14 +30,18 @@ import {ElMessage} from "element-plus";
 export default {
   name: 'InspectorLogin',
   setup() {
+    // 路由跳转
     const router = useRouter();
+    // 状态管理
     const inspectorStore = useInspectorStore();
+    // 登录的表单数据
     const inspectorLoginForm = ref({
       inspectorCode: '',
       password: '',
     });
     const errorMessage = ref('');
 
+    // 登录方法
     const Login = async () => {
       const data = {
         inspectorCode: inspectorLoginForm.value.inspectorCode,
@@ -52,6 +56,7 @@ export default {
         inspectorLoginForm.value.password = '';  // 清空密码输入框
       }
     };
+
     return {
       inspectorLoginForm,
       Login,
