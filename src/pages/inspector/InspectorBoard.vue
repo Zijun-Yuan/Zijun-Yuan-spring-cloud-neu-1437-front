@@ -94,7 +94,7 @@
               </el-table-column>
               <el-table-column prop="feedback" label="反馈信息" width="150" />
               <el-table-column prop="supervisorName" label="公众监督员" align="center" width="95" />
-              <el-table-column prop="timeSupervisor" label="时间" align="center" width="170" />
+              <el-table-column prop="timeSupervisor" label="时间" align="center" width="340" />
               <el-table-column label="操作" align="center">
                 <template #default="{ row }">
                   <el-button size="small" type="success" @click="handleCheck(row)">去检测</el-button>
@@ -381,7 +381,8 @@ export default {
       o3: '',
       pm25: '',
       supervisorName: '',
-      inspectorName: ''
+      inspectorName: '',
+      aqiReal: 0,
     });
 
     let infoList = ref([]);
