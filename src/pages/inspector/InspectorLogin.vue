@@ -75,12 +75,10 @@ export default {
   height: 100vh;
   background-color: #f0f2f5;
 }
-
 .login-card {
   width: 400px;
   padding: 20px;
 }
-
 .login-title {
   text-align: center;
   margin-bottom: 20px;

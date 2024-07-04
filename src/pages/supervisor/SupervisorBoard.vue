@@ -419,7 +419,6 @@ export default {
 .layout-container-demo {
   height: 100%;
 }
-
 .layout-header {
   position: relative;
   background-color: #409efe;
@@ -428,29 +427,24 @@ export default {
   font-size: 20px;
   line-height: 60px;
 }
-
 .layout-container-demo .el-header {
   position: relative;
   background-color: #c1c1c1;
   color: white;
 }
-
 .layout-container-demo .el-aside {
   color: white;
   background: #98c8f2;
 }
-
 .layout-container-demo .el-menu {
   border-right: none;
   background: #98c8f2;
 }
-
 .layout-container-demo .el-menu-item,
 .layout-container-demo .el-sub-menu__title {
   color: white;
   background: #98c8f2;
 }
-
 .layout-container-demo .el-menu-item:hover,
 .layout-container-demo .el-sub-menu__title:hover,
 .layout-container-demo .el-menu-item.is-active,
@@ -458,39 +452,32 @@ export default {
   color: black;
   background: #ecf5ff;
 }
-
 .layout-container-demo .el-icon {
   color: white;
 }
-
 .layout-container-demo .menu-title {
   color: white;
 }
-
 .layout-container-demo .el-main {
   padding: 0;
   flex: 1;
 }
-
 .layout-container-demo .toolbar {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
   height: 100%;
 }
-
 .system-title {
   font-size: 20px;
   color: white;
 }
-
 .welcome-message {
   font-size: 16px;
   color: white;
   display: inline-block;
   margin-right: 10px;
 }
-
 .custom-tag {
   background-color: #7777e3;
   border-color: #7777e3;
