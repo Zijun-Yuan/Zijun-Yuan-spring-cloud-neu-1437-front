@@ -10,6 +10,27 @@ export function getInfoCount(data) {
     return axios.post(`/admin/getMultiQueryInfoCount`, data);
 }
 
+// 通过电话号码模糊查询公众监督员数量
+export function getSupervisorNum(data) {
+    return axios.get(`/admin/getSupervisorNum`, data);
+}
+
+//获取查询后的公众监督员分页列表
+export function getSupervisorList(data) {
+    return axios.get(`/admin/getSupervisorList`, data);
+}
+
+// 通过电话号码模糊查询网格员数量
+export function getInspectorNum(data) {
+    return axios.post(`/admin/getInspectorNum`, data);
+}
+
+//获取查询后的网格员分页列表
+export function getInspectorList(data) {
+    return axios.post(`/admin/getInspectorList`, data);
+}
+
+//通过CityList获取inspectors
 export function getInspectorsByCityCodeList(data){
     return axios.post(`/admin/getListByCityCodeList`, data);
 }
@@ -36,11 +57,6 @@ export function adminLogin(data) {
 // 指派网格员
 export function setInfoToInspector(data) {
     return axios.post(`/admin/setInfoToInspector`, data);
-}
-
-// 获取所有网格员列表
-export function getInspectorList() {
-    return axios.get('/admin/getInspectorList');
 }
 
 // 编辑公众监督员
