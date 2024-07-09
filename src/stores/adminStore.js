@@ -22,6 +22,8 @@ export const useAdminStore = defineStore('admin', {
 		infoList2: [],
 		infoList3: [],
 		infoList4: [],
+		supervisorList: [],
+		inspectorList: [],
 	}),
 	actions: {
 		async getInfoCount(params) {
@@ -37,6 +39,64 @@ export const useAdminStore = defineStore('admin', {
 			}
 		},
 
+		async getSupervisorCount(params) {
+			console.log(params);
+			try {
+				const response = await AdminAPI.getSupervisorNum({
+					params: params
+				});
+				console.log("fetched num response: ", response.data.data);
+				return response.data.data;
+			} catch (error) {
+				console.error("Failed to fetch SupervisorCount:", error);
+			}
+		},
+
+
+		async getInspectorCount(params) {
+			console.log(params);
+			try {
+				const response = await AdminAPI.getInspectorNum(params);
+				console.log("fetched num response: ", response.data.data);
+				return response.data.data;
+			} catch (error) {
+				console.error("Failed to fetch SupervisorCount:", error);
+			}
+		},
+
+		async getInspectorList(params) {
+			try {
+				console.log("getInspectorList",params);
+				const response = await AdminAPI.getInspectorList(params);
+				this.inspectorList = response.data.data;
+				if(response.data.code ===0){
+					return true;
+				}else{
+					return false;
+				}
+			} catch (error) {
+				console.error("Failed to getInspectorList:", error);
+			}
+		},
+		
+		async getSupervisorList(params) {
+			try {
+				console.log("getSupervisorList",params);
+				const response = await AdminAPI.getSupervisorList({
+					params: params
+				});
+				this.supervisorList = response.data.data;
+				if(response.data.code ===0){
+					return true;
+				}else{
+					return false;
+				}
+			} catch (error) {
+				console.error("Failed to getSupervisorList:", error);
+			}
+		},
+		
+		
 
 		async fetchInfoList(params) {
 			console.log("fetchInfoList", params);
@@ -51,17 +111,21 @@ export const useAdminStore = defineStore('admin', {
 				if (params.status === 1) {
 					this.infoList1 = response.data.data.list;
 					// console.log("InfoList1: ", this.infoList1);
-					return;
 				}
-				if (params.status === 2) {
+				else if (params.status === 2) {
 					this.infoList2 = response.data.data.list;
 					// console.log("InfoList2: ", this.infoList2);
-					return;
 				}
-				if (params.status === 3) {
+				else if (params.status === 3) {
 					this.infoList3 = response.data.data.list;
 					// console.log("InfoList3: ", this.infoList3);
-					return;
+					
+				}
+				console.log(response.data.code);
+				if(response.data.code ===0){
+					return true;
+				}else{
+					return false;
 				}
 
 			} catch (error) {
@@ -140,7 +204,7 @@ export const useAdminStore = defineStore('admin', {
 				console.error("Failed to getCountByMonth:", error);
 			}
 		},
-		
+
 		async getCountByAqiLevel(aqiLevel) {
 			try {
 				const params = {
@@ -165,7 +229,7 @@ export const useAdminStore = defineStore('admin', {
 				console.error('Failed to fetch fetchInfoList:', error);
 			}
 		},
-		
+
 
 
 		async getInspectorByInfoId(id) {
@@ -191,7 +255,7 @@ export const useAdminStore = defineStore('admin', {
 			}
 		},
 
-		async getPerOfCapitals(){
+		async getPerOfCapitals() {
 			try {
 				const response = await AdminAPI.getPerOfCapitals();
 				const data = response.data.data;
@@ -200,8 +264,8 @@ export const useAdminStore = defineStore('admin', {
 				console.error("Failed to getPerOfCapitals:", error);
 			}
 		},
-		
-		async getPerOfMajorCities(){
+
+		async getPerOfMajorCities() {
 			try {
 				const response = await AdminAPI.getPerOfMajorCities();
 				const data = response.data.data;
