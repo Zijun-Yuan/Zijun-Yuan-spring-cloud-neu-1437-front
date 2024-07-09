@@ -2,18 +2,9 @@
 import {
 	defineStore
 } from 'pinia';
-
-import {
-	ElMessage
-} from 'element-plus'
+import apiClient from '@/api/axios';
 import * as AdminAPI from '@/api/admin.js';
-import {
-	setInfoToInspector
-} from "../api/admin";
-import {
-	getAllInspectors,
-	getInspectorsByCityCodeList
-} from "@/api/admin.js";
+
 
 export const useAdminStore = defineStore('admin', {
 	state: () => ({
@@ -26,6 +17,18 @@ export const useAdminStore = defineStore('admin', {
 		inspectorList: [],
 	}),
 	actions: {
+		setToken(token) {
+			this.token = token;
+			apiClient.interceptors.request.use(
+				config => {
+					if (this.token) {
+						config.headers.Authorization = `Bearer ${this.token}`;
+					}
+					return config;
+				},
+				error => Promise.reject(error)
+			);
+		},
 		async getInfoCount(params) {
 			// console.log("start getInfoCountByStatus");
 			console.log(params);
