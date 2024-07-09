@@ -65,6 +65,7 @@
 										<span>省区域
 											<el-select v-model="selectedProvince" placeholder="—全部—"
 												@change="handleProvinceChange" style="width: 130px;">
+												@change="handleProvinceChange" style="width: 130px;">
 												<el-option v-for="province in provinces" :key="province.provinceId"
 													:label="province.provinceName" :value="province.provinceId" />
 											</el-select>
@@ -613,15 +614,15 @@
 										<el-table-column prop="birthday" label="生日" width="200"></el-table-column>
 										<el-table-column prop="sex" label="性别" width="200"></el-table-column>
 										<el-table-column prop="phoneNum" label="电话" width="200"></el-table-column>
-										<el-table-column label="操作" width="200">
-											<template v-slot="scope">
-												<el-button type="primary" circle @click="showSupervisor(scope.row)">
-													<el-icon>
-														<InfoFilled />
-													</el-icon>
-												</el-button>
-											</template>
-										</el-table-column>
+<!--										<el-table-column label="操作" width="200">-->
+<!--											<template v-slot="scope">-->
+<!--												<el-button type="primary" circle @click="showSupervisor(scope.row)">-->
+<!--													<el-icon>-->
+<!--														<InfoFilled />-->
+<!--													</el-icon>-->
+<!--												</el-button>-->
+<!--											</template>-->
+<!--										</el-table-column>-->
 									</el-table>
 								</div>
 								<div class="pagination-container">
@@ -643,15 +644,15 @@
 										<el-table-column prop="city.cityName" label="所在市" width="150"></el-table-column>
 										<el-table-column prop="sex" label="性别" width="150"></el-table-column>
 										<el-table-column prop="phoneNum" label="电话" width="150"></el-table-column>
-										<el-table-column label="操作" width="150">
-											<template v-slot="scope">
-												<el-button type="primary" circle @click="showInspector(scope.row)">
-													<el-icon>
-														<InfoFilled />
-													</el-icon>
-												</el-button>
-											</template>
-										</el-table-column>
+<!--										<el-table-column label="操作" width="150">-->
+<!--											<template v-slot="scope">-->
+<!--												<el-button type="primary" circle @click="showInspector(scope.row)">-->
+<!--													<el-icon>-->
+<!--														<InfoFilled />-->
+<!--													</el-icon>-->
+<!--												</el-button>-->
+<!--											</template>-->
+<!--										</el-table-column>-->
 									</el-table>
 								</div>
 								<div class="pagination-container">
@@ -963,7 +964,9 @@
 				currentTable.value = 'table9';
 				infoCurrentPageNum5.value = 1;
 				inspectorPhoneNum.value = null;
-				infoNum5.value = await adminStore.getInspectorCount();
+				infoNum5.value = await adminStore.getInspectorCount({
+          telNum: "",
+        });
 				infoPageNum5.value = Math.ceil(infoNum5.value / infoPageSize.value);
 				await adminStore.getInspectorList({
 					pageNum: infoCurrentPageNum5.value,
@@ -1230,6 +1233,7 @@
 			const handleReset3 = async () => {
 				inspectorPhoneNum.value = null;
 				selectedProvince2.value = null;
+        selectedCity2.value = null;
 			};
 
 			onMounted(async () => {
@@ -1574,76 +1578,52 @@
 				showInfoList3();
 			};
 
-			//table4页数变化
+			//table8页数变化
 			const handleInfoPageChange4 = async (page) => {
-				if (selectedDateSupervisor.value === null) {
-					var handledDate1 = null;
-				} else {
-					var date1 = new Date(selectedDateSupervisor.value);
-					var handledDate1 =
-						`${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
-				}
+        infoCurrentPageNum4.value = await page;
 
-				var cityCodeList = [];
-				if (selectedProvince.value != null) {
-					if (selectedCity.value === null) {
-						cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince.value);
-					} else {
-						cityCodeList = [c];
+        if (await adminStore.getSupervisorList({
+          telNum: supervisorPhoneNum.value,
+          pageNum: infoCurrentPageNum4.value,
+          pageSize: infoPageSize.value,
+        })) {
+          ElMessage({
+            message: '查询成功',
+            type: 'success',
+          })
+        } else {
+          ElMessage.error('查询失败。');
+        }
+        showSupervisorList();
 
-						cityCodeList.push(selectedCity.value);
-					}
-				}
-				infoCurrentPageNum3.value = await page;
-				await adminStore.fetchInfoList({
-					aqiLevel: selectedLevel.value,
-					cityCode: cityCodeList,
-					inspectorName: null,
-					pageNum: infoCurrentPageNum3.value,
-					pageSize: infoPageSize.value,
-					status: 3,
-					supervisorName: null,
-					timeInspector: null,
-					timeSupervisor: null,
-				});
-
-				showInfoList3();
 			};
 
-			//table5页数变化
+			//table9页数变化
 			const handleInfoPageChange5 = async (page) => {
-				if (selectedDateSupervisor.value === null) {
-					var handledDate1 = null;
-				} else {
-					var date1 = new Date(selectedDateSupervisor.value);
-					var handledDate1 =
-						`${date1.getFullYear()}-${String(date1.getMonth() + 1).padStart(2, '0')}-${String(date1.getDate()).padStart(2, '0')}`;
-				}
-
-				var cityCodeList = [];
-				if (selectedProvince.value != null) {
-					if (selectedCity.value === null) {
-						cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince.value);
-					} else {
-						cityCodeList = [c];
-
-						cityCodeList.push(selectedCity.value);
-					}
-				}
-				infoCurrentPageNum3.value = await page;
-				await adminStore.fetchInfoList({
-					aqiLevel: selectedLevel.value,
-					cityCode: cityCodeList,
-					inspectorName: null,
-					pageNum: infoCurrentPageNum3.value,
-					pageSize: infoPageSize.value,
-					status: 3,
-					supervisorName: null,
-					timeInspector: null,
-					timeSupervisor: null,
-				});
-
-				showInfoList3();
+        infoCurrentPageNum5.value = await page;
+        var cityCodeList = [];
+        if (selectedProvince2.value != null) {
+          if (selectedCity2.value === null) {
+            cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince2.value);
+          } else {
+            cityCodeList = [];
+            cityCodeList.push(selectedCity2.value);
+          }
+        }
+        if (await adminStore.getInspectorList({
+          telNum: inspectorPhoneNum.value,
+          pageNum: infoCurrentPageNum5.value,
+          pageSize: infoPageSize.value,
+          cityCodeList: cityCodeList,
+        })) {
+          ElMessage({
+            message: '查询成功',
+            type: 'success',
+          })
+        } else {
+          ElMessage.error('查询失败。');
+        }
+        showInspectorList();
 			};
 
 			//从Stores进行数据展示supervisorList
