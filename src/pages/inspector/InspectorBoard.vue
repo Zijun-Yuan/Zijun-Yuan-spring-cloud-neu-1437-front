@@ -626,6 +626,35 @@ export default {
       await fetchInfoList();
     });
 
+    // watch: {
+    //   so2Number(val) {
+    //     this.aqiSO2 = this.getAQILevelByCheck(val);
+    //   },
+    //   coNumber(val) {
+    //     this.aqiCO = this.getAQILevelByCheck(val);
+    //   },
+    //   o3Number(val) {
+    //     this.aqiO3 = this.getAQILevelByCheck(val);
+    //   },
+    //   pm25Number(val) {
+    //     this.aqiPM25 = this.getAQILevelByCheck(val);
+    //   }
+    // }
+    // computed: {
+    //   aqiSO2() {
+    //     return this.getAQILevelByCheck(this.so2Number);
+    //   },
+    //   aqiCO() {
+    //     return this.getAQILevelByCheck(this.coNumber);
+    //   },
+    //   aqiO3() {
+    //     return this.getAQILevelByCheck(this.o3Number);
+    //   },
+    //   aqiPM25() {
+    //     return this.getAQILevelByCheck(this.pm25Number);
+    //   }
+    // }
+
     // 以下为AQI的对应计算部分逻辑，分别对应详细信息以及SO2、CO、O3、PM2.5四个气体的计算方法
     const getAQIDetail = (level) => {
       return aqiStore.getAQIDetail(level);
