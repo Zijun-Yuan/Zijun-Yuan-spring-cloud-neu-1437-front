@@ -90,26 +90,22 @@ export default {
   align-items: center;
   height: 100vh;
 }
-
 .login-image {
   max-width: 500px;
   max-height: 500px;
   border-radius: 50%; /* 将左侧图片变为圆形 */
   margin-right: 20px; /* 新加入的样式，增加与表单之间的间隔 */
 }
-
 .right-section {
   max-width: 300px;
   padding: 20px;
   border: 1px solid #e0e0e0;
   border-radius: 5px;
 }
-
 .login-form {
   max-width: 300px;
   margin: 0 auto;
 }
-
 .login-message {
   color: red;
   text-align: center;
