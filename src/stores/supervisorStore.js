@@ -1,4 +1,5 @@
 import {defineStore} from 'pinia';
+import apiClient from '@/api/axios';
 import * as supervisorAPI from '@/api/supervisor.js';
 
 export const useSupervisorStore = defineStore('supervisor', {
@@ -39,6 +40,7 @@ export const useSupervisorStore = defineStore('supervisor', {
                     this.supervisor.birthday = response.data.data.birthday;
                     this.supervisor.sex = response.data.data.sex;
                     this.supervisor.age = response.data.data.age;
+                    this.setToken(response.data.data.token);
                 } else {
                     console.log('Login failed, response data:', response.data.data);
                 }
@@ -108,11 +110,6 @@ export const useSupervisorStore = defineStore('supervisor', {
             } catch (error) {
                 console.error('Error during updating supervisor:', error);
             }
-        },
-
-        setToken(token) {
-            this.token = token;
-            console.log(this.token);
         },
         getToken() {
             return this.token;

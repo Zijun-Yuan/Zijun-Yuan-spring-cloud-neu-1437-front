@@ -51,8 +51,7 @@ export default {
       await inspectorStore.inspectorLogin(data);
       if (inspectorStore.inspectorCode === data.inspectorCode) {
         ElMessage.success('登录成功');
-		inspectorStore.setToken(response.data.data);
-        await router.push('/inspector/board');	
+        await router.push('/inspector/board');
       } else {
         ElMessage.error('账号或密码不正确，请重试');
         inspectorLoginForm.value.password = '';  // 清空密码输入框

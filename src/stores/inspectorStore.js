@@ -2,6 +2,7 @@ import {
     defineStore
 } from 'pinia';
 import * as inspectorAPI from '@/api/inspector.js';
+import apiClient from "@/api/axios";
 
 export const useInspectorStore = defineStore('inspector', {
     state: () => ({
@@ -35,16 +36,13 @@ export const useInspectorStore = defineStore('inspector', {
                     this.telNum = response.data.data.telNum;
                     this.realName = response.data.data.realName;
                     this.cityCode = response.data.data.cityCode;
+                    this.setToken(response.data.data.token);
                 } else {
                     console.log('Login failed, response data:', response.data);
                 }
             } catch (error) {
                 console.error('Error during login:', error);
             }
-        },
-        setToken(token) {
-            this.token = token;
-            console.log(this.token);
         },
         getToken() {
             return this.token;

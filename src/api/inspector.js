@@ -9,7 +9,7 @@ export function login(data){
 
 // 网格员获取详细事务信息
 export function getDetailedInfo(infoId){
-    return axios.get(`/inspector/detailedInfo?infoId=${infoId}`)
+    return axios.get(`/inspector/getDetailedInfo?infoId=${infoId}`)
 }
 
 // 网格员反馈实时数据信息

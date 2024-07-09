@@ -65,7 +65,6 @@
 				} else {
 					await supervisorState.supervisorLogin(data);
 					if (supervisorState.supervisor.telId === data.telId) {
-						supervisorState.setToken(response.data.data);
 						await router.push('/supervisor/main');
 						ElMessage.success('登录成功');
 					} else {
