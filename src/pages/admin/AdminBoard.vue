@@ -664,19 +664,68 @@
 						</el-scrollbar>
 
 					</el-main>
-					<el-dialog v-model="dialogVisible">
+					<el-dialog v-model="dialogVisible1">
 						<el-descriptions title="基本信息" :column="1" border>
 							<el-descriptions-item>
 								<template #label>
 									<div class="cell-item">
-										<el-icon :style="iconStyle">
-											<user />
-										</el-icon>
 										姓名
 									</div>
 								</template>
-								{{ currentRow.supervisorName }}
+								{{ dialogInfo1.name }}
 							</el-descriptions-item>
+							<el-descriptions-item>
+								<template #label>
+									<div class="cell-item">
+										账号
+									</div>
+								</template>
+								{{ dialogInfo1.account }}
+							</el-descriptions-item>
+							<el-descriptions-item>
+								<template #label>
+									<div class="cell-item" style="display: flex; align-items: center;">
+									  <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" style="width: 1em; height: 1em; margin-right: 0.5em;">
+									    <path fill="currentColor" d="M512 64a64 64 0 0 1 64 64v64H448v-64a64 64 0 0 1 64-64z"></path>
+									    <path fill="currentColor" d="M256 768h512V448a256 256 0 1 0-512 0v320zm256-640a320 320 0 0 1 320 320v384H192V448a320 320 0 0 1 320-320z"></path>
+									    <path fill="currentColor" d="M96 768h832q32 0 32 32t-32 32H96q-32 0-32-32t32-32zm352 128h128a64 64 0 0 1-128 0z"></path>
+									  </svg>
+									  密码
+									</div>
+								</template>
+								{{ dialogInfo1.password }}
+							</el-descriptions-item>
+
+						</el-descriptions>
+					</el-dialog>
+
+					<el-dialog v-model="dialogVisible2">
+						<el-descriptions title="基本信息" :column="1" border>
+							<el-descriptions-item>
+								<template #label>
+									<div class="cell-item">
+										姓名
+									</div>
+								</template>
+								{{ dialogInfo2.name }}
+							</el-descriptions-item>
+							<el-descriptions-item>
+								<template #label>
+									<div class="cell-item">
+										账号
+									</div>
+								</template>
+								{{ dialogInfo2.account }}
+							</el-descriptions-item>
+							<el-descriptions-item>
+								<template #label>
+									<div class="cell-item">
+										密码
+									</div>
+								</template>
+								{{ dialogInfo2.password }}
+							</el-descriptions-item>
+
 						</el-descriptions>
 					</el-dialog>
 				</el-container>
@@ -698,10 +747,11 @@
 		Menu as IconMenu,
 		Message,
 		Setting,
-		IconNote
+		IconNote,
+		IconFillComment,
 	} from '@element-plus/icons-vue';
 	import {
-		ElMessage
+		ElMessage,
 	} from 'element-plus'
 	import {
 		useAdminStore,
@@ -745,7 +795,8 @@
 				margin: '20px 20px',
 				borderRadius: '10px'
 			});
-			let dialogVisible = ref(false);
+			let dialogVisible1 = ref(false);
+			let dialogVisible2 = ref(false);
 			let loading1 = ref(true);
 			let yidizhipai = ref(true);
 			let selectedInspector = ref(null);
@@ -796,7 +847,16 @@
 			let infoNum3 = ref(0);
 			let infoNum4 = ref(0);
 			let infoNum5 = ref(0);
-
+			let dialogInfo1 = ref({
+				name: "张三",
+				account: "123",
+				password: "123",
+			});
+			let dialogInfo2 = ref({
+				name: "张三",
+				account: "123",
+				password: "123",
+			});
 			let infoDetail1 = ref({
 				id: "38",
 				cityCode: "",
@@ -1151,6 +1211,8 @@
 				infoCurrentPageNum5.value = 1;
 				showInspectorList();
 			};
+
+
 
 			//重置搜索内容
 			const handleReset = async () => {
@@ -1786,53 +1848,19 @@
 
 			//查看公众监督员的详细信息	
 			const showSupervisor = async (data) => {
-				console.log(data);
-				const name = data.supervisorName;
-				const account = data.phoneNum;
-				const password = data.password;
-
-				// 将详细信息格式化为一个字符串，并使用 <br> 标签换行
-				const details = `
-			        姓名: ${name}<br>
-			        账号: ${account}<br>
-			        密码: ${password}
-			    `;
-
-				// 显示详细信息
-				try {
-					await ElMessageBox.alert(details, '详细信息', {
-						confirmButtonText: '确定',
-						dangerouslyUseHTMLString: true, // 使用 HTML 格式化输出
-					});
-				} catch (error) {
-					console.error('Error displaying supervisor details:', error);
-				}
+				dialogVisible1.value = true;
+				dialogInfo1.value.name = data.supervisorName;
+				dialogInfo1.value.account = data.phoneNum;
+				dialogInfo1.value.password = data.password;
 			};
 
 
 			//查看网格员的详细信息
 			const showInspector = async (data) => {
-				console.log(data);
-				const name = data.inspectorName;
-				const account = data.phoneNum;
-				const password = data.password;
-
-				// 将详细信息格式化为一个字符串，并使用 <br> 标签换行
-				const details = `
-				    姓名: ${name}<br>
-				    账号: ${account}<br>
-				    密码: ${password}
-				`;
-
-				// 显示详细信息
-				try {
-					await ElMessageBox.alert(details, '详细信息', {
-						confirmButtonText: '确定',
-						dangerouslyUseHTMLString: true, // 使用 HTML 格式化输出
-					});
-				} catch (error) {
-					console.error('Error displaying supervisor details:', error);
-				}
+				dialogVisible2.value = true;
+				dialogInfo2.value.name = data.inspectorName;
+				dialogInfo2.value.account = data.phoneNum;
+				dialogInfo2.value.password = data.password;
 			};
 
 			//查看table1信息的详细信息
@@ -2317,7 +2345,10 @@
 				getSupervisorList,
 				showInspectorList,
 				showSupervisorList,
-				dialogVisible,
+				dialogVisible1,
+				dialogVisible2,
+				dialogInfo1,
+				dialogInfo2,
 			};
 		},
 	};
