@@ -48,12 +48,10 @@ export default {
 
         if (response.data.code === 0) {
           console.log('Login successful, response data:', response.data);
-          
           // 假设登录成功时，响应数据包含token
           // 存储token，可以使用Pinia或者localStorage
-          // 这里假设有个方法adminStore.setToken()
-          // adminStore.setToken(response.data.data.token);
-          
+          adminStore.setToken(response.data.data);
+          console.log('Token stored:', adminStore.token);
           router.push('/admin/main');
         } else {
           console.log('Login failed, response data:', response.data);

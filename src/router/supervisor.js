@@ -3,9 +3,9 @@ import SupervisorRegister from "../pages/supervisor/SupervisorRegister.vue";
 import SupervisorBoard from "@/pages/supervisor/SupervisorBoard.vue";
 
 const supervisorRoutes = [
-    {path: '/supervisor/login', component: SupervisorLogin ,meta: {userType: 'supervisor'}},
-    {path: '/supervisor/register', component: SupervisorRegister,meta: {userType:'supervisor'}},
-    {path: '/supervisor/main', component: SupervisorBoard,meta: {userType:'supervisor'}},
+    {path: '/supervisor/login', component: SupervisorLogin },
+    {path: '/supervisor/register', component: SupervisorRegister},
+    {path: '/supervisor/main', component: SupervisorBoard},
 ];
 
 export default supervisorRoutes;

@@ -254,7 +254,7 @@ export default {
       });
     }
 
-    // 更新标题方法
+    // 更新标题的方法
     const updateLocation = (newMainTitle, newSubTitle) => {
       mainTitle.value = newMainTitle;
       subTitle.value = newSubTitle;
