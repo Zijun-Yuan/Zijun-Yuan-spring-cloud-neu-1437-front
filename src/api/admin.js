@@ -11,27 +11,27 @@ export function getInfoCount(data) {
 
 // 通过电话号码模糊查询公众监督员数量
 export function getSupervisorNum(data) {
-    return axios.get(`/admin/task/getSupervisorNum`, data);
+    return axios.get(`/admin/personnel/getSupervisorNum`, data);
 }
 
 //获取查询后的公众监督员分页列表
 export function getSupervisorList(data) {
-    return axios.get(`/admin/task/getSupervisorList`, data);
+    return axios.get(`/admin/personnel/getSupervisorList`, data);
 }
 
 // 通过电话号码模糊查询网格员数量
 export function getInspectorNum(data) {
-    return axios.post(`/admin/task/getInspectorNum`, data);
+    return axios.post(`/admin/personnel/getInspectorNum`, data);
 }
 
 //获取查询后的网格员分页列表
 export function getInspectorList(data) {
-    return axios.post(`/admin/task/getInspectorList`, data);
+    return axios.post(`/admin/personnel/getInspectorList`, data);
 }
 
 //通过CityList获取inspectors
 export function getInspectorsByCityCodeList(data){
-    return axios.post(`/admin/task/getListByCityCodeList`, data);
+    return axios.post(`/admin/personnel/getListByCityCodeList`, data);
 }
 //获取指定信息
 export function getInfoById(data) {
