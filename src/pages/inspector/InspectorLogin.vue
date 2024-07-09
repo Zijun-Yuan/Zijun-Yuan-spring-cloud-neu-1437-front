@@ -40,6 +40,7 @@ export default {
       password: '',
     });
     const errorMessage = ref('');
+	
 
     // 登录方法
     const Login = async () => {
@@ -50,7 +51,8 @@ export default {
       await inspectorStore.inspectorLogin(data);
       if (inspectorStore.inspectorCode === data.inspectorCode) {
         ElMessage.success('登录成功');
-        await router.push('/inspector/board');
+		inspectorStore.setToken(response.data.data);
+        await router.push('/inspector/board');	
       } else {
         ElMessage.error('账号或密码不正确，请重试');
         inspectorLoginForm.value.password = '';  // 清空密码输入框

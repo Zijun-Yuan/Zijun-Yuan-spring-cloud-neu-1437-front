@@ -16,6 +16,18 @@ export const useSupervisorStore = defineStore('supervisor', {
         feedbackList: [],
     }),
     actions: {
+		setToken(token) {
+			this.token = token;
+			apiClient.interceptors.request.use(
+				config => {
+					if (this.token) {
+						config.headers.Authorization = `Bearer ${this.token}`;
+					}
+					return config;
+				},
+				error => Promise.reject(error)
+			);
+		},
         async supervisorLogin(data) {
             try {
                 const response = await supervisorAPI.supervisorLogin(data);

@@ -13,6 +13,18 @@ export const useInspectorStore = defineStore('inspector', {
         cityCode: ''
     }),
     actions: {
+		setToken(token) {
+			this.token = token;
+			apiClient.interceptors.request.use(
+				config => {
+					if (this.token) {
+						config.headers.Authorization = `Bearer ${this.token}`;
+					}
+					return config;
+				},
+				error => Promise.reject(error)
+			);
+		},
         async inspectorLogin(data) {
             try {
                 const response = await inspectorAPI.login(data);
