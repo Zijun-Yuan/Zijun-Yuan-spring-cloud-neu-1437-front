@@ -25,7 +25,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const { lang } = useLocale();
     const pickerBase = inject("EP_PICKER_BASE");
-    const { shortcuts, disabledDate, format } = pickerBase.props;
+    const { shortcuts, disabledDate } = pickerBase.props;
+    const format = toRef(pickerBase.props, "format");
     const defaultValue = toRef(pickerBase.props, "defaultValue");
     const leftDate = ref(dayjs().locale(lang.value));
     const rightDate = ref(dayjs().locale(lang.value).add(1, unit));
@@ -78,7 +79,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       handleRangeConfirm();
     };
     const formatToString = (days) => {
-      return days.map((day) => day.format(format));
+      return days.map((day) => day.format(format.value));
     };
     function onParsedValueChanged(minDate2, maxDate2) {
       if (props.unlinkPanels && maxDate2) {

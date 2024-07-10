@@ -195,6 +195,7 @@ export const useAdminStore = defineStore('admin', {
 		},
 		async getInspectorsByCityCodeList(cityCodeList) {
 			try {
+				console.log("getInspectorsByCityCodeList",cityCodeList);
 				const response = await AdminAPI.getInspectorsByCityCodeList(cityCodeList);
 				const data = response.data.data;
 				const inspectorList = data;

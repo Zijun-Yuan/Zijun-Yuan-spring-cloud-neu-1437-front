@@ -13,6 +13,7 @@ var index$1 = require('./table-header/index.js');
 var index$2 = require('./table-body/index.js');
 var index$3 = require('./table-footer/index.js');
 var utilsHelper = require('./table/utils-helper.js');
+var utilsHelper$1 = require('./table-header/utils-helper.js');
 var styleHelper = require('./table/style-helper.js');
 var keyRenderHelper = require('./table/key-render-helper.js');
 var defaults = require('./table/defaults.js');
@@ -118,11 +119,15 @@ const _sfc_main = vue.defineComponent({
     const computedEmptyText = vue.computed(() => {
       return props.emptyText || t("el.table.emptyText");
     });
+    const columns = vue.computed(() => {
+      return utilsHelper$1.convertToRows(store.states.originColumns.value)[0];
+    });
     keyRenderHelper["default"](table);
     return {
       ns,
       layout,
       store,
+      columns,
       handleHeaderFooterMousewheel,
       handleMouseLeave,
       tableId,

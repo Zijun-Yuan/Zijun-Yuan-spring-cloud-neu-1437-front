@@ -4,7 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var vue = require('vue');
 require('../../../../hooks/index.js');
-var colorPicker = require('../color-picker.js');
+var colorPicker = require('../color-picker2.js');
 var color = require('../utils/color.js');
 var pluginVue_exportHelper = require('../../../../_virtual/plugin-vue_export-helper.js');
 var index = require('../../../../hooks/use-namespace/index.js');
@@ -17,6 +17,10 @@ const _sfc_main = vue.defineComponent({
     },
     color: {
       type: Object,
+      required: true
+    },
+    enableAlpha: {
+      type: Boolean,
       required: true
     }
   },
@@ -40,7 +44,7 @@ const _sfc_main = vue.defineComponent({
     function parseColors(colors, color$1) {
       return colors.map((value) => {
         const c = new color["default"]();
-        c.enableAlpha = true;
+        c.enableAlpha = props.enableAlpha;
         c.format = "rgba";
         c.fromString(value);
         c.selected = c.value === color$1.value;

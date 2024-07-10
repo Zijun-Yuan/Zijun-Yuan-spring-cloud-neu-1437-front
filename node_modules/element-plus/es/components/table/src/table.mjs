@@ -9,6 +9,7 @@ import TableHeader from './table-header/index.mjs';
 import TableBody from './table-body/index.mjs';
 import TableFooter from './table-footer/index.mjs';
 import useUtils from './table/utils-helper.mjs';
+import { convertToRows } from './table-header/utils-helper.mjs';
 import useStyle from './table/style-helper.mjs';
 import useKeyRender from './table/key-render-helper.mjs';
 import defaultProps from './table/defaults.mjs';
@@ -114,11 +115,15 @@ const _sfc_main = defineComponent({
     const computedEmptyText = computed(() => {
       return props.emptyText || t("el.table.emptyText");
     });
+    const columns = computed(() => {
+      return convertToRows(store.states.originColumns.value)[0];
+    });
     useKeyRender(table);
     return {
       ns,
       layout,
       store,
+      columns,
       handleHeaderFooterMousewheel,
       handleMouseLeave,
       tableId,

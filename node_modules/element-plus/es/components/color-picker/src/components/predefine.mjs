@@ -1,6 +1,6 @@
 import { defineComponent, inject, ref, watch, watchEffect, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, normalizeStyle } from 'vue';
 import '../../../../hooks/index.mjs';
-import { colorPickerContextKey } from '../color-picker.mjs';
+import { colorPickerContextKey } from '../color-picker2.mjs';
 import Color from '../utils/color.mjs';
 import _export_sfc from '../../../../_virtual/plugin-vue_export-helper.mjs';
 import { useNamespace } from '../../../../hooks/use-namespace/index.mjs';
@@ -13,6 +13,10 @@ const _sfc_main = defineComponent({
     },
     color: {
       type: Object,
+      required: true
+    },
+    enableAlpha: {
+      type: Boolean,
       required: true
     }
   },
@@ -36,7 +40,7 @@ const _sfc_main = defineComponent({
     function parseColors(colors, color) {
       return colors.map((value) => {
         const c = new Color();
-        c.enableAlpha = true;
+        c.enableAlpha = props.enableAlpha;
         c.format = "rgba";
         c.fromString(value);
         c.selected = c.value === color.value;

@@ -33,7 +33,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const { lang } = index.useLocale();
     const pickerBase = vue.inject("EP_PICKER_BASE");
-    const { shortcuts, disabledDate, format } = pickerBase.props;
+    const { shortcuts, disabledDate } = pickerBase.props;
+    const format = vue.toRef(pickerBase.props, "format");
     const defaultValue = vue.toRef(pickerBase.props, "defaultValue");
     const leftDate = vue.ref(dayjs__default["default"]().locale(lang.value));
     const rightDate = vue.ref(dayjs__default["default"]().locale(lang.value).add(1, unit));
@@ -86,7 +87,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       handleRangeConfirm();
     };
     const formatToString = (days) => {
-      return days.map((day) => day.format(format));
+      return days.map((day) => day.format(format.value));
     };
     function onParsedValueChanged(minDate2, maxDate2) {
       if (props.unlinkPanels && maxDate2) {

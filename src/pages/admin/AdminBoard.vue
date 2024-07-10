@@ -2000,7 +2000,13 @@
 				const supervisor = await adminStore.getSupervisorByInfoId(data.infoId);
 				console.log(supervisor);
 				infoDetail1.value.userInfo.name = supervisor.realName;
-				infoDetail1.value.userInfo.sex = supervisor.sex;
+        infoDetail1.value.userInfo.sex = "男";
+        if(supervisor.sex === 1){
+          infoDetail1.value.userInfo.sex = "男";
+        }else if(supervisor.sex === 0){
+          infoDetail1.value.userInfo.sex = "女";
+        }
+
 				infoDetail1.value.userInfo.birthday = supervisor.birthday;
 				infoDetail1.value.userInfo.phoneNum = supervisor.telId;
 				const province = await locationStore.getProvinceByCityCode(data.cityCode);
@@ -2503,7 +2509,6 @@
 				dialogInfo1,
 				dialogInfo2,
 				showAddInspector,
-				inspectorToAdd,
 				inspectorToAdd,
 				rules,
 				inspectorForm,
