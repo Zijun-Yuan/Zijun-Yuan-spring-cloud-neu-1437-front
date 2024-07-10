@@ -1969,27 +1969,27 @@
 
 			//查看table1信息的详细信息
 			const showInfo1 = async (data) => {
+				const info = await adminStore.getInfoById(data.id);
+				await showInfoDetails1(info);
 				updateLocation('公众监督数据管理', '公众监督数据详情');
 				currentTable.value = 'table11';
-				const info = await adminStore.getInfoById(data.id);
-				showInfoDetails1(info);
 
 			};
 
 			//查看table2信息的详细信息
 			const showInfo2 = async (data) => {
+				const info = await adminStore.getInfoById(data.id);
+				await showInfoDetails2(info);
 				updateLocation('公众监督数据管理', '公众监督数据详情');
 				currentTable.value = 'table21';
-				const info = await adminStore.getInfoById(data.id);
-				showInfoDetails2(info);
 			};
 
 			//查看table3信息的详细信息
 			const showInfo3 = async (data) => {
+				const info = await adminStore.getInfoById(data.id);
+				await showInfoDetails3(info);
 				updateLocation('确认AQI数据管理', '确认AQI数据详情');
 				currentTable.value = 'table31';
-				const info = await adminStore.getInfoById(data.id);
-				showInfoDetails3(info);
 			};
 
 
