@@ -13,7 +13,7 @@
 					<el-button type="primary" @click="handleLogin">登录</el-button>
 				</el-form-item>
 				<el-form-item v-if="errorMessage">
-					<el-alert type="error" :closable="false" title="登录失败" :description="errorMessage" />
+					<el-alert type="error" :closable="false" :description="errorMessage" />
 				</el-form-item>
 			</el-form>
 		</el-card>

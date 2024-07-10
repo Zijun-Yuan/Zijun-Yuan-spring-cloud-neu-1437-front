@@ -72,7 +72,7 @@ export const useAdminStore = defineStore('admin', {
 				console.log("getInspectorList",params);
 				const response = await AdminAPI.getInspectorList(params);
 				this.inspectorList = response.data.data;
-				if(response.data.code ===0){
+				if(response.data.code ===0 ||response.data.code===2){
 					return true;
 				}else{
 					return false;
@@ -99,7 +99,21 @@ export const useAdminStore = defineStore('admin', {
 			}
 		},
 		
-		
+		async addInspector(params){
+			try {
+				console.log("addInspector",params);
+				const response = await AdminAPI.addInspector({
+					params: params
+				});
+				if(response.data.code ===0){
+					return true;
+				}else{
+					return false;
+				}
+			} catch (error) {
+				console.error("Failed to addInspector:", error);
+			}
+		},
 
 		async fetchInfoList(params) {
 			console.log("fetchInfoList", params);

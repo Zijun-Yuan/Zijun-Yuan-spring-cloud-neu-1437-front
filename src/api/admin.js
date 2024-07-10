@@ -31,7 +31,7 @@ export function getInspectorList(data) {
 
 //通过CityList获取inspectors
 export function getInspectorsByCityCodeList(data){
-    return axios.post(`/admin/personnel/getListByCityCodeList`, data);
+    return axios.get(`/admin/personnel/getListByCityCodeList`, data);
 }
 //获取指定信息
 export function getInfoById(data) {

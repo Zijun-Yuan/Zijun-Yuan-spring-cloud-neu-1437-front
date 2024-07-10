@@ -65,7 +65,6 @@
 										<span>省区域
 											<el-select v-model="selectedProvince" placeholder="—全部—"
 												@change="handleProvinceChange" style="width: 130px;">
-												@change="handleProvinceChange" style="width: 130px;">
 												<el-option v-for="province in provinces" :key="province.provinceId"
 													:label="province.provinceName" :value="province.provinceId" />
 											</el-select>
@@ -131,7 +130,7 @@
 
 							<div v-if="currentTable === 'table9'"
 								style="margin-top: 10px;margin-bottom: 10px;margin-left: 10px ">
-								<el-row :gutter="20" style="color: gray;">
+								<el-row :gutter="22" style="color: gray;">
 
 									<el-col :span="4">
 										<span>省区域
@@ -160,9 +159,11 @@
 
 										</span>
 									</el-col>
-									<el-col :span="4">
+									<el-col :span="6">
 										<el-button type="primary" color="red" @click="handleReset3()">清空</el-button>
 										<el-button type="primary" color="blue" @click="handleSearch3()">查询
+										</el-button>
+										<el-button type="primary" color="green" @click="showAddInspector()">新增网格员
 										</el-button>
 									</el-col>
 								</el-row>
@@ -614,15 +615,15 @@
 										<el-table-column prop="birthday" label="生日" width="200"></el-table-column>
 										<el-table-column prop="sex" label="性别" width="200"></el-table-column>
 										<el-table-column prop="phoneNum" label="电话" width="200"></el-table-column>
-<!--										<el-table-column label="操作" width="200">-->
-<!--											<template v-slot="scope">-->
-<!--												<el-button type="primary" circle @click="showSupervisor(scope.row)">-->
-<!--													<el-icon>-->
-<!--														<InfoFilled />-->
-<!--													</el-icon>-->
-<!--												</el-button>-->
-<!--											</template>-->
-<!--										</el-table-column>-->
+										<!--										<el-table-column label="操作" width="200">-->
+										<!--											<template v-slot="scope">-->
+										<!--												<el-button type="primary" circle @click="showSupervisor(scope.row)">-->
+										<!--													<el-icon>-->
+										<!--														<InfoFilled />-->
+										<!--													</el-icon>-->
+										<!--												</el-button>-->
+										<!--											</template>-->
+										<!--										</el-table-column>-->
 									</el-table>
 								</div>
 								<div class="pagination-container">
@@ -644,15 +645,15 @@
 										<el-table-column prop="city.cityName" label="所在市" width="150"></el-table-column>
 										<el-table-column prop="sex" label="性别" width="150"></el-table-column>
 										<el-table-column prop="phoneNum" label="电话" width="150"></el-table-column>
-<!--										<el-table-column label="操作" width="150">-->
-<!--											<template v-slot="scope">-->
-<!--												<el-button type="primary" circle @click="showInspector(scope.row)">-->
-<!--													<el-icon>-->
-<!--														<InfoFilled />-->
-<!--													</el-icon>-->
-<!--												</el-button>-->
-<!--											</template>-->
-<!--										</el-table-column>-->
+										<!--										<el-table-column label="操作" width="150">-->
+										<!--											<template v-slot="scope">-->
+										<!--												<el-button type="primary" circle @click="showInspector(scope.row)">-->
+										<!--													<el-icon>-->
+										<!--														<InfoFilled />-->
+										<!--													</el-icon>-->
+										<!--												</el-button>-->
+										<!--											</template>-->
+										<!--										</el-table-column>-->
 									</el-table>
 								</div>
 								<div class="pagination-container">
@@ -662,6 +663,61 @@
 										@current-change="handleInfoPageChange5" v-if="infoPageNum5>=2 " />
 								</div>
 							</template>
+
+							<template v-if="currentTable === 'table91'">
+								<div>
+
+
+									<el-form :model="inspectorToAdd" :rules="rules" ref="inspectorForm"
+										label-width="120px" style="margin-top: 20px;">
+										<el-form-item label="账号名" prop="inspectorCode">
+											<el-input v-model="inspectorToAdd.inspectorCode" style="width: 300px;"
+												maxlength="20" show-word-limit />
+										</el-form-item>
+										<el-form-item label="密码" prop="password">
+											<el-input type="password" show-password v-model="inspectorToAdd.password"
+												style="width: 300px;" maxlength="20" show-word-limit />
+										</el-form-item>
+										<el-form-item label="电话号码" prop="telNum">
+											<el-input v-model="inspectorToAdd.telNum" style="width: 300px;"
+												maxlength="11" show-word-limit />
+										</el-form-item>
+										<el-form-item label="真实姓名" prop="realName">
+											<el-input v-model="inspectorToAdd.realName" style="width: 300px;"
+												maxlength="10" show-word-limit />
+										</el-form-item>
+										<el-form-item label="负责地区" prop="selectedProvince3">
+											<el-col :span="4">
+												<span>
+													<el-select v-model="selectedProvince3" placeholder="—省区域—"
+														@change="handleProvinceChange3" style="width: 130px;">
+														<el-option v-for="province in provinces"
+															:key="province.provinceId" :label="province.provinceName"
+															:value="province.provinceId" />
+													</el-select>
+												</span>
+											</el-col>
+											<el-col :span="4">
+												<span>
+													<el-select v-model="selectedCity3" :disabled="!selectedProvince3"
+														placeholder="—市区域—" style="width: 120px;">
+														<el-option v-for="city in cities3" :key="city.cityCode"
+															:label="city.cityName" :value="city.cityCode" />
+													</el-select>
+												</span>
+											</el-col>
+										</el-form-item>
+										<el-form-item>
+											<el-button type="primary"
+												@click="submitForm('inspectorForm')">提交</el-button>
+											<el-button color="red" @click="resetForm('inspectorForm')">重置</el-button>
+											<el-button @click="infoBack4()">返回</el-button>
+										</el-form-item>
+									</el-form>
+
+								</div>
+							</template>
+
 						</el-scrollbar>
 
 					</el-main>
@@ -686,12 +742,18 @@
 							<el-descriptions-item>
 								<template #label>
 									<div class="cell-item" style="display: flex; align-items: center;">
-									  <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" style="width: 1em; height: 1em; margin-right: 0.5em;">
-									    <path fill="currentColor" d="M512 64a64 64 0 0 1 64 64v64H448v-64a64 64 0 0 1 64-64z"></path>
-									    <path fill="currentColor" d="M256 768h512V448a256 256 0 1 0-512 0v320zm256-640a320 320 0 0 1 320 320v384H192V448a320 320 0 0 1 320-320z"></path>
-									    <path fill="currentColor" d="M96 768h832q32 0 32 32t-32 32H96q-32 0-32-32t32-32zm352 128h128a64 64 0 0 1-128 0z"></path>
-									  </svg>
-									  密码
+										<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"
+											style="width: 1em; height: 1em; margin-right: 0.5em;">
+											<path fill="currentColor"
+												d="M512 64a64 64 0 0 1 64 64v64H448v-64a64 64 0 0 1 64-64z"></path>
+											<path fill="currentColor"
+												d="M256 768h512V448a256 256 0 1 0-512 0v320zm256-640a320 320 0 0 1 320 320v384H192V448a320 320 0 0 1 320-320z">
+											</path>
+											<path fill="currentColor"
+												d="M96 768h832q32 0 32 32t-32 32H96q-32 0-32-32t32-32zm352 128h128a64 64 0 0 1-128 0z">
+											</path>
+										</svg>
+										密码
 									</div>
 								</template>
 								{{ dialogInfo1.password }}
@@ -776,6 +838,7 @@
 			Setting,
 		},
 		setup() {
+			const inspectorForm = ref(null);
 			const router = useRouter();
 			const mainTitle = ref('');
 			const subTitle = ref('');
@@ -806,6 +869,8 @@
 			let selectedCity0 = ref(null);
 			let selectedCity1 = ref(null);
 			let selectedCity2 = ref(null);
+			let selectedCity3 = ref(null);
+			let selectedProvince3 = ref(null);
 			let selectedProvince2 = ref(null);
 			let selectedProvince1 = ref(null);
 			let selectedProvince0 = ref(null);
@@ -817,9 +882,10 @@
 			let inspectorPhoneNum = ref(null);
 			let provinces = ref([]);
 			let cities = ref([]);
+			let cities0 = ref([]);
 			let cities1 = ref([]);
 			let cities2 = ref([]);
-			let cities0 = ref([]);
+			let cities3 = ref([]);
 			let inspectors = ref([]);
 			let radio = ref('1');
 			let isProvinceDisabled0 = ref(false);
@@ -848,6 +914,41 @@
 			let infoNum3 = ref(0);
 			let infoNum4 = ref(0);
 			let infoNum5 = ref(0);
+			let inspectorToAdd = ref({});
+			let rules = {
+				inspectorCode: [{
+					required: true,
+					message: '请输入账号名',
+					trigger: 'blur'
+				}],
+				password: [{
+					required: true,
+					message: '请输入密码',
+					trigger: 'blur'
+				}],
+				telNum: [{
+						required: true,
+						message: '请输入电话号码',
+						trigger: 'blur'
+					},
+					{
+						min: 11,
+						max: 11,
+						message: '电话号码必须为11位',
+						trigger: 'blur'
+					},
+				],
+				realName: [{
+					required: true,
+					message: '请输入真实姓名',
+					trigger: 'blur'
+				}],
+				selectedCity3: [{
+					required: true,
+					message: '请选择市区域',
+					trigger: 'change'
+				}]
+			}
 			let dialogInfo1 = ref({
 				name: "张三",
 				account: "123",
@@ -965,8 +1066,8 @@
 				infoCurrentPageNum5.value = 1;
 				inspectorPhoneNum.value = null;
 				infoNum5.value = await adminStore.getInspectorCount({
-          telNum: "",
-        });
+					telNum: "",
+				});
 				infoPageNum5.value = Math.ceil(infoNum5.value / infoPageSize.value);
 				await adminStore.getInspectorList({
 					pageNum: infoCurrentPageNum5.value,
@@ -983,6 +1084,13 @@
 
 			//指派
 			const assign = async (infoId) => {
+				if(selectedInspector.value === null){
+					ElMessage({
+						type: 'error',
+						message: '请选择指派网格员',
+					})
+					return;
+				}
 				ElMessageBox.confirm(
 						'您将指派网格员“' + getSelectedInspectorName() + '”' + "负责本信息，确定吗？",
 						'确认指派', {
@@ -1233,7 +1341,7 @@
 			const handleReset3 = async () => {
 				inspectorPhoneNum.value = null;
 				selectedProvince2.value = null;
-        selectedCity2.value = null;
+				selectedCity2.value = null;
 			};
 
 			onMounted(async () => {
@@ -1284,6 +1392,11 @@
 				selectedCity2.value = null; // 重置城市选择
 			};
 
+			const handleProvinceChange3 = async (provinceId) => {
+				cities3.value = await locationStore.getCitiesByProvinceId(provinceId);
+				selectedCity3.value = null; // 重置城市选择
+			};
+
 			//是否异地指派
 			watch(yidizhipai, async (newValue, oldValue) => {
 				if (newValue) {
@@ -1301,6 +1414,7 @@
 					selectedProvince0.value = cityProvince.provinceId;
 					cities0.value = await locationStore.getCitiesByProvinceId(selectedProvince0.value);
 					selectedCity0.value = cityProvince.cityCode;
+					selectedInspector.value = null;
 					var cityCodeList = [];
 					if (selectedProvince0.value != null) {
 						if (selectedCity0.value === null) {
@@ -1339,6 +1453,7 @@
 			watch(selectedProvince0, (newValue) => {
 				if (newValue) {
 					handleProvinceChange0(newValue);
+					selectedInspector.value =null;
 				} else {
 					cities0.value = [];
 				}
@@ -1346,6 +1461,7 @@
 			watch(selectedCity0, async (newValue) => {
 				if (newValue) {
 					console.log(selectedCity0.value);
+					selectedInspector.value =null;
 					inspectors.value = await adminStore.getInspectorsByCityCodeList([selectedCity0.value]);
 				} else {
 					cities0.value = [];
@@ -1363,6 +1479,14 @@
 					handleProvinceChange2(newValue);
 				} else {
 					cities2.value = [];
+				}
+			});
+
+			watch(selectedProvince3, (newValue) => {
+				if (newValue) {
+					handleProvinceChange3(newValue);
+				} else {
+					cities3.value = [];
 				}
 			});
 
@@ -1580,50 +1704,50 @@
 
 			//table8页数变化
 			const handleInfoPageChange4 = async (page) => {
-        infoCurrentPageNum4.value = await page;
+				infoCurrentPageNum4.value = await page;
 
-        if (await adminStore.getSupervisorList({
-          telNum: supervisorPhoneNum.value,
-          pageNum: infoCurrentPageNum4.value,
-          pageSize: infoPageSize.value,
-        })) {
-          ElMessage({
-            message: '查询成功',
-            type: 'success',
-          })
-        } else {
-          ElMessage.error('查询失败。');
-        }
-        showSupervisorList();
+				if (await adminStore.getSupervisorList({
+						telNum: supervisorPhoneNum.value,
+						pageNum: infoCurrentPageNum4.value,
+						pageSize: infoPageSize.value,
+					})) {
+					ElMessage({
+						message: '查询成功',
+						type: 'success',
+					})
+				} else {
+					ElMessage.error('查询失败。');
+				}
+				showSupervisorList();
 
 			};
 
 			//table9页数变化
 			const handleInfoPageChange5 = async (page) => {
-        infoCurrentPageNum5.value = await page;
-        var cityCodeList = [];
-        if (selectedProvince2.value != null) {
-          if (selectedCity2.value === null) {
-            cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince2.value);
-          } else {
-            cityCodeList = [];
-            cityCodeList.push(selectedCity2.value);
-          }
-        }
-        if (await adminStore.getInspectorList({
-          telNum: inspectorPhoneNum.value,
-          pageNum: infoCurrentPageNum5.value,
-          pageSize: infoPageSize.value,
-          cityCodeList: cityCodeList,
-        })) {
-          ElMessage({
-            message: '查询成功',
-            type: 'success',
-          })
-        } else {
-          ElMessage.error('查询失败。');
-        }
-        showInspectorList();
+				infoCurrentPageNum5.value = await page;
+				var cityCodeList = [];
+				if (selectedProvince2.value != null) {
+					if (selectedCity2.value === null) {
+						cityCodeList = await locationStore.getCitieCodeListByProvinceId(selectedProvince2.value);
+					} else {
+						cityCodeList = [];
+						cityCodeList.push(selectedCity2.value);
+					}
+				}
+				if (await adminStore.getInspectorList({
+						telNum: inspectorPhoneNum.value,
+						pageNum: infoCurrentPageNum5.value,
+						pageSize: infoPageSize.value,
+						cityCodeList: cityCodeList,
+					})) {
+					ElMessage({
+						message: '查询成功',
+						type: 'success',
+					})
+				} else {
+					ElMessage.error('查询失败。');
+				}
+				showInspectorList();
 			};
 
 			//从Stores进行数据展示supervisorList
@@ -2107,6 +2231,11 @@
 				showInfoList3();
 			};
 
+			//取消创建网格员信息
+			const infoBack4 = () => {
+				getInspectorList();
+			}
+
 			//展示指派界面
 			const showPointer = async (data) => {
 				yidizhipai.value = true;
@@ -2146,6 +2275,15 @@
 				}
 				await sumUp();
 			};
+
+			//展示新增网格员页面
+			const showAddInspector = () => {
+				currentTable.value = 'table91';
+				inspectorToAdd.value = {};
+				selectedProvince3.value = null;
+				selectedCity3.value = null;
+				updateLocation('人员数据管理', '新增网格员');
+			}
 
 			//AQI指数趋势统计
 			const getAQITrendStats = async () => {
@@ -2212,8 +2350,33 @@
 
 			};
 
+			const submitForm = async (formName) => {
+				console.log(selectedCity3.value);
+				console.log(inspectorToAdd.value);
+				inspectorToAdd.value.cityCode = selectedCity3.value;
+				inspectorForm.value.validate(async (valid) => {
+					if (valid) {
+						if (await adminStore.addInspector(inspectorToAdd.value)) {
+							ElMessage.success('新增网格员成功。');
+						} else {
+							ElMessage.error('该账号名已经被使用。');
+						}
+					} else {
+						ElMessage.error('提交失败!');
+						return false;
+					}
+				});
+			}
+
+			const resetForm = (formName) => {
+				inspectorForm.value.resetFields();
+				selectedProvince3.value = null;
+				selectedCity3.value = null;
+			};
+
 			return {
 				loadProvinces,
+				handleProvinceChange3,
 				handleProvinceChange2,
 				handleProvinceChange1,
 				handleProvinceChange0,
@@ -2281,16 +2444,19 @@
 				infoBack1,
 				infoBack2,
 				infoBack3,
+				infoBack4,
 				selectedProvince0,
 				selectedProvince,
 				selectedProvince1,
 				selectedProvince2,
+				selectedProvince3,
 				selectedLevel,
 				selectedLevel1,
 				selectedCity0,
 				selectedCity,
 				selectedCity1,
 				selectedCity2,
+				selectedCity3,
 				selectedDateInspector,
 				selectedDateSupervisor,
 				selectedInspector,
@@ -2301,6 +2467,7 @@
 				cities1,
 				cities0,
 				cities2,
+				cities3,
 				aqiLevelList,
 				radio,
 				handleSearch,
@@ -2329,6 +2496,13 @@
 				dialogVisible2,
 				dialogInfo1,
 				dialogInfo2,
+				showAddInspector,
+				inspectorToAdd,
+				inspectorToAdd,
+				rules,
+				inspectorForm,
+				submitForm,
+				resetForm
 			};
 		},
 	};
