@@ -57,11 +57,45 @@
               <img src="@/assets/images/SupervisorLogin.jpg" alt="Placeholder Image"/>
             </div>
 
+<!--            &lt;!&ndash; 查询条件 &ndash;&gt;-->
+<!--            <el-row :gutter="20" class="mb-2">-->
+<!--              <el-col :span="8">-->
+<!--                <el-select v-model="filterProvince" size="small" placeholder="选择省份" clearable @change="handleFilterChange">-->
+<!--                  <el-option-->
+<!--                      v-for="province in provinceList"-->
+<!--                      :key="province.provinceId"-->
+<!--                      :label="province.provinceName"-->
+<!--                      :value="province.provinceId"-->
+<!--                  />-->
+<!--                </el-select>-->
+<!--              </el-col>-->
+<!--              <el-col :span="8">-->
+<!--                <el-select v-model="filterCity" size="small" placeholder="选择城市" clearable @change="handleFilterChange">-->
+<!--                  <el-option-->
+<!--                      v-for="city in filteredCityList"-->
+<!--                      :key="city.cityCode"-->
+<!--                      :label="city.cityName"-->
+<!--                      :value="city.cityCode"-->
+<!--                  />-->
+<!--                </el-select>-->
+<!--              </el-col>-->
+<!--              <el-col :span="8">-->
+<!--                <el-select v-model="filterAQI" size="small" placeholder="选择AQI级别" clearable @change="handleFilterChange">-->
+<!--                  <el-option-->
+<!--                      v-for="aqi in aqiLevelList"-->
+<!--                      :key="aqi.level"-->
+<!--                      :label="aqi.name"-->
+<!--                      :value="aqi.number"-->
+<!--                  />-->
+<!--                </el-select>-->
+<!--              </el-col>-->
+<!--            </el-row>-->
+
             <!-- 历史反馈信息列表 -->
             <el-table v-if="currentTable === 'feedbackList'" :data="currentPageInfoList"
                       empty-text="目前没有历史反馈信息"
                       style="width: 100%">
-              <el-table-column type="index" label="序号" width="80">
+              <el-table-column type="index" label="序号" :index="indexMethod" width="80">
                 <template #header>
                   <span>序号</span>
                   <el-button type="text" icon="el-icon-sort" @click="sortDescending"></el-button>
@@ -86,7 +120,6 @@
                 @current-change="handleCurrentInfoListChange"
                 class="pagination-container"
             />
-
 
             <!-- 上报网格信息 -->
             <el-form v-else-if="currentTable === 'reportGridInformation'" ref="reportGridForm" label-width="100px">
@@ -178,12 +211,12 @@
 </template>
 
 <script>
-import {ref, watch, onMounted, computed} from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import {useRouter} from 'vue-router';
 import {useSupervisorStore} from '@/stores/supervisorStore';
 import {useLocationStore} from "@/stores/locationStore";
 import {useAQIStore} from "@/stores/aqiLevelStore";
-import {Message, Location, Person} from '@element-plus/icons-vue';
+import {Location, Message, Person} from '@element-plus/icons-vue';
 import {ElMessage} from "element-plus";
 import {ElMessageBox} from "element-plus/lib/components";
 
@@ -202,6 +235,7 @@ export default {
     const supervisorStore = useSupervisorStore();
     const locationStore = useLocationStore();
     const aqiLevelStore = useAQIStore();
+    // const aqiStore = useAQIStore();
     const defaultActive = ref('1-1');
 
     let currentTable = ref('');
@@ -211,6 +245,28 @@ export default {
     let pageSize = ref(10);
     let currentInfoPage = ref(1);
     let filteredCurrentInfoList = ref([]);
+
+    // // 用于筛选的变量
+    // let provinceList = ref([]);
+    // let aqiLevelList = ref([]);
+    // let filterProvince = ref(null);
+    // let filterCity = ref(null);
+    // let filterAQI = ref(null);
+    // let filteredCityList = ref([]);
+
+    // // 处理数据的筛选结果
+    // const filterLists = () => {
+    //   filteredCurrentInfoList.value = currentInfoList.value.filter(item =>
+    //       (!filterProvince.value || item.province.provinceId === filterProvince.value) &&
+    //       (!filterCity.value || item.city.cityCode === filterCity.value) &&
+    //       (!filterAQI.value || item.aqiLevel === filterAQI.value)
+    //   );
+    //   updatePaginatedLists();
+    // };
+    //
+    // const handleFilterChange = () => {
+    //   filterLists();
+    // };
 
     // 分页相关的计算属性
     const currentPageInfoList = computed(() => {
@@ -232,6 +288,68 @@ export default {
       currentInfoPage.value = page;
       updatePaginatedLists();
     };
+
+    // 序号计算方法
+    const indexMethod = (index) => {
+      return (currentInfoPage.value - 1) * pageSize.value + index + 1;
+    };
+
+    // // 获取省份筛选列表
+    // const getProvince = async (cityCode) => {
+    //   try {
+    //     return await locationStore.getProvinceByCityCode(cityCode);
+    //   } catch (error) {
+    //     console.error('Failed to get province:', error);
+    //     return { provinceName: '' };
+    //   }
+    // };
+    //
+    // // 获取城市筛选列表
+    // const getCity = async (cityCode) => {
+    //   try {
+    //     return await locationStore.getCityAndProvinceByCityCode(cityCode);
+    //   } catch (error) {
+    //     console.error('Failed to get city:', error);
+    //     return { cityName: '' };
+    //   }
+    // };
+    //
+    // // 级联查询时，获取城市列表的方法
+    // const processInfoList = async () => {
+    //   const items = currentInfoList.value;
+    //   const currentItems = [];
+    //
+    //   for (const item of items) {
+    //     const province = await getProvince(item.cityCode);
+    //     const city = await getCity(item.cityCode);
+    //     if (province && city) {
+    //       const processedItem = {
+    //         ...item,
+    //         province: province,
+    //         city: city,
+    //         aqiLevel: item.aqiLevel || 7
+    //       };
+    //       currentItems.push(processedItem);
+    //     }
+    //   }
+    //   currentInfoList.value = currentItems;
+    //   filterLists();
+    // };
+    //
+    // // 级联查询时，select组件的change事件处理方法
+    // const handleChangeForProvince = async (provinceId) => {
+    //   filteredCityList.value = await locationStore.getCitiesByProvinceId(provinceId);
+    //   filterCity.value = null; // 重置城市选择
+    // };
+    //
+    // // 监听filterProvince变化，更新filteredCityList
+    // watch(filterProvince, (provinceId) => {
+    //   if (provinceId) {
+    //     handleProvinceChange(provinceId);
+    //   } else {
+    //     filteredCityList.value = [];
+    //   }
+    // });
 
     // 监听路由变化，更新标题
     const sortDescending = () => {
@@ -313,6 +431,7 @@ export default {
       currentInfoList.value = []; // 重置数组
       let date = new Date();
       console.log(supervisorStore.feedbackList);
+
       for (let i = 0; i < supervisorStore.feedbackList.length; i++) {
         let info = {
           aqiLevel: "null",
@@ -329,10 +448,8 @@ export default {
         info.aqiLevel = aqiInfo.name + "(" + aqiInfo.level + ")";
         info.address = supervisorStore.feedbackList[i].address;
         info.feedback = supervisorStore.feedbackList[i].feedback;
-
         info.city = await locationStore.getCityAndProvinceByCityCode(supervisorStore.feedbackList[i].cityCode);
         info.province = await locationStore.getProvinceByCityCode(supervisorStore.feedbackList[i].cityCode);
-
         info.date =
             `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         info.time =
@@ -421,6 +538,8 @@ export default {
 
     onMounted(async () => {
       provinces.value = await locationStore.getAllProvinces();
+      // provinceList.value = await locationStore.getAllProvinces();
+      // aqiLevelList.value = aqiStore.getAllAQILevels();
     });
 
     return {
@@ -450,7 +569,14 @@ export default {
       pageSize,
       currentInfoPage,
       filteredCurrentInfoList,
-      currentPageInfoList
+      currentPageInfoList,
+      indexMethod,
+      // filterProvince,
+      // filterCity,
+      // filterAQI,
+      // provinceList,
+      // filteredCityList,
+      // handleFilterChange
     };
   },
 };
@@ -524,5 +650,8 @@ export default {
   background-color: #7777e3;
   border-color: #7777e3;
   color: white;
+}
+.mb-2 {
+  margin-bottom: 20px;
 }
 </style>
