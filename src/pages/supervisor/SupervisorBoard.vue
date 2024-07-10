@@ -58,7 +58,7 @@
             </div>
 
             <!-- 历史反馈信息列表 -->
-            <el-table v-if="currentTable === 'feedbackList'" :data="currentInfoList"
+            <el-table v-if="currentTable === 'feedbackList'" :data="currentPageInfoList"
                       empty-text="目前没有历史反馈信息"
                       style="width: 100%">
               <el-table-column type="index" label="序号" width="80">
@@ -75,6 +75,18 @@
               <el-table-column prop="address" label="具体位置" width="200"></el-table-column>
               <el-table-column prop="feedback" label="描述" width="300"></el-table-column>
             </el-table>
+
+            <!-- 分页设置 -->
+            <el-pagination
+                v-if="currentTable === 'feedbackList' && currentInfoList.length > pageSize"
+                :current-page="currentInfoPage"
+                :page-size="pageSize"
+                layout="total, prev, pager, next"
+                :total="currentInfoList.length"
+                @current-change="handleCurrentInfoListChange"
+                class="pagination-container"
+            />
+
 
             <!-- 上报网格信息 -->
             <el-form v-else-if="currentTable === 'reportGridInformation'" ref="reportGridForm" label-width="100px">
@@ -196,6 +208,30 @@ export default {
     let currentInfoList = ref([]);
     let provinces = ref([]);
     let cities = ref([]);
+    let pageSize = ref(10);
+    let currentInfoPage = ref(1);
+    let filteredCurrentInfoList = ref([]);
+
+    // 分页相关的计算属性
+    const currentPageInfoList = computed(() => {
+      const start = (currentInfoPage.value - 1) * pageSize.value;
+      const end = start + pageSize.value;
+      return currentInfoList.value.slice(start, end);
+    });
+
+    // 分页更新方法
+    const updatePaginatedLists = () => {
+      currentPageInfoList.value = currentInfoList.value.slice(
+          (currentInfoPage.value - 1) * pageSize.value,
+          currentInfoPage.value * pageSize.value
+      );
+    };
+
+    // 表格分页相关的计算属性
+    const handleCurrentInfoListChange = (page) => {
+      currentInfoPage.value = page;
+      updatePaginatedLists();
+    };
 
     // 监听路由变化，更新标题
     const sortDescending = () => {
@@ -410,6 +446,11 @@ export default {
       cities,
       handleProvinceChange,
       updatePersonalInfo,
+      handleCurrentInfoListChange,
+      pageSize,
+      currentInfoPage,
+      filteredCurrentInfoList,
+      currentPageInfoList
     };
   },
 };
