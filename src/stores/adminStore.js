@@ -102,9 +102,7 @@ export const useAdminStore = defineStore('admin', {
 		async addInspector(params){
 			try {
 				console.log("addInspector",params);
-				const response = await AdminAPI.addInspector({
-					params: params
-				});
+				const response = await AdminAPI.addInspector(params);
 				if(response.data.code ===0){
 					return true;
 				}else{

@@ -68,7 +68,7 @@
 					}
 				} catch (error) {
 					console.error('Error during login:', error);
-					errorMessage.value = '登录失败，请检查您的登录编码和密码。';
+					errorMessage.value = '登录失败，请检查您的账号和密码。';
 				}
 			};
 

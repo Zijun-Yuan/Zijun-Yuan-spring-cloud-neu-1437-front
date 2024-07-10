@@ -2353,11 +2353,17 @@
 			const submitForm = async (formName) => {
 				console.log(selectedCity3.value);
 				console.log(inspectorToAdd.value);
-				inspectorToAdd.value.cityCode = selectedCity3.value;
 				inspectorForm.value.validate(async (valid) => {
 					if (valid) {
-						if (await adminStore.addInspector(inspectorToAdd.value)) {
+						if (await adminStore.addInspector({
+							inspectorCode:inspectorToAdd.value.inspectorCode,
+							password:inspectorToAdd.value.password,
+							telNum:inspectorToAdd.value.telNum,
+							realName:inspectorToAdd.value.realName,
+							cityCode:selectedCity3.value,
+						})) {
 							ElMessage.success('新增网格员成功。');
+							getInspectorList();
 						} else {
 							ElMessage.error('该账号名已经被使用。');
 						}
