@@ -609,7 +609,7 @@
 							<template v-if="currentTable === 'table8'">
 								<div>
 									<el-table :data="supervisorList">
-										<el-table-column prop="num" label="编号" width="100"></el-table-column>
+										<el-table-column prop="num" label="编号" width="200"></el-table-column>
 										<el-table-column prop="supervisorName" label="公众监督员姓名"
 											width="200"></el-table-column>
 										<el-table-column prop="birthday" label="生日" width="200"></el-table-column>
@@ -637,14 +637,13 @@
 							<template v-if="currentTable === 'table9'">
 								<div>
 									<el-table :data="inspectorList">
-										<el-table-column prop="num" label="编号" width="100"></el-table-column>
+										<el-table-column prop="num" label="编号" width="200"></el-table-column>
 										<el-table-column prop="inspectorName" label="网格员姓名"
-											width="150"></el-table-column>
+											width="200"></el-table-column>
 										<el-table-column prop="province.provinceName" label="所在省"
-											width="150"></el-table-column>
-										<el-table-column prop="city.cityName" label="所在市" width="150"></el-table-column>
-										<el-table-column prop="sex" label="性别" width="150"></el-table-column>
-										<el-table-column prop="phoneNum" label="电话" width="150"></el-table-column>
+											width="200"></el-table-column>
+										<el-table-column prop="city.cityName" label="所在市" width="200"></el-table-column>
+										<el-table-column prop="phoneNum" label="电话" width="200"></el-table-column>
 										<!--										<el-table-column label="操作" width="150">-->
 										<!--											<template v-slot="scope">-->
 										<!--												<el-button type="primary" circle @click="showInspector(scope.row)">-->
@@ -1787,7 +1786,6 @@
 						num: 'null',
 						id: 'null',
 						inspectorName: 'null',
-						sex: 'null',
 						phoneNum: 'null',
 						password: 'null',
 						code: 'null',
@@ -2357,10 +2355,15 @@
 			};
 
 			const submitForm = async (formName) => {
+				
 				console.log(selectedCity3.value);
 				console.log(inspectorToAdd.value);
 				inspectorForm.value.validate(async (valid) => {
 					if (valid) {
+						if(selectedCity3.value===null){
+							ElMessage.error('请选择负责城市。');
+							return;
+						}
 						if (await adminStore.addInspector({
 							inspectorCode:inspectorToAdd.value.inspectorCode,
 							password:inspectorToAdd.value.password,
