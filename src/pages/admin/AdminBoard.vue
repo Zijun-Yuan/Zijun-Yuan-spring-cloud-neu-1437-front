@@ -1044,6 +1044,8 @@
 				id: "38",
 			});
 
+
+
 			const getSupervisorList = async (data) => {
 				updateLocation('人员数据数据管理', '公众监督员数据管理');
 				currentTable.value = 'table8';
@@ -1083,7 +1085,7 @@
 
 			//指派
 			const assign = async (infoId) => {
-				if(selectedInspector.value === null){
+				if (selectedInspector.value === null) {
 					ElMessage({
 						type: 'error',
 						message: '请选择指派网格员',
@@ -1344,9 +1346,14 @@
 			};
 
 			onMounted(async () => {
+				// console.log("onMounted");
 				aqiLevelList.value = aqiStore.getAllAQILevels();
 				await loadProvinces();
+				const token = localStorage.getItem('admin-token');
+				console.log(token);
+				adminStore.setToken(token);
 			});
+
 
 			// 加载省份数据
 			const loadProvinces = async () => {
@@ -1452,7 +1459,7 @@
 			watch(selectedProvince0, (newValue) => {
 				if (newValue) {
 					handleProvinceChange0(newValue);
-					selectedInspector.value =null;
+					selectedInspector.value = null;
 				} else {
 					cities0.value = [];
 				}
@@ -1460,7 +1467,7 @@
 			watch(selectedCity0, async (newValue) => {
 				if (newValue) {
 					console.log(selectedCity0.value);
-					selectedInspector.value =null;
+					selectedInspector.value = null;
 					inspectors.value = await adminStore.getInspectorsByCityCodeList([selectedCity0.value]);
 				} else {
 					cities0.value = [];
@@ -1998,12 +2005,12 @@
 				const supervisor = await adminStore.getSupervisorByInfoId(data.infoId);
 				console.log(supervisor);
 				infoDetail1.value.userInfo.name = supervisor.realName;
-        infoDetail1.value.userInfo.sex = "男";
-        if(supervisor.sex === 1){
-          infoDetail1.value.userInfo.sex = "男";
-        }else if(supervisor.sex === 0){
-          infoDetail1.value.userInfo.sex = "女";
-        }
+				infoDetail1.value.userInfo.sex = "男";
+				if (supervisor.sex === 1) {
+					infoDetail1.value.userInfo.sex = "男";
+				} else if (supervisor.sex === 0) {
+					infoDetail1.value.userInfo.sex = "女";
+				}
 
 				infoDetail1.value.userInfo.birthday = supervisor.birthday;
 				infoDetail1.value.userInfo.phoneNum = supervisor.telId;
@@ -2355,22 +2362,22 @@
 			};
 
 			const submitForm = async (formName) => {
-				
+
 				console.log(selectedCity3.value);
 				console.log(inspectorToAdd.value);
 				inspectorForm.value.validate(async (valid) => {
 					if (valid) {
-						if(selectedCity3.value===null){
+						if (selectedCity3.value === null) {
 							ElMessage.error('请选择负责城市。');
 							return;
 						}
 						if (await adminStore.addInspector({
-							inspectorCode:inspectorToAdd.value.inspectorCode,
-							password:inspectorToAdd.value.password,
-							telNum:inspectorToAdd.value.telNum,
-							realName:inspectorToAdd.value.realName,
-							cityCode:selectedCity3.value,
-						})) {
+								inspectorCode: inspectorToAdd.value.inspectorCode,
+								password: inspectorToAdd.value.password,
+								telNum: inspectorToAdd.value.telNum,
+								realName: inspectorToAdd.value.realName,
+								cityCode: selectedCity3.value,
+							})) {
 							ElMessage.success('新增网格员成功。');
 							getInspectorList();
 						} else {
