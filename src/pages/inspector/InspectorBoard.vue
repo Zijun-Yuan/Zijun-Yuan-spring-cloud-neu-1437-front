@@ -1,6 +1,6 @@
 <template>
   <div class="common-layout">
-    <el-container class="full-height">
+    <el-container class="full-height" heigth="100%">
       <el-header>
         <el-row>
           <el-col :span="22">
@@ -73,9 +73,9 @@
 
             <!-- 待处理任务表格展示 -->
             <el-table :data="paginatedUncompletedList" :header-cell-style="{textAlign: 'center'}" border
-                      height="590" stripe style="width: 100%" :row-style="{height: '0'}">
+                      height="640" stripe style="width: 100%" :row-style="{height: '60px'}">
               <el-table-column type="index" label="序号" :index="indexMethodUncompleted" align="center" width="55" />
-              <el-table-column label="省份" align="center" width="75">
+              <el-table-column label="省份" align="center" width="180">
                 <template #default="{ row }">
                   <span>{{ row.province.provinceName }}</span>
                 </template>
@@ -85,8 +85,8 @@
                   <span>{{ row.city.cityName }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="address" label="地址" align="center" width="200" />
-              <el-table-column label="AQI" align="center" width="85">
+              <el-table-column prop="address" label="地址" align="center" width="300" />
+              <el-table-column label="AQI" align="center" width="98">
                 <template #default="{ row }">
                   <div v-if="row.aqiLevel !== undefined && row.aqiLevel !== null"
                        class="aqi-box"
@@ -97,8 +97,8 @@
               </el-table-column>
               <el-table-column prop="feedback" label="反馈信息" width="150" />
               <el-table-column prop="supervisorName" label="公众监督员" align="center" width="95" />
-              <el-table-column prop="timeSupervisor" label="时间" align="center" width="340" />
-              <el-table-column label="操作" align="center">
+              <el-table-column prop="timeSupervisor" label="时间" align="center" width="200" />
+              <el-table-column label="操作" align="center"  width="100" >
                 <template #default="{ row }">
                   <el-button size="small" type="success" @click="handleCheck(row)">去检测</el-button>
                 </template>
@@ -526,6 +526,7 @@ export default {
 
     // 获取省份筛选列表
     const getProvince = async (cityCode) => {
+
       try {
         return await locationStore.getProvinceByCityCode(cityCode);
       } catch (error) {
@@ -585,6 +586,7 @@ export default {
       infoChange.value.address = currentRow.value.address;
       infoChange.value.feedback = currentRow.value.feedback;
       infoChange.value.timeSupervisor = currentRow.value.timeSupervisor;
+      // 0-19是因为日期格式为YYYY-MM-DD HH:mm:ss，这里只取到到时分秒
       infoChange.value.timeInspector = new Date().toISOString().slice(0, 19);
       infoChange.value.so2 = so2Number.value;
       infoChange.value.co = coNumber.value;
@@ -608,7 +610,14 @@ export default {
       coNumber.value = 0;
       o3Number.value = 0;
       pm25Number.value = 0;
+
+      fetchInfoList();
+      window.location.reload();
     };
+
+    watch(infoList, async (newVal) => {
+      await processInfoList();
+    }, { immediate: true });
 
     // 监听filterProvince变化，更新filteredCityList
     watch(filterProvince, (provinceId) => {
@@ -620,40 +629,14 @@ export default {
     });
 
     onMounted(async () => {
+      const token = localStorage.getItem('inspector-token');
+      inspectorStore.setToken(token);
       await locationStore.initLocationStore();
       provinceList.value = await locationStore.getAllProvinces();
       aqiLevelList.value = aqiStore.getAllAQILevels();
       await fetchInfoList();
+      document.body.style.overflow = 'hidden';
     });
-
-    // watch: {
-    //   so2Number(val) {
-    //     this.aqiSO2 = this.getAQILevelByCheck(val);
-    //   },
-    //   coNumber(val) {
-    //     this.aqiCO = this.getAQILevelByCheck(val);
-    //   },
-    //   o3Number(val) {
-    //     this.aqiO3 = this.getAQILevelByCheck(val);
-    //   },
-    //   pm25Number(val) {
-    //     this.aqiPM25 = this.getAQILevelByCheck(val);
-    //   }
-    // }
-    // computed: {
-    //   aqiSO2() {
-    //     return this.getAQILevelByCheck(this.so2Number);
-    //   },
-    //   aqiCO() {
-    //     return this.getAQILevelByCheck(this.coNumber);
-    //   },
-    //   aqiO3() {
-    //     return this.getAQILevelByCheck(this.o3Number);
-    //   },
-    //   aqiPM25() {
-    //     return this.getAQILevelByCheck(this.pm25Number);
-    //   }
-    // }
 
     // 以下为AQI的对应计算部分逻辑，分别对应详细信息以及SO2、CO、O3、PM2.5四个气体的计算方法
     const getAQIDetail = (level) => {
@@ -680,7 +663,7 @@ export default {
       return calculateAQI_PM25(pm25Number.value);
     });
 
-    function calculateAQI_SO2(so2Number) {
+    const calculateAQI_SO2 = (so2Number) => {
       if (so2Number >= 0 && so2Number <= 50) {
         return so2Number;
       } else if (so2Number > 50 && so2Number <= 150) {
@@ -702,7 +685,7 @@ export default {
       }
     }
 
-    function calculateAQI_CO(coNumber) {
+    const calculateAQI_CO = (coNumber) => {
       if (coNumber >= 0 && coNumber <= 2) {
         return coNumber * 50 / 2;
       } else if (coNumber > 2 && coNumber <= 4) {
@@ -722,7 +705,7 @@ export default {
       }
     }
 
-    function calculateAQI_O3(o3Number) {
+    const calculateAQI_O3 = (o3Number) => {
       if (o3Number >= 0 && o3Number <= 160) {
         return o3Number * 50 / 160;
       } else if (o3Number > 160 && o3Number <= 200) {
@@ -742,7 +725,7 @@ export default {
       }
     }
 
-    function calculateAQI_PM25(pm25Number) {
+    const calculateAQI_PM25 = (pm25Number) => {
       if (pm25Number >= 0 && pm25Number <= 35) {
         return pm25Number * 50 / 35;
       } else if (pm25Number > 35 && pm25Number <= 75) {
@@ -820,6 +803,7 @@ export default {
 <style>
 .full-height {
   height: 100vh;
+  overflow: hidden;
 }
 .common-layout {
   margin: 0;

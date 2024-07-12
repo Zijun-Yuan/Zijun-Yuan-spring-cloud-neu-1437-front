@@ -6,16 +6,17 @@ import apiClient from "@/api/axios";
 
 export const useInspectorStore = defineStore('inspector', {
     state: () => ({
-        token: '',
-        inspectorId: '',
-        inspectorCode: '',
-        telNum: '',
-        realName: '',
-        cityCode: ''
+        token: localStorage.getItem('token') || '',
+        inspectorId: localStorage.getItem('inspectorId') || '',
+        inspectorCode: localStorage.getItem('inspectorCode') || '',
+        telNum: localStorage.getItem('telNum') || '',
+        realName: localStorage.getItem('realName') || '',
+        cityCode: localStorage.getItem('cityCode') || ''
     }),
     actions: {
 		setToken(token) {
 			this.token = token;
+            localStorage.setItem('inspector-token', token);
 			apiClient.interceptors.request.use(
 				config => {
 					if (this.token) {
@@ -37,6 +38,12 @@ export const useInspectorStore = defineStore('inspector', {
                     this.realName = response.data.data.realName;
                     this.cityCode = response.data.data.cityCode;
                     this.setToken(response.data.data.token);
+
+                    localStorage.setItem('inspectorId', this.inspectorId);
+                    localStorage.setItem('inspectorCode', this.inspectorCode);
+                    localStorage.setItem('telNum', this.telNum);
+                    localStorage.setItem('realName', this.realName);
+                    localStorage.setItem('cityCode', this.cityCode);
                 } else {
                     console.log('Login failed, response data:', response.data);
                 }
@@ -49,6 +56,12 @@ export const useInspectorStore = defineStore('inspector', {
         },
         logout() {
             this.token = '';
+            localStorage.removeItem('token');
+            localStorage.removeItem('inspectorId');
+            localStorage.removeItem('inspectorCode');
+            localStorage.removeItem('telNum');
+            localStorage.removeItem('realName');
+            localStorage.removeItem('cityCode');
         },
     }
 });
