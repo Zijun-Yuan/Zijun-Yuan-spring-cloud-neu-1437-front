@@ -73,14 +73,14 @@
 
             <!-- 待处理任务表格展示 -->
             <el-table :data="paginatedUncompletedList" :header-cell-style="{textAlign: 'center'}" border
-                      height="640" stripe style="width: 100%" :row-style="{height: '60px'}">
+                      height="645" stripe style="width: 100%" :row-style="{height: '60px'}">
               <el-table-column type="index" label="序号" :index="indexMethodUncompleted" align="center" width="55" />
               <el-table-column label="省份" align="center" width="180">
                 <template #default="{ row }">
                   <span>{{ row.province.provinceName }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="城市" align="center" width="75">
+              <el-table-column label="城市" align="center" width="89">
                 <template #default="{ row }">
                   <span>{{ row.city.cityName }}</span>
                 </template>
@@ -154,19 +154,19 @@
 
             <!-- 已完成任务表格展示 -->
             <el-table :data="paginatedCompletedList" :header-cell-style="{textAlign: 'center'}" border
-                      height="590" stripe style="width: 100%" :row-style="{height: '0'}">
+                      height="664" stripe style="width: 100%" :row-style="{height: '60px'}">
               <el-table-column type="index" label="序号" :index="indexMethodCompleted" align="center" width="55" />
-              <el-table-column label="省份" align="center" width="75">
+              <el-table-column label="省份" align="center" width="140">
                 <template #default="{ row }">
                   <span>{{ row.province.provinceName }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="城市" align="center" width="75">
+              <el-table-column label="城市" align="center" width="85">
                 <template #default="{ row }">
                   <span>{{ row.city.cityName }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="address" label="地址" align="center"  width="220" />
+              <el-table-column prop="address" label="地址" align="center"  width="300" />
               <el-table-column label="AQI" align="center"  width="85">
                 <template #default="{ row }">
                   <div v-if="row.aqiLevel !== undefined && row.aqiLevel !== null"
@@ -179,7 +179,7 @@
               <el-table-column prop="so2" label="二氧化硫(SO2)浓度" align="center" width="95" />
               <el-table-column prop="co" label="一氧化碳(CO)浓度" align="center" width="95" />
               <el-table-column prop="o3" label="臭氧(O3)浓度" align="center" width="95" />
-              <el-table-column prop="pm25" label="PM2.5浓度" align="center" width="80" />
+              <el-table-column prop="pm25" label="PM2.5浓度" align="center" width="100" />
               <el-table-column prop="timeInspector" label="检测时间" align="center" />
             </el-table>
 
@@ -196,19 +196,43 @@
             />
           </div>
 
+<!--          &lt;!&ndash; 个人信息展示 &ndash;&gt;-->
+<!--          <div v-else-if="showContent === 'profile'" class="profile-container">-->
+<!--            <h2>个人信息</h2>-->
+<!--            <p>姓名: {{ inspectorStore.realName }}</p>-->
+<!--            <p>编号: {{ inspectorStore.inspectorCode }}</p>-->
+<!--            &lt;!&ndash; 您可以在这里添加更多个人信息 &ndash;&gt;-->
+<!--          </div>-->
           <!-- 个人信息展示 -->
           <div v-else-if="showContent === 'profile'" class="profile-container">
-            <h2>个人信息</h2>
-            <p>姓名: {{ inspectorStore.realName }}</p>
-            <p>编号: {{ inspectorStore.inspectorCode }}</p>
-            <!-- 您可以在这里添加更多个人信息 -->
+            <h2>{{ inspectorStore.realName }}您好，您的个人信息如下</h2>
+            <el-card>
+              <el-descriptions title="网格员基本信息表" border column="1" class="descriptions-custom">
+                <el-descriptions-item label="网格员姓名" align="center">
+                  {{ inspectorStore.realName }}
+                </el-descriptions-item>
+                <el-descriptions-item label="所属ID" align="center">
+                  <el-tag size="small">{{ inspectorStore.inspectorId }}</el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="网格员编号（账号）" align="center">
+                  {{ inspectorStore.inspectorCode }}
+                </el-descriptions-item>
+                <el-descriptions-item label="联系方式" align="center">
+                  {{ inspectorStore.telNum }}
+                </el-descriptions-item>
+                <el-descriptions-item label="城市代码" align="center">
+                  <el-tag size="small">{{ cityInfo.province }} -- {{ cityInfo.city }}</el-tag>
+                </el-descriptions-item>
+              </el-descriptions>
+            </el-card>
           </div>
+
         </el-main>
       </el-container>
     </el-container>
 
     <!-- 弹窗：检测详情上传，包含详细信息、气体浓度等内容 -->
-    <!-- 这里使用el-dialog组件，它可以自定义弹窗的标题、内容、按钮等，具体用法请参考官方文档 -->
+    <!-- 这里使用el-dialog组件，通过控制dialogVisible变量的显示和隐藏来实现弹窗的显示和隐藏 -->
     <el-dialog v-model="dialogVisible">
       <el-descriptions
           title="基本信息"
@@ -292,7 +316,7 @@
         <el-row :gutter="20">
           <el-col :span="11">
             <el-form-item label="SO2浓度：">
-              <el-input v-model="so2Number" placeholder="输入SO2浓度">
+              <el-input v-model="so2Number" placeholder="输入SO2浓度" @input="validateSO2">
                 <template #append>ug/m3</template>
               </el-input>
             </el-form-item>
@@ -305,7 +329,7 @@
           </el-col>
           <el-col :span="11">
             <el-form-item label="CO浓度：">
-              <el-input v-model="coNumber" placeholder="输入CO浓度">
+              <el-input v-model="coNumber" placeholder="输入CO浓度" @input="validateCO">
                 <template #append>mg/m3</template>
               </el-input>
             </el-form-item>
@@ -320,7 +344,7 @@
         <el-row :gutter="20">
           <el-col :span="11">
             <el-form-item label="O3浓度：">
-              <el-input v-model="o3Number" placeholder="输入O3浓度">
+              <el-input v-model="o3Number" placeholder="输入O3浓度" @input="validateO3">
                 <template #append>ug/m3</template>
               </el-input>
             </el-form-item>
@@ -333,7 +357,7 @@
           </el-col>
           <el-col :span="11">
             <el-form-item label="PM2.5浓度：">
-              <el-input v-model="pm25Number" placeholder="输入PM2.5浓度">
+              <el-input v-model="pm25Number" placeholder="输入PM2.5浓度" @input="validatePM25">
                 <template #append>ug/m3</template>
               </el-input>
             </el-form-item>
@@ -395,6 +419,10 @@ export default {
       supervisorName: '',
       inspectorName: '',
       aqiReal: 0,
+    });
+    let cityInfo = ref({
+      province: '',
+      city: '',
     });
 
     let infoList = ref([]);
@@ -628,6 +656,21 @@ export default {
       }
     });
 
+    // 个人信息中的城市信息获取
+    const fetchCityInfo = async () => {
+      try {
+        const cityData = await locationStore.getCityAndProvinceByCityCode(inspectorStore.cityCode);
+        const provinceData = await locationStore.getProvinceByCityCode(inspectorStore.cityCode);
+
+        if (cityData && provinceData) {
+          cityInfo.value.city = cityData.cityName;
+          cityInfo.value.province = provinceData.provinceName;
+        }
+      } catch (error) {
+        console.error('Failed to fetch city info:', error);
+      }
+    };
+
     onMounted(async () => {
       const token = localStorage.getItem('inspector-token');
       inspectorStore.setToken(token);
@@ -636,6 +679,7 @@ export default {
       aqiLevelList.value = aqiStore.getAllAQILevels();
       await fetchInfoList();
       document.body.style.overflow = 'hidden';
+      await fetchCityInfo();
     });
 
     // 以下为AQI的对应计算部分逻辑，分别对应详细信息以及SO2、CO、O3、PM2.5四个气体的计算方法
@@ -747,6 +791,70 @@ export default {
       }
     }
 
+    const validateSO2 = (value) => {
+      if (isNaN(value)) {
+        so2Number.value = 0;
+        ElMessage({
+          message: '请输入有效的SO2数值',
+          type: 'warning',
+        })
+      } else if (value < 0 || value > 2620) {
+        so2Number.value = 0;
+        ElMessage({
+          message: '输入的SO2数值必须在 0 到 2620 之间',
+          type: 'warning',
+        })
+      }
+    };
+
+    const validateCO = (value) => {
+      if (isNaN(value)) {
+        coNumber.value = 0;
+        ElMessage({
+          message: '请输入有效的CO数值',
+          type: 'warning',
+        })
+      } else if (value < 0 || value > 48) {
+        coNumber.value = 0;
+        ElMessage({
+          message: '输入的CO数值必须在 0 到 48 之间',
+          type: 'warning',
+        })
+      }
+    };
+
+    const validateO3 = (value) => {
+      if (isNaN(value)) {
+        o3Number.value = 0;
+        ElMessage({
+          message: '请输入有效的O3数值',
+          type: 'warning',
+        })
+      } else if (value < 0 || value > 1000) {
+        o3Number.value = 0;
+        ElMessage({
+          message: '输入的O3数值必须在 0 到 1000 之间',
+          type: 'warning',
+        })
+      }
+    };
+
+    const validatePM25 = (value) => {
+      if (isNaN(value)) {
+        pm25Number.value = 0;
+        ElMessage({
+          message: '请输入有效的PM2.5数值',
+          type: 'warning',
+        })
+      } else if (value < 0 || value > 500) {
+        pm25Number.value = 0;
+        ElMessage({
+          message: '输入的PM2.5数值必须在 0 到 500 之间',
+          type: 'warning',
+        })
+      }
+    };
+
     return {
       showContent,
       filterProvince,
@@ -785,6 +893,7 @@ export default {
       o3Number,
       pm25Number,
       infoChange,
+      cityInfo,
       submitInspection,
       getAQILevelByCheck,
       aqiSO2,
@@ -794,7 +903,12 @@ export default {
       calculateAQI_SO2,
       calculateAQI_CO,
       calculateAQI_O3,
-      calculateAQI_PM25
+      calculateAQI_PM25,
+      fetchCityInfo,
+      validateSO2,
+      validateCO,
+      validateO3,
+      validatePM25,
     };
   },
 };
@@ -876,5 +990,38 @@ export default {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+
+.profile-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Center align all text */
+}
+.profile-container h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+.el-card {
+  padding: 20px;
+}
+.descriptions-custom .el-descriptions__label {
+  width: 150px; /* Adjust label width */
+  text-align: right; /* Right align label text */
+  display: inline-block;
+}
+.descriptions-custom .el-descriptions__content {
+  width: calc(100% - 150px); /* Adjust content width */
+  text-align: left; /* Left align content text */
+  display: inline-block;
+}
+.el-descriptions {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+}
+.el-descriptions-item {
+  padding: 10px 0;
 }
 </style>
