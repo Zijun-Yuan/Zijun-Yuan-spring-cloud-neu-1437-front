@@ -81,7 +81,7 @@ export const useAdminStore = defineStore('admin', {
 				console.error("Failed to getInspectorList:", error);
 			}
 		},
-		
+
 		async getSupervisorList(params) {
 			try {
 				console.log("getSupervisorList",params);
@@ -98,7 +98,7 @@ export const useAdminStore = defineStore('admin', {
 				console.error("Failed to getSupervisorList:", error);
 			}
 		},
-		
+
 		async addInspector(params){
 			try {
 				console.log("addInspector",params);
@@ -134,7 +134,7 @@ export const useAdminStore = defineStore('admin', {
 				else if (params.status === 3) {
 					this.infoList3 = response.data.data.list;
 					// console.log("InfoList3: ", this.infoList3);
-					
+
 				}
 				console.log(response.data.code);
 				if(response.data.code ===0){

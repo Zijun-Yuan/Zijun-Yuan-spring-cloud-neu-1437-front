@@ -1,7 +1,7 @@
 <template>
   <div class="register-wrap">
     <el-form :model="registerForm" :rules="rules" ref="formRef" label-width="100px" class="register-container">
-<!--      要居中-->
+      <!--      要居中-->
       <div class="register-header" style="text-align:center;">
         <h3>监督员注册</h3>
       </div>
@@ -164,6 +164,7 @@ export default {
   background-position: center right;
   background-size: 100%;
 }
+
 .register-container {
   border-radius: 10px;
   margin: 0px auto;
@@ -174,6 +175,7 @@ export default {
   text-align: left;
   box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
 }
+
 .title {
   margin: 0px auto 40px auto;
   text-align: center;
@@ -181,4 +183,3 @@ export default {
 }
 </style>
 
-<!-- 我想让页面格式修改为注册表单信息居中且被一个长方形的边框包裹起来，边框上方写着“监督员注册”-->
