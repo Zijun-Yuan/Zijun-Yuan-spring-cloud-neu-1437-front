@@ -67,7 +67,7 @@
               <el-table-column prop="province.provinceName" label="省份" align="center" width="100"></el-table-column>
               <el-table-column prop="city.cityName" label="城市" align="center" width="100"></el-table-column>
               <el-table-column prop="address" label="具体位置" align="center" width="200"></el-table-column>
-              <el-table-column prop="feedback" label="描述" align="center" width="300"></el-table-column>
+              <el-table-column prop="feedback" label="描述" align="center" width="350"></el-table-column>
             </el-table>
 
             <el-pagination v-if="currentInfoList.length > pageSize" :current-page="currentInfoPage"
