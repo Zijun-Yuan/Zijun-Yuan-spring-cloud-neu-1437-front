@@ -40,7 +40,7 @@
           <div v-if="showContent === 'uncompleted'" class="table-container">
             <el-row :gutter="20" class="mb-2">
               <el-col :span="8">
-                <el-select v-model="filterProvince" size="small" placeholder="选择省份" clearable @change="handleFilterChange">
+                <el-select v-model="filterProvince" size="medium" placeholder="选择省份" clearable @change="handleFilterChange">
                   <el-option
                       v-for="province in provinceList"
                       :key="province.provinceId"
@@ -50,7 +50,7 @@
                 </el-select>
               </el-col>
               <el-col :span="8">
-                <el-select v-model="filterCity" size="small" placeholder="选择城市" clearable @change="handleFilterChange">
+                <el-select v-model="filterCity" size="medium" placeholder="选择城市" clearable @change="handleFilterChange" :disabled="!filterProvince">
                   <el-option
                       v-for="city in filteredCityList"
                       :key="city.cityCode"
@@ -60,7 +60,7 @@
                 </el-select>
               </el-col>
               <el-col :span="8">
-                <el-select v-model="filterAQI" size="small" placeholder="选择AQI级别" clearable @change="handleFilterChange">
+                <el-select v-model="filterAQI" size="medium" placeholder="选择AQI级别" clearable @change="handleFilterChange">
                   <el-option
                       v-for="aqi in aqiLevelList"
                       :key="aqi.level"
@@ -73,20 +73,20 @@
 
             <!-- 待处理任务表格展示 -->
             <el-table :data="paginatedUncompletedList" :header-cell-style="{textAlign: 'center'}" border
-                      height="645" stripe style="width: 100%" :row-style="{height: '60px'}">
+                      height="640" stripe style="width: 100%" :row-style="{height: '60px'}">
               <el-table-column type="index" label="序号" :index="indexMethodUncompleted" align="center" width="55" />
-              <el-table-column label="省份" align="center" width="180">
+              <el-table-column label="省份" align="center" width="150">
                 <template #default="{ row }">
                   <span>{{ row.province.provinceName }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="城市" align="center" width="89">
+              <el-table-column label="城市" align="center" width="95">
                 <template #default="{ row }">
                   <span>{{ row.city.cityName }}</span>
                 </template>
               </el-table-column>
               <el-table-column prop="address" label="地址" align="center" width="300" />
-              <el-table-column label="AQI" align="center" width="98">
+              <el-table-column label="AQI" align="center" width="85">
                 <template #default="{ row }">
                   <div v-if="row.aqiLevel !== undefined && row.aqiLevel !== null"
                        class="aqi-box"
@@ -95,10 +95,15 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column prop="feedback" label="反馈信息" width="150" />
+              <el-table-column prop="feedback" label="反馈信息" width="185" />
               <el-table-column prop="supervisorName" label="公众监督员" align="center" width="95" />
-              <el-table-column prop="timeSupervisor" label="时间" align="center" width="200" />
-              <el-table-column label="操作" align="center"  width="100" >
+<!--              <el-table-column prop="timeSupervisor" label="时间" align="center" width="190" />-->
+              <el-table-column label="时间" align="center" width="210">
+                <template #default="{ row }">
+                  <span>{{ formatTime(row.timeSupervisor) }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" align="center"  width="93" >
                 <template #default="{ row }">
                   <el-button size="small" type="success" @click="handleCheck(row)">去检测</el-button>
                 </template>
@@ -121,7 +126,7 @@
           <div v-else-if="showContent === 'completed'" class="table-container">
             <el-row :gutter="20" class="mb-2">
               <el-col :span="8">
-                <el-select v-model="filterProvince" size="small" placeholder="选择省份" clearable @change="handleFilterChange">
+                <el-select v-model="filterProvince" size="medium" placeholder="选择省份" clearable @change="handleFilterChange">
                   <el-option
                       v-for="province in provinceList"
                       :key="province.provinceId"
@@ -131,7 +136,7 @@
                 </el-select>
               </el-col>
               <el-col :span="8">
-                <el-select v-model="filterCity" size="small" placeholder="选择城市" clearable @change="handleFilterChange">
+                <el-select v-model="filterCity" size="medium" placeholder="选择城市" clearable @change="handleFilterChange" :disabled="!filterProvince">
                   <el-option
                       v-for="city in filteredCityList"
                       :key="city.cityCode"
@@ -141,7 +146,7 @@
                 </el-select>
               </el-col>
               <el-col :span="8">
-                <el-select v-model="filterAQI" size="small" placeholder="选择AQI级别" clearable @change="handleFilterChange">
+                <el-select v-model="filterAQI" size="medium" placeholder="选择AQI级别" clearable @change="handleFilterChange">
                   <el-option
                       v-for="aqi in aqiLevelList"
                       :key="aqi.level"
@@ -180,7 +185,12 @@
               <el-table-column prop="co" label="一氧化碳(CO)浓度" align="center" width="95" />
               <el-table-column prop="o3" label="臭氧(O3)浓度" align="center" width="95" />
               <el-table-column prop="pm25" label="PM2.5浓度" align="center" width="100" />
-              <el-table-column prop="timeInspector" label="检测时间" align="center" />
+<!--              <el-table-column prop="timeInspector" label="检测时间" align="center" />-->
+              <el-table-column label="时间" align="center">
+                <template #default="{ row }">
+                  <span>{{ formatTime(row.timeInspector) }}</span>
+                </template>
+              </el-table-column>
             </el-table>
 
             <!-- 分页设置 -->
@@ -220,8 +230,9 @@
                 <el-descriptions-item label="联系方式" align="center">
                   {{ inspectorStore.telNum }}
                 </el-descriptions-item>
-                <el-descriptions-item label="城市代码" align="center">
-                  <el-tag size="small">{{ cityInfo.province }} -- {{ cityInfo.city }}</el-tag>
+                <el-descriptions-item label="居住地址" align="center">
+<!--                  <el-tag size="small">{{ cityInfo.province }} &#45;&#45; {{ cityInfo.city }}</el-tag>-->
+                  {{ cityInfo.province }} -- {{ cityInfo.city }}
                 </el-descriptions-item>
               </el-descriptions>
             </el-card>
@@ -314,60 +325,60 @@
       <!-- 上传气体浓度信息 -->
       <el-form :model="currentRow" label-width="120px" class="mt-2" size="small">
         <el-row :gutter="20">
-          <el-col :span="11">
+          <el-col :span="12">
             <el-form-item label="SO2浓度：">
               <el-input v-model="so2Number" placeholder="输入SO2浓度" @input="validateSO2">
                 <template #append>ug/m3</template>
               </el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="1">
-            <div class="aqi-box-number"
-                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiSO2))?.color }">
-              <span>{{ getAQIDetail(getAQILevelByCheck(aqiSO2))?.level }}</span>
-            </div>
-          </el-col>
-          <el-col :span="11">
+<!--          <el-col :span="1">-->
+<!--            <div class="aqi-box-number"-->
+<!--                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiSO2))?.color }">-->
+<!--              <span>{{ getAQIDetail(getAQILevelByCheck(aqiSO2))?.level }}</span>-->
+<!--            </div>-->
+<!--          </el-col>-->
+          <el-col :span="12">
             <el-form-item label="CO浓度：">
               <el-input v-model="coNumber" placeholder="输入CO浓度" @input="validateCO">
                 <template #append>mg/m3</template>
               </el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="1">
-            <div class="aqi-box-number"
-                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiCO))?.color }">
-              <span>{{ getAQIDetail(getAQILevelByCheck(aqiCO))?.level }}</span>
-            </div>
-          </el-col>
+<!--          <el-col :span="1">-->
+<!--            <div class="aqi-box-number"-->
+<!--                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiCO))?.color }">-->
+<!--              <span>{{ getAQIDetail(getAQILevelByCheck(aqiCO))?.level }}</span>-->
+<!--            </div>-->
+<!--          </el-col>-->
         </el-row>
         <el-row :gutter="20">
-          <el-col :span="11">
+          <el-col :span="12">
             <el-form-item label="O3浓度：">
               <el-input v-model="o3Number" placeholder="输入O3浓度" @input="validateO3">
                 <template #append>ug/m3</template>
               </el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="1">
-            <div class="aqi-box-number"
-                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiO3))?.color }">
-              <span>{{ getAQIDetail(getAQILevelByCheck(aqiO3))?.level }}</span>
-            </div>
-          </el-col>
-          <el-col :span="11">
+<!--          <el-col :span="1">-->
+<!--            <div class="aqi-box-number"-->
+<!--                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiO3))?.color }">-->
+<!--              <span>{{ getAQIDetail(getAQILevelByCheck(aqiO3))?.level }}</span>-->
+<!--            </div>-->
+<!--          </el-col>-->
+          <el-col :span="12">
             <el-form-item label="PM2.5浓度：">
               <el-input v-model="pm25Number" placeholder="输入PM2.5浓度" @input="validatePM25">
                 <template #append>ug/m3</template>
               </el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="1">
-            <div class="aqi-box-number"
-                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiPM25))?.color }">
-              <span>{{ getAQIDetail(getAQILevelByCheck(aqiPM25))?.level }}</span>
-            </div>
-          </el-col>
+<!--          <el-col :span="1">-->
+<!--            <div class="aqi-box-number"-->
+<!--                 :style="{ background: getAQIDetail(getAQILevelByCheck(aqiPM25))?.color }">-->
+<!--              <span>{{ getAQIDetail(getAQILevelByCheck(aqiPM25))?.level }}</span>-->
+<!--            </div>-->
+<!--          </el-col>-->
         </el-row>
       </el-form>
       <div class="button-container">
@@ -596,6 +607,12 @@ export default {
           }
         }
       }
+
+      // 为 已完成列表的任务 按照 timeInspector 排序，时间越近越靠前
+      completedItems.sort((a, b) => new Date(b.timeInspector) - new Date(a.timeInspector));
+      // 为 待完成列表的任务 按照 timeSupervisor 排序，时间越远越靠前
+      uncompletedItems.sort((a, b) => new Date(a.timeSupervisor) - new Date(b.timeSupervisor));
+
       completedInfoList.value = completedItems;
       uncompletedInfoList.value = uncompletedItems;
       filterLists();
@@ -606,6 +623,16 @@ export default {
       filteredCityList.value = await locationStore.getCitiesByProvinceId(provinceId);
       filterCity.value = null; // 重置城市选择
     };
+
+    // 城市列表的级联处理方法
+    watch(filterProvince, (provinceId) => {
+      if (provinceId) {
+        handleProvinceChange(provinceId);
+      } else {
+        filterCity.value = null; // 重置城市选择
+        fetchInfoList();
+      }
+    });
 
     // 信息上传处理方法
     const submitInspection = () => {
@@ -791,6 +818,7 @@ export default {
       }
     }
 
+    // 表单验证方法
     const validateSO2 = (value) => {
       if (isNaN(value)) {
         so2Number.value = 0;
@@ -855,6 +883,19 @@ export default {
       }
     };
 
+    // 格式化时间方法
+    const formatTime = (time) => {
+      if (!time) return '';
+      const date = new Date(time);
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      const seconds = date.getSeconds().toString().padStart(2, '0');
+      return `${year}年${month}月${day}日--${hours}:${minutes}:${seconds}`;
+    }
+
     return {
       showContent,
       filterProvince,
@@ -909,6 +950,7 @@ export default {
       validateCO,
       validateO3,
       validatePM25,
+      formatTime
     };
   },
 };
