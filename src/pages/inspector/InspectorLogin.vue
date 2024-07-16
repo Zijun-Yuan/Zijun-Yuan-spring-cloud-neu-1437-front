@@ -1,22 +1,31 @@
 <template>
+	
   <div class="login-container">
-    <el-card class="login-card">
-      <h2 class="login-title">网格员登录</h2>
-      <el-form :model="inspectorLoginForm" label-width="100px">
-        <el-form-item label="登录编码" prop="inspectorCode">
-          <el-input v-model="inspectorLoginForm.inspectorCode" placeholder="请输入网格员账号" />
-        </el-form-item>
-        <el-form-item label="登录密码" prop="password">
-          <el-input type="password" v-model="inspectorLoginForm.password" show-password />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="Login">登录</el-button>
-        </el-form-item>
-        <el-form-item v-if="errorMessage">
-          <el-alert type="error" :closable="false" title="登录失败" :description="errorMessage" />
-        </el-form-item>
-      </el-form>
-    </el-card>
+	  <div class="left-section">
+	    <!-- 左边的图片 -->
+	    <img :src="require('@/assets/images/SupervisorLogin.jpg')" alt="SupervisorLogin" class="login-image" />
+	  </div>
+	  <div class="right-section">
+	    <!-- 右边的登录输入栏 -->
+	    <el-card class="login-card">
+	      <h2 class="login-title">网格员登录</h2>
+	      <el-form :model="inspectorLoginForm" label-width="100px">
+	        <el-form-item label="账号" prop="inspectorCode">
+	          <el-input v-model="inspectorLoginForm.inspectorCode" placeholder="请输入网格员账号" />
+	        </el-form-item>
+	        <el-form-item label="密码" prop="password">
+	          <el-input type="password" v-model="inspectorLoginForm.password" placeholder="请输入网格员密码" show-password />
+	        </el-form-item>
+	        <el-form-item>
+	          <el-button type="primary" @click="Login">登录</el-button>
+	        </el-form-item>
+	        <el-form-item v-if="errorMessage">
+	          <el-alert type="error" :closable="false" title="登录失败" :description="errorMessage" />
+	        </el-form-item>
+	      </el-form>
+	    </el-card>
+	  </div>
+    
   </div>
 </template>
 
