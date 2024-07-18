@@ -642,7 +642,8 @@ export default {
       infoChange.value.feedback = currentRow.value.feedback;
       infoChange.value.timeSupervisor = currentRow.value.timeSupervisor;
       // 0-19是因为日期格式为YYYY-MM-DD HH:mm:ss，这里只取到到时分秒
-      infoChange.value.timeInspector = new Date().toISOString().slice(0, 19);
+      // infoChange.value.timeInspector = new Date().toISOString().slice(0, 19);
+      infoChange.value.timeInspector =  new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 19);
       infoChange.value.so2 = so2Number.value;
       infoChange.value.co = coNumber.value;
       infoChange.value.o3 = o3Number.value;

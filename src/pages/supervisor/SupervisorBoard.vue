@@ -323,7 +323,8 @@ export default {
         cityCode: reportForm.value.city,
         address: reportForm.value.address,
         feedback: reportForm.value.feedback,
-        timeSupervisor: new Date().toISOString().slice(0, 19),
+        // timeSupervisor: new Date().toISOString().slice(0, 19),
+        timeSupervisor: new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 19),
         supervisorName: supervisorStore.supervisor.realName
       };
       if (await supervisorStore.addFeedback(reportData)) {
