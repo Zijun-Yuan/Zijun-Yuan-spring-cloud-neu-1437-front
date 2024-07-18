@@ -384,6 +384,10 @@ export default {
 
     onMounted(async () => {
       provinces.value = await locationStore.getAllProvinces();
+      const token = localStorage.getItem('supervisor-token');
+      if (token) {
+        supervisorStore.setToken(token);
+      }
     });
 
     return {

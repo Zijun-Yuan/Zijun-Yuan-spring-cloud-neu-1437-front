@@ -124,11 +124,11 @@ export const useSupervisorStore = defineStore('supervisor', {
             };
             localStorage.removeItem('supervisor-token');
             localStorage.removeItem('supervisor-data');
-            try {
-                await supervisorAPI.supervisorLogout();
-            } catch (error) {
-                console.error('Error during logout:', error);
-            }
+            // try {
+            //     await supervisorAPI.supervisorLogout();
+            // } catch (error) {
+            //     console.error('Error during logout:', error);
+            // }
         },
     }
 });
